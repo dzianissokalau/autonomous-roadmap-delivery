@@ -1,0 +1,12 @@
+{
+  "roadmap": "roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md",
+  "roadmap_slug": "autonomous-roadmap-delivery-skill",
+  "current_phase": "Phase 0 - Scope Confirmation",
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "active_review_file": null,
+  "last_verdict": null,
+  "blocked_reason": null,
+  "updated_at": "2026-05-20"
+}

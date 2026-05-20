@@ -1,0 +1,50 @@
+{
+  "roadmap": "roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md",
+  "roadmap_slug": "autonomous-roadmap-delivery-skill",
+  "current_phase": "Phase 0 - Scope Confirmation",
+  "branch": "main",
+  "branch_reason": "Repository initialized and synced on main; use dedicated phase branches for future delivery phases.",
+  "status": "reviewing",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": {
+    "commands": [
+      {
+        "command": "test -d /Users/dzianissokalau/.codex/skills && test -w /Users/dzianissokalau/.codex/skills",
+        "status": "passed",
+        "details": "Passed when run with approval outside the workspace sandbox."
+      },
+      {
+        "command": "test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/codex_phase_gated_delivery_automation_template.md && test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/README.md && test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/roadmap_closeout_checklist.md",
+        "status": "passed",
+        "details": "All referenced automation inspiration docs are readable."
+      },
+      {
+        "command": "find /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation -maxdepth 3 -type f",
+        "status": "passed",
+        "details": "Existing automation-backed roadmaps were found; pilot target selected as real_research_product_readiness."
+      },
+      {
+        "command": "git rev-parse --is-inside-work-tree",
+        "status": "failed",
+        "details": "The roadmap-delivery-automation workspace is not currently a git repository; branch gating is disabled for kickoff."
+      }
+    ],
+    "completed_at": "2026-05-20"
+  },
+  "last_review": null,
+  "last_delivered_phase": null,
+  "blocked_reason": null,
+  "auto_advance_after_delivered_review": false,
+  "commit_delivered_phase_locally": false,
+  "push_to_github": false,
+  "repository_remote": "git@github.com:dzianissokalau/autonomous-roadmap-delivery.git",
+  "execution_environment": "local",
+  "cadence": "manual_until_phase_0_reviewed",
+  "pilot_automation_target": {
+    "slug": "real_research_product_readiness",
+    "state_file": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/real_research_product_readiness/delivery_state.json",
+    "roadmap": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/delivered_real_research_product_readiness_roadmap.md"
+  },
+  "updated_at": "2026-05-20"
+}
