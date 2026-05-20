@@ -28,3 +28,7 @@ Use a phase-gated delivery loop:
 
 The first roadmap has been kicked off in Phase 0. The next action is to review
 the kickoff artifacts and begin Phase 1 only after a `delivered` review verdict.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
