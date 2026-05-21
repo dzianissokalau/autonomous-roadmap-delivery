@@ -114,7 +114,7 @@ Never advance based only on one surface.
 Run the validator before delivering when the durable surfaces may disagree:
 
 ```bash
-python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py \
+python3 $CODEX_HOME/skills/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py \
   --repo-root /path/to/repo \
   --roadmap-slug <roadmap-slug> \
   --automation-id <automation-id> \

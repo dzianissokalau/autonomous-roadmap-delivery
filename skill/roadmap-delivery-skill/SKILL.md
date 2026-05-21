@@ -1,9 +1,9 @@
 ---
-name: autonomous-roadmap-delivery
+name: roadmap-delivery-skill
 description: Use when Codex needs to set up roadmap delivery automation, inspect roadmap automation status, pause or activate roadmap automation, repair stale roadmap paths, deliver or review one current phase, or finalize/promote delivered roadmap branches in a phase-gated workflow. Do not use for ordinary feature implementation, generic PR review, general project management, unrelated Codex skill creation, or broad release automation without an explicit roadmap phase contract.
 ---
 
-# Autonomous Roadmap Delivery
+# Roadmap Delivery Skill
 
 Use this skill for file-backed, phase-gated roadmap delivery workflows. Keep work anchored to the roadmap, `delivery_state.json`, `delivery_log.md`, review files, git branch and commit history, verification output, and `automation.toml`.
 

@@ -27,7 +27,7 @@ actually support it.
 - Review artifacts:
   `automation/autonomous-roadmap-delivery-skill/reviews/`
 - Repository skill snapshot for GitHub-only review:
-  `skill/autonomous-roadmap-delivery/`
+  `skill/roadmap-delivery-skill/`
 
 The live installed skill files are outside this repository at:
 
@@ -94,7 +94,7 @@ $CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md
 In this branch, review the source snapshot at:
 
 ```text
-skill/autonomous-roadmap-delivery/SKILL.md
+skill/roadmap-delivery-skill/SKILL.md
 ```
 
 The router should remain lean and route each task to a reference file:
@@ -170,12 +170,12 @@ git log --oneline --decorate origin/main..HEAD
 python3 -m json.tool automation/autonomous-roadmap-delivery-skill/delivery_state.json
 python3 -m json.tool automation/autonomous-roadmap-delivery-skill/review_fix_state.json
 git diff --check
-PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-test-pycache" python3 -m unittest discover -s tests -v
-PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-compile-pycache" python3 -m py_compile skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
-PYTHONPATH="$TMPDIR/autonomous-roadmap-delivery-pyyaml" PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-skill-pycache" python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" skill/autonomous-roadmap-delivery
-PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-inspect-pycache" python3 skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
-PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-validate-pycache" python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
-PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-strict-pycache" python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --strict --allow-warning missing_automation_config --allow-warning roadmap_lifecycle_filename_unconfirmed --allow-warning automation_prompt_missing_hard_stop_guard
+PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-test-pycache" python3 -m unittest discover -s tests -v
+PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-compile-pycache" python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py
+PYTHONPATH="$TMPDIR/roadmap-delivery-skill-pyyaml" PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-skill-pycache" python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" skill/roadmap-delivery-skill
+PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-inspect-pycache" python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
+PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-validate-pycache" python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
+PYTHONPYCACHEPREFIX="$TMPDIR/roadmap-delivery-skill-review-strict-pycache" python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --strict --allow-warning missing_automation_config --allow-warning roadmap_lifecycle_filename_unconfirmed --allow-warning automation_prompt_missing_hard_stop_guard
 ```
 
 Also inspect these behavior-specific questions:

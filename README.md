@@ -1,9 +1,9 @@
-# Roadmap Delivery Automation
+# Roadmap Delivery Skill
 
 This workspace contains the strategy, phased roadmap, and local automation
-artifacts for building the `autonomous-roadmap-delivery` Codex skill.
+artifacts for building the Roadmap Delivery Skill for Codex.
 
-GitHub repository: `git@github.com:dzianissokalau/autonomous-roadmap-delivery.git`
+GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
 ## Current Roadmap
 
@@ -16,7 +16,7 @@ GitHub repository: `git@github.com:dzianissokalau/autonomous-roadmap-delivery.gi
 - Delivery log: `automation/autonomous-roadmap-delivery-skill/delivery_log.md`
 - Final review prompt: `automation/autonomous-roadmap-delivery-skill/deep_review_prompt.md`
 - Codex automation: `autonomous-roadmap-delivery-skill` hourly, PAUSED
-- Repository skill snapshot: `skill/autonomous-roadmap-delivery/`
+- Repository skill snapshot: `skill/roadmap-delivery-skill/`
 
 ## Operating Model
 
@@ -39,21 +39,21 @@ reviewers can inspect the delivered skill without access to the local
 The installable skill lives at:
 
 ```text
-skill/autonomous-roadmap-delivery/
+skill/roadmap-delivery-skill/
 ```
 
 Install it with Codex's skill installer:
 
 ```bash
 python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --repo dzianissokalau/autonomous-roadmap-delivery \
-  --path skill/autonomous-roadmap-delivery
+  --repo dzianissokalau/roadmap-delivery-skill \
+  --path skill/roadmap-delivery-skill
 ```
 
 This installs to:
 
 ```text
-${CODEX_HOME:-$HOME/.codex}/skills/autonomous-roadmap-delivery
+${CODEX_HOME:-$HOME/.codex}/skills/roadmap-delivery-skill
 ```
 
 Restart Codex after installation so the skill is picked up.
@@ -61,9 +61,9 @@ Restart Codex after installation so the skill is picked up.
 Manual fallback:
 
 ```bash
-git clone git@github.com:dzianissokalau/autonomous-roadmap-delivery.git /tmp/autonomous-roadmap-delivery
+git clone git@github.com:dzianissokalau/roadmap-delivery-skill.git /tmp/roadmap-delivery-skill
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-cp -R /tmp/autonomous-roadmap-delivery/skill/autonomous-roadmap-delivery \
+cp -R /tmp/roadmap-delivery-skill/skill/roadmap-delivery-skill \
   "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
@@ -71,10 +71,10 @@ To run the repository-local checks:
 
 ```bash
 python3 -m unittest discover -s tests -v
-PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-compile-pycache \
+PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-skill-review-compile-pycache \
   python3 -m py_compile \
-  skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py \
-  skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
+  skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py \
+  skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py
 ```
 
 ## License

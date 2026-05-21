@@ -239,7 +239,7 @@ $CODEX_HOME/skills/autonomous-roadmap-delivery/agents/openai.yaml
 1. Use the `skill-creator` initialization workflow.
 2. Create the skill folder with `scripts` and `references` resources.
 3. Write frontmatter with only:
-   - `name: autonomous-roadmap-delivery`
+   - `name: roadmap-delivery-skill`
    - `description: ...`
 4. Make the description trigger on:
    - setting up roadmap delivery automation

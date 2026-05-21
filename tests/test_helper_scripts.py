@@ -7,8 +7,13 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SKILL_ROOT = REPO_ROOT / "skill" / "autonomous-roadmap-delivery"
-SKILL_ROOT = Path(os.environ.get("AUTONOMOUS_ROADMAP_SKILL_ROOT", DEFAULT_SKILL_ROOT)).expanduser()
+DEFAULT_SKILL_ROOT = REPO_ROOT / "skill" / "roadmap-delivery-skill"
+SKILL_ROOT = Path(
+    os.environ.get(
+        "ROADMAP_DELIVERY_SKILL_ROOT",
+        os.environ.get("AUTONOMOUS_ROADMAP_SKILL_ROOT", DEFAULT_SKILL_ROOT),
+    )
+).expanduser()
 INSPECT_SCRIPT = SKILL_ROOT / "scripts" / "inspect_delivery_state.py"
 VALIDATE_SCRIPT = SKILL_ROOT / "scripts" / "validate_delivery_artifacts.py"
 

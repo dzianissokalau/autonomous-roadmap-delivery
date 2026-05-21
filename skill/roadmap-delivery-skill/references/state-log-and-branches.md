@@ -116,7 +116,7 @@ When in doubt, report the mismatch and stop instead of choosing a side.
 Phase 6 adds a read-only artifact validator for pre-delivery reconciliation:
 
 ```bash
-python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py \
+python3 $CODEX_HOME/skills/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py \
   --repo-root /path/to/repo \
   --roadmap-slug <roadmap-slug> \
   --automation-id <automation-id> \
@@ -169,8 +169,8 @@ Use this checklist before publishing or relying on an updated installed skill:
 Before declaring a maintenance update ready, run:
 
 ```bash
-python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
-python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
+python3 -m py_compile $CODEX_HOME/skills/roadmap-delivery-skill/scripts/inspect_delivery_state.py
+python3 -m py_compile $CODEX_HOME/skills/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py
 python3 -m unittest discover -s tests -v
-python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /path/to/repo --roadmap-slug <slug> --automation-id <automation-id> --json
+python3 $CODEX_HOME/skills/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /path/to/repo --roadmap-slug <slug> --automation-id <automation-id> --json
 ```
