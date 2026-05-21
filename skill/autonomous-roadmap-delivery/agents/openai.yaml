@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autonomous Roadmap Delivery"
+  short_description: "Operate phase-gated roadmap delivery"
+  default_prompt: "Use $autonomous-roadmap-delivery to inspect and deliver the current roadmap phase safely."

@@ -1,0 +1,175 @@
+# State, Log, And Branches Reference
+
+Use this reference for status inspection and for reconciling roadmap delivery
+surfaces before work.
+
+## Delivery State Schema
+
+Recommended fields:
+
+```json
+{
+  "roadmap": "roadmaps/<roadmap-file>.md",
+  "roadmap_slug": "<slug>",
+  "current_phase": "Phase N - Name",
+  "branch": "codex/<slug>-phase-N",
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": null,
+  "last_review": null,
+  "last_delivered_phase": null,
+  "blocked_reason": null,
+  "updated_at": null
+}
+```
+
+## Status Values
+
+- `not_started`: phase is selected but no delivery attempt has begun
+- `delivering`: implementation is in progress
+- `verifying`: verification is running or awaiting evidence
+- `reviewing`: delivery is awaiting review
+- `fixing`: review found in-scope fixes
+- `delivered`: current phase passed the gate
+- `blocked`: work cannot continue without an external change or decision
+
+## Delivery Log Schema
+
+The log is append-only. Each phase entry should record:
+
+- status
+- branch
+- scope
+- changed files
+- verification commands and results
+- review file and verdict
+- residual risks
+- next action
+
+## Review Directory
+
+Review artifacts live under:
+
+```text
+automation/<slug>/reviews/
+```
+
+Names should follow:
+
+```text
+<slug>-phase-<n>-review-iteration-<m>.md
+```
+
+The latest review must agree with state before advancement.
+
+## Branch Naming
+
+Use:
+
+```text
+codex/<roadmap-slug>-phase-<phase-number>
+```
+
+Finalization or promotion branches are separate and require explicit operator
+approval. A current-phase branch mismatch is a warning; an unexplained mismatch
+that affects owned files is a blocker.
+
+## Status Inspection Commands
+
+Run from the repository root:
+
+```bash
+git rev-parse --is-inside-work-tree
+git branch --show-current
+git status --short --branch
+git branch --list 'codex/<roadmap-slug>*'
+rg -n "^Status:|^Current phase:|^Last completed phase:|^Next action:" ROADMAP_PATH
+python3 -m json.tool automation/<slug>/delivery_state.json
+```
+
+If an automation id is known, inspect:
+
+```bash
+cat $CODEX_HOME/automations/<automation-id>/automation.toml
+```
+
+Do not edit app automation config during status inspection.
+
+## Mismatch Warnings
+
+Warn or block when:
+
+- roadmap path in state does not exist
+- automation prompt references an old roadmap path
+- roadmap current phase differs from state current phase
+- state branch differs from current branch
+- latest review verdict differs from state
+- state says complete but automation remains active
+- multiple lifecycle roadmap files could match the same slug
+- dirty worktree includes current phase owned files with unexplained edits
+
+When in doubt, report the mismatch and stop instead of choosing a side.
+
+## Artifact Validation
+
+Phase 6 adds a read-only artifact validator for pre-delivery reconciliation:
+
+```bash
+python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <roadmap-slug> \
+  --automation-id <automation-id> \
+  --json
+```
+
+Use it before acting on a roadmap when state, log, branch, review files, or
+automation config might have drifted. The report contains `errors`, `warnings`,
+and `info`:
+
+- `errors`: blocking inconsistencies; stop and record the blocker before
+  delivery work.
+- `warnings`: non-blocking drift or operator attention items; continue only when
+  they are understood and do not affect the current phase.
+- `info`: paths and facts checked.
+
+The validator is read-only. It does not repair stale paths, pause automations,
+stage files, or update delivery state. Use `--strict` when warnings should fail
+a CI or smoke check. Without `--strict`, warnings return exit code 0 and errors
+return non-zero.
+
+It checks the delivery state, delivery log, review directory, roadmap lifecycle
+filename, state roadmap path, automation prompt roadmap references, hard-stop
+guard, state/roadmap current phase, completion/deep-review evidence, completed
+ACTIVE automation drift, review verdict values, branch naming, and dirty
+worktree status.
+
+## Maintenance Checklist
+
+Use this checklist before publishing or relying on an updated installed skill:
+
+- Keep `SKILL.md` as a router. Put detailed procedures in references and
+  deterministic checks in scripts or repository-local tests.
+- Refresh setup and finalization prompt skeletons after Codex automation API or
+  saved `automation.toml` behavior changes.
+- Rerun validation after source template changes, roadmap lifecycle convention
+  changes, or helper script edits.
+- Add deterministic regressions for new failure modes whenever the behavior can
+  be represented with local fixture files.
+- Route new failure modes to the narrowest home:
+  `state-log-and-branches.md` for reconciliation/status drift,
+  `troubleshooting.md` for repair paths, `phase-loop.md` for delivery gates,
+  `review-and-fix.md` for reviewer behavior, and
+  `finalization-and-promotion.md` for closeout or promotion.
+- Keep platform work such as dashboards, telemetry, attestations, multi-repo
+  APIs, and automatic promotion outside the installed skill until explicitly
+  approved as separate platform work.
+
+Before declaring a maintenance update ready, run:
+
+```bash
+python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
+python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
+python3 -m unittest discover -s tests -v
+python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /path/to/repo --roadmap-slug <slug> --automation-id <automation-id> --json
+```

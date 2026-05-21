@@ -1,50 +1,110 @@
 {
   "roadmap": "roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md",
   "roadmap_slug": "autonomous-roadmap-delivery-skill",
-  "current_phase": "Phase 0 - Scope Confirmation",
-  "branch": "main",
-  "branch_reason": "Repository initialized and synced on main; use dedicated phase branches for future delivery phases.",
-  "status": "reviewing",
-  "review_iterations": 0,
+  "current_phase": "Complete",
+  "branch": "codex/autonomous-roadmap-delivery-skill-phase-10",
+  "branch_reason": "Phase 10 delivered on the Phase 10 branch; publication, promotion, and merge remain explicitly human-approved separate actions.",
+  "status": "completed",
+  "review_iterations": 2,
   "max_review_iterations": 3,
   "last_verification": {
     "commands": [
       {
-        "command": "test -d /Users/dzianissokalau/.codex/skills && test -w /Users/dzianissokalau/.codex/skills",
-        "status": "passed",
-        "details": "Passed when run with approval outside the workspace sandbox."
-      },
-      {
-        "command": "test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/codex_phase_gated_delivery_automation_template.md && test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/README.md && test -r /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/roadmap_closeout_checklist.md",
-        "status": "passed",
-        "details": "All referenced automation inspiration docs are readable."
-      },
-      {
-        "command": "find /Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation -maxdepth 3 -type f",
-        "status": "passed",
-        "details": "Existing automation-backed roadmaps were found; pilot target selected as real_research_product_readiness."
-      },
-      {
-        "command": "git rev-parse --is-inside-work-tree",
+        "command": "test -w $CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md && test -w $CODEX_HOME/skills/autonomous-roadmap-delivery/references && test -w $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts && test -w $ROADMAP_REPO_ROOT/tests/test_helper_scripts.py",
         "status": "failed",
-        "details": "The roadmap-delivery-automation workspace is not currently a git repository; branch gating is disabled for kickoff."
+        "details": "Normal sandbox write check failed, so Phase 10 used narrow approved escalation for the installed-skill maintenance update and repository-local test update."
+      },
+      {
+        "command": "python3 $TMPDIR/write_phase10_artifacts.py",
+        "status": "passed",
+        "details": "Approved narrow escalation updated inspect_delivery_state.py, state-log-and-branches.md, troubleshooting.md, and tests/test_helper_scripts.py."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-phase10-compile-pycache python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py",
+        "status": "passed",
+        "details": "Both helper scripts compiled."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-phase10-test-pycache python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "Seven helper-script fixture tests passed, including the new repository-root automation layout scenario."
+      },
+      {
+        "command": "PYTHONPATH=$TMPDIR/autonomous-roadmap-delivery-pyyaml PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-phase10-skill-pycache python3 $CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py $CODEX_HOME/skills/autonomous-roadmap-delivery",
+        "status": "passed",
+        "details": "Skill is valid."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-phase10-inspect-pycache python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root $ROADMAP_REPO_ROOT --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json",
+        "status": "passed_with_warnings",
+        "details": "Status inspection now finds automation/autonomous-roadmap-delivery-skill/delivery_state.json and reports only the expected dirty-worktree warning before final bookkeeping."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-phase10-validate-pycache python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root $ROADMAP_REPO_ROOT --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json",
+        "status": "passed_with_warnings",
+        "details": "Current artifact validation returned no errors. Expected warnings remain for dirty worktree and the app automation prompt hard-stop guard; automation readback showed PAUSED."
+      },
+      {
+        "command": "rg -n \"Setup new automation|Deliver one current phase|Handle review findings|Inspect status|Finalize|Repair bad state|references/(setup-automation|phase-loop|review-and-fix|state-log-and-branches|finalization-and-promotion|troubleshooting)\\.md|Maintenance Checklist|Repository Layout Mismatch\" $CODEX_HOME/skills/autonomous-roadmap-delivery",
+        "status": "passed",
+        "details": "Confirmed SKILL.md still routes to all references and the Phase 10 maintenance/troubleshooting additions exist."
       }
     ],
-    "completed_at": "2026-05-20"
+    "completed_at": "2026-05-21T00:06:00Z"
   },
-  "last_review": null,
-  "last_delivered_phase": null,
+  "last_review": {
+    "file": "automation/autonomous-roadmap-delivery-skill/reviews/autonomous-roadmap-delivery-skill-phase-10-review-iteration-2.md",
+    "verdict": "delivered",
+    "completed_at": "2026-05-21T00:06:00Z",
+    "summary": "Phase 10 operational hardening is delivered; all roadmap phases are complete locally."
+  },
+  "last_delivered_phase": "Phase 10 - Operational Hardening And Maintenance",
   "blocked_reason": null,
-  "auto_advance_after_delivered_review": false,
+  "permission_strategy": {
+    "updated_at": "2026-05-20T15:44:41Z",
+    "details": "The saved automation prompt now applies permission handling to any current phase whose owned files, required verification, or targeted checks touch $CODEX_HOME/skills or $CODEX_HOME/skills/autonomous-roadmap-delivery. Future runs must try the normal sandbox command first, then request narrow command-scoped escalation for only the exact write or validation command before marking the phase blocked.",
+    "requires_operator_approval": true,
+    "scope": "all installed-skill phases",
+    "cwds_policy": "Keep cwds rooted only in $ROADMAP_REPO_ROOT; do not add $CODEX_HOME/skills or patch Codex global state.",
+    "last_escalated_check": {
+      "command": "test -d $CODEX_HOME/skills && test -w $CODEX_HOME/skills",
+      "status": "passed",
+      "completed_at": "2026-05-20T12:35:34Z"
+    }
+  },
+  "automation": {
+    "id": "autonomous-roadmap-delivery-skill",
+    "status": "PAUSED",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh",
+    "execution_environment": "worktree",
+    "cwd": "$ROADMAP_REPO_ROOT",
+    "created_or_verified_at": "2026-05-20"
+  },
+  "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": false,
   "push_to_github": false,
-  "repository_remote": "git@github.com:dzianissokalau/autonomous-roadmap-delivery.git",
-  "execution_environment": "local",
-  "cadence": "manual_until_phase_0_reviewed",
+  "repository_remote": "<repository-remote-url>",
+  "execution_environment": "worktree",
+  "cadence": "hourly",
   "pilot_automation_target": {
-    "slug": "real_research_product_readiness",
-    "state_file": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/real_research_product_readiness/delivery_state.json",
-    "roadmap": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/delivered_real_research_product_readiness_roadmap.md"
+    "slug": "<pilot-roadmap-slug>",
+    "state_file": "$PILOT_REPO_ROOT/roadmaps/automation/<pilot-roadmap-slug>/delivery_state.json",
+    "roadmap": "$PILOT_REPO_ROOT/roadmaps/delivered_<pilot-roadmap-slug>_roadmap.md"
   },
-  "updated_at": "2026-05-20"
+  "updated_at": "2026-05-21T06:44:46Z",
+  "all_phases_complete": true,
+  "finalization": {
+    "deep_review_prompt": "automation/autonomous-roadmap-delivery-skill/deep_review_prompt.md",
+    "automation_status_readback": "PAUSED",
+    "publication": "not_requested",
+    "promotion_to_main": "not_requested",
+    "privacy_sanitization": {
+      "completed_at": "2026-05-21T06:44:46Z",
+      "status": "sanitized_before_history_rewrite",
+      "details": "Committed review artifacts use placeholders for local home paths, roadmap repository paths, temp directories, pilot repository names, pilot roadmap slugs, repository owner strings, and test email values.",
+      "history_rewrite_required": true
+    }
+  }
 }

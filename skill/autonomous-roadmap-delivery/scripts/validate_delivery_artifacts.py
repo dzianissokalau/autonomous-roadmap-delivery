@@ -1,0 +1,588 @@
+#!/usr/bin/env python3
+"""Validate phase-gated roadmap delivery artifacts without mutating files."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+
+DEFAULT_AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
+AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(DEFAULT_AUTOMATIONS_DIR))).expanduser()
+VALID_REVIEW_VERDICTS = {"delivered", "needs-fix", "blocked"}
+COMPLETED_STATUSES = {"complete", "completed", "delivered", "completed_pending_pause", "all_phases_complete"}
+ACTIVE_STATUSES = {"in progress", "active", "not_started", "delivering", "verifying", "reviewing", "fixing", "blocked"}
+DEEP_REVIEW_CANDIDATES = (
+    "deep_review_prompt",
+    "deep_review_prompt_path",
+    "deep_review",
+    "deep_review_path",
+    "final_deep_review_prompt",
+    "final_review_prompt",
+)
+DEEP_REVIEW_FILENAMES = (
+    "deep_review_prompt.md",
+    "deep_review_prompt.txt",
+    "review_fixes_prompt.md",
+    "deep_review.md",
+)
+
+
+Finding = Dict[str, str]
+
+
+def add(items: List[Finding], code: str, message: str, path: Optional[Path] = None) -> None:
+    item = {"code": code, "message": message}
+    if path is not None:
+        item["path"] = str(path)
+    items.append(item)
+
+
+def slug_forms(slug: Optional[str]) -> Dict[str, Optional[str]]:
+    if not slug:
+        return {"input": None, "dash": None, "dir": None}
+    return {
+        "input": slug,
+        "dash": slug.replace("_", "-"),
+        "dir": slug.replace("-", "_"),
+    }
+
+
+def unique(items: Iterable[str]) -> List[str]:
+    seen = set()
+    out: List[str] = []
+    for item in items:
+        if item not in seen:
+            out.append(item)
+            seen.add(item)
+    return out
+
+
+def resolve_repo_path(repo_root: Path, value: Optional[str]) -> Optional[Path]:
+    if not value:
+        return None
+    path = Path(str(value)).expanduser()
+    if path.is_absolute():
+        return path
+    return repo_root / path
+
+
+def path_for_report(path: Optional[Path]) -> Optional[str]:
+    return str(path) if path is not None else None
+
+
+def run_git(repo_root: Path, args: List[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git"] + args,
+        cwd=str(repo_root),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+
+def parse_minimal_toml(path: Path) -> Dict[str, Any]:
+    try:
+        import tomllib  # type: ignore
+    except ImportError:
+        tomllib = None  # type: ignore
+
+    if tomllib is not None:
+        with path.open("rb") as fh:
+            return tomllib.load(fh)
+
+    data: Dict[str, Any] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", key):
+            continue
+        if value.startswith("[") and value.endswith("]"):
+            try:
+                data[key] = ast.literal_eval(value)
+            except (SyntaxError, ValueError):
+                data[key] = value
+            continue
+        if value.startswith(("'", '"')):
+            try:
+                data[key] = ast.literal_eval(value)
+            except (SyntaxError, ValueError):
+                data[key] = value.strip("'\"")
+            continue
+        if value.lower() in ("true", "false"):
+            data[key] = value.lower() == "true"
+            continue
+        try:
+            data[key] = int(value)
+        except ValueError:
+            data[key] = value
+    return data
+
+
+def automation_candidates(forms: Dict[str, Optional[str]]) -> List[str]:
+    candidates = []
+    dash = forms.get("dash")
+    directory = forms.get("dir")
+    if dash:
+        candidates.append(f"{dash}-delivery")
+    if directory:
+        candidates.append(f"{directory}-delivery")
+    return unique(candidates)
+
+
+def find_automation_id(forms: Dict[str, Optional[str]], warnings: List[Finding]) -> Optional[str]:
+    for candidate in automation_candidates(forms):
+        if (AUTOMATIONS_DIR / candidate / "automation.toml").exists():
+            return candidate
+
+    needles = [item for item in (forms.get("dash"), forms.get("dir")) if item]
+    matches: List[str] = []
+    if AUTOMATIONS_DIR.exists():
+        for toml in AUTOMATIONS_DIR.glob("*/automation.toml"):
+            try:
+                text = toml.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if any(needle in text or needle in toml.parent.name for needle in needles):
+                matches.append(toml.parent.name)
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        add(warnings, "multiple_automation_matches", "Multiple automation configs match the slug: " + ", ".join(sorted(matches)))
+    return None
+
+
+def state_candidates(repo_root: Path, forms: Dict[str, Optional[str]]) -> List[Path]:
+    candidates: List[Path] = []
+    directory = forms.get("dir")
+    dash = forms.get("dash")
+    for slug in unique([item for item in (directory, dash) if item]):
+        candidates.append(repo_root / "roadmaps" / "automation" / slug / "delivery_state.json")
+        candidates.append(repo_root / "automation" / slug / "delivery_state.json")
+    return unique_paths(candidates)
+
+
+def unique_paths(paths: Iterable[Path]) -> List[Path]:
+    seen = set()
+    out: List[Path] = []
+    for path in paths:
+        key = str(path)
+        if key not in seen:
+            out.append(path)
+            seen.add(key)
+    return out
+
+
+def choose_state_file(repo_root: Path, forms: Dict[str, Optional[str]], errors: List[Finding]) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
+    candidates = state_candidates(repo_root, forms)
+    for candidate in candidates:
+        if candidate.exists():
+            try:
+                with candidate.open("r", encoding="utf-8") as fh:
+                    state = json.load(fh)
+            except json.JSONDecodeError as exc:
+                add(errors, "invalid_state_json", f"State file is invalid JSON: {exc}", candidate)
+                return candidate, None
+            except OSError as exc:
+                add(errors, "state_file_unreadable", f"Cannot read state file: {exc}", candidate)
+                return candidate, None
+            if not isinstance(state, dict):
+                add(errors, "invalid_state_shape", "State file root is not a JSON object.", candidate)
+                return candidate, None
+            return candidate, state
+
+    message = "State file does not exist. Checked: " + ", ".join(str(path) for path in candidates)
+    add(errors, "missing_state_file", message)
+    return (candidates[0] if candidates else None), None
+
+
+def read_text(path: Path, errors: List[Finding], code: str) -> Optional[str]:
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError as exc:
+        add(errors, code, f"Cannot read file: {exc}", path)
+        return None
+
+
+def parse_roadmap_header(text: str) -> Dict[str, str]:
+    header: Dict[str, str] = {}
+    for line in text.splitlines()[:80]:
+        match = re.match(r"^(Status|Current phase|Last completed phase|Next action):\s*(.+?)\s*$", line)
+        if match:
+            header[match.group(1).lower()] = match.group(2)
+    return header
+
+
+def normalized(value: Any) -> str:
+    return str(value or "").strip().lower().replace("_", "-")
+
+
+def is_complete_state(state: Optional[Dict[str, Any]], header: Dict[str, str]) -> bool:
+    if not state:
+        return False
+    state_status = normalized(state.get("status"))
+    current_phase = normalized(state.get("current_phase"))
+    header_status = normalized(header.get("status"))
+    header_phase = normalized(header.get("current phase"))
+    return (
+        bool(state.get("all_phases_complete"))
+        or state_status in COMPLETED_STATUSES
+        or current_phase in {"complete", "completed", "all-phases-complete"}
+        or header_status in {"delivered", "complete", "completed"}
+        or header_phase in {"complete", "completed"}
+    )
+
+
+def has_hard_stop_guard(prompt: str) -> bool:
+    lowered = prompt.lower()
+    complete_marker = "completed_pending_pause" in lowered or "all_phases_complete" in lowered
+    stop_marker = "do not start" in lowered or "hard-stop" in lowered or "hard stop" in lowered
+    return complete_marker and stop_marker
+
+
+def extract_roadmap_references(prompt: str, repo_root: Path) -> List[Path]:
+    refs: List[Path] = []
+    patterns = (
+        r"/Users/[^`'\"\s]+?\.md",
+        r"roadmaps/[^`'\"\s]+?\.md",
+    )
+    for pattern in patterns:
+        for match in re.findall(pattern, prompt):
+            path = Path(match)
+            if "roadmap" not in path.name:
+                continue
+            if not path.is_absolute():
+                path = repo_root / path
+            if path not in refs:
+                refs.append(path)
+    return refs
+
+
+def find_deep_review_prompt(state_dir: Optional[Path], state: Dict[str, Any]) -> Optional[Path]:
+    finalization = state.get("finalization")
+    if isinstance(finalization, dict):
+        for key in DEEP_REVIEW_CANDIDATES:
+            value = finalization.get(key)
+            if value:
+                return Path(str(value))
+    for key in DEEP_REVIEW_CANDIDATES:
+        value = state.get(key)
+        if value:
+            return Path(str(value))
+    last_verification = state.get("last_verification")
+    if isinstance(last_verification, dict):
+        prompt = last_verification.get("deep_review_prompt")
+        if prompt:
+            return Path(str(prompt))
+    if state_dir:
+        review_dir = state_dir / "reviews"
+        if review_dir.is_dir():
+            for path in review_dir.glob("*deep-review-prompt.md"):
+                return path
+        for name in DEEP_REVIEW_FILENAMES:
+            path = state_dir / name
+            if path.exists():
+                return path
+    return None
+
+
+def validate_review_verdicts(review_dir: Path, errors: List[Finding], warnings: List[Finding]) -> None:
+    if not review_dir.exists():
+        add(errors, "missing_review_dir", "Review directory does not exist.", review_dir)
+        return
+    if not review_dir.is_dir():
+        add(errors, "review_path_not_directory", "Review path is not a directory.", review_dir)
+        return
+
+    review_files = sorted(review_dir.glob("*.md"))
+    if not review_files:
+        add(warnings, "empty_review_dir", "Review directory contains no markdown review files.", review_dir)
+        return
+
+    for path in review_files:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            add(errors, "review_file_unreadable", f"Cannot read review file: {exc}", path)
+            continue
+        verdicts = [match.group(1).strip().lower() for match in re.finditer(r"(?im)^Verdict:\s*([A-Za-z_-]+)\s*$", text)]
+        section_match = re.search(r"(?ims)^##\s+Verdict\s*\n+\s*([A-Za-z_-]+)\s*(?:\n|$)", text)
+        if section_match:
+            verdicts.append(section_match.group(1).strip().lower())
+        if not verdicts:
+            add(warnings, "missing_review_verdict", "Review file has no Verdict line.", path)
+            continue
+        for verdict in verdicts:
+            if verdict not in VALID_REVIEW_VERDICTS:
+                add(errors, "invalid_review_verdict", f"Review verdict {verdict!r} is not one of {sorted(VALID_REVIEW_VERDICTS)}.", path)
+
+
+def phase_number(value: Any) -> Optional[str]:
+    match = re.search(r"\bPhase\s+(\d+)\b", str(value or ""), re.IGNORECASE)
+    return match.group(1) if match else None
+
+
+def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
+    branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
+    proc = run_git(repo_root, ["branch", "--show-current"])
+    if proc.returncode == 0:
+        branch_info["current_branch"] = proc.stdout.strip()
+    else:
+        add(warnings, "git_branch_failed", proc.stderr.strip() or "git branch --show-current failed")
+
+    current_phase = state.get("current_phase")
+    number = phase_number(current_phase)
+    dash = forms.get("dash") or normalized(state.get("roadmap_slug"))
+    if number and dash:
+        expected = f"codex/{dash}-phase-{number}"
+        branch_info["expected_branch"] = expected
+        state_branch = state.get("branch")
+        if state_branch and str(state_branch) != expected:
+            add(warnings, "state_branch_name_mismatch", f"State branch {state_branch!r} does not match expected {expected!r}.")
+        current = branch_info["current_branch"]
+        if current and current != expected and not complete:
+            add(warnings, "current_branch_name_mismatch", f"Current branch {current!r} does not match expected {expected!r}.")
+
+    return branch_info
+
+
+def validate_lifecycle_filename(roadmap_path: Optional[Path], header: Dict[str, str], complete: bool, errors: List[Finding], warnings: List[Finding]) -> None:
+    if not roadmap_path:
+        return
+    name = roadmap_path.name
+    header_status = normalized(header.get("status"))
+    has_delivered_prefix = name.startswith("delivered_")
+    has_in_progress_prefix = name.startswith("in_progress_")
+
+    if complete and has_in_progress_prefix:
+        add(errors, "roadmap_lifecycle_filename_mismatch", "Completed roadmap still uses an in_progress filename.", roadmap_path)
+    elif complete and not has_delivered_prefix:
+        add(warnings, "roadmap_lifecycle_filename_unconfirmed", "Completed roadmap does not use the delivered_ lifecycle filename convention.", roadmap_path)
+    elif header_status in ACTIVE_STATUSES and has_delivered_prefix:
+        add(errors, "roadmap_lifecycle_filename_mismatch", "Active roadmap status uses a delivered_ filename.", roadmap_path)
+
+
+def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Optional[str]) -> Dict[str, Any]:
+    errors: List[Finding] = []
+    warnings: List[Finding] = []
+    info: List[Finding] = []
+
+    repo_root = repo_root.expanduser().resolve()
+    if not repo_root.is_dir():
+        add(errors, "repo_root_missing", "--repo-root is not a directory.", repo_root)
+        return {"errors": errors, "warnings": warnings, "info": info}
+
+    forms = slug_forms(roadmap_slug)
+    if not automation_id:
+        automation_id = find_automation_id(forms, warnings)
+
+    automation_toml: Optional[Path] = None
+    automation_status: Optional[str] = None
+    automation_prompt = ""
+    hard_stop_guard = False
+    if automation_id:
+        automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
+        if automation_toml.exists():
+            try:
+                automation_data = parse_minimal_toml(automation_toml)
+            except OSError as exc:
+                add(errors, "automation_config_unreadable", f"Cannot read automation config: {exc}", automation_toml)
+                automation_data = {}
+            automation_status = str(automation_data.get("status") or "")
+            automation_prompt = str(automation_data.get("prompt") or "")
+            hard_stop_guard = has_hard_stop_guard(automation_prompt)
+        else:
+            add(warnings, "missing_automation_config", "Automation config does not exist.", automation_toml)
+    else:
+        add(warnings, "automation_config_not_found", "No automation config was found for the supplied slug.")
+
+    state_file, state = choose_state_file(repo_root, forms, errors)
+    state_dir = state_file.parent if state_file else None
+    delivery_log = state_dir / "delivery_log.md" if state_dir else None
+    review_dir = state_dir / "reviews" if state_dir else None
+
+    if not state:
+        return {
+            "automation_id": automation_id,
+            "automation_status": automation_status,
+            "automation_toml": path_for_report(automation_toml),
+            "repo_root": str(repo_root),
+            "state_file": path_for_report(state_file),
+            "errors": errors,
+            "warnings": warnings,
+            "info": info,
+        }
+
+    state_slug = state.get("roadmap_slug")
+    if state_slug and not roadmap_slug:
+        forms = slug_forms(str(state_slug))
+    elif state_slug and roadmap_slug and normalized(state_slug) != normalized(roadmap_slug):
+        add(warnings, "roadmap_slug_mismatch", f"Requested slug {roadmap_slug!r} differs from state roadmap_slug {state_slug!r}.")
+
+    if delivery_log is None or not delivery_log.exists():
+        add(errors, "missing_delivery_log", "Delivery log does not exist.", delivery_log)
+    elif not delivery_log.is_file():
+        add(errors, "delivery_log_not_file", "Delivery log path is not a file.", delivery_log)
+
+    if review_dir is not None:
+        validate_review_verdicts(review_dir, errors, warnings)
+
+    state_roadmap_value = state.get("roadmap")
+    roadmap_path = resolve_repo_path(repo_root, str(state_roadmap_value)) if state_roadmap_value else None
+    roadmap_text = None
+    roadmap_header: Dict[str, str] = {}
+    if not roadmap_path:
+        add(errors, "missing_state_roadmap", "State does not define a roadmap path.")
+    elif not roadmap_path.exists():
+        add(errors, "missing_roadmap_file", "Roadmap path from state does not exist.", roadmap_path)
+    else:
+        roadmap_text = read_text(roadmap_path, errors, "roadmap_unreadable")
+        if roadmap_text is not None:
+            roadmap_header = parse_roadmap_header(roadmap_text)
+
+    complete = is_complete_state(state, roadmap_header)
+    validate_lifecycle_filename(roadmap_path, roadmap_header, complete, errors, warnings)
+
+    if roadmap_header:
+        state_phase = normalized(state.get("current_phase"))
+        header_phase = normalized(roadmap_header.get("current phase"))
+        if state_phase and header_phase and state_phase not in {"complete", "completed"} and header_phase not in {"complete", "completed"} and state_phase != header_phase:
+            add(errors, "current_phase_mismatch", f"State current_phase {state.get('current_phase')!r} differs from roadmap Current phase {roadmap_header.get('current phase')!r}.")
+
+    automation_refs = extract_roadmap_references(automation_prompt, repo_root) if automation_prompt else []
+    if automation_prompt and roadmap_path:
+        if not automation_refs:
+            add(warnings, "automation_prompt_missing_roadmap_path", "Automation prompt does not include a recognizable roadmap markdown path.", automation_toml)
+        elif roadmap_path not in automation_refs:
+            add(warnings, "automation_prompt_current_roadmap_missing", f"Automation prompt does not reference current roadmap path {roadmap_path}.", automation_toml)
+        for ref in automation_refs:
+            if ref != roadmap_path and not ref.exists():
+                add(warnings, "stale_automation_roadmap_path", f"Automation prompt references missing roadmap path {ref}; state points to {roadmap_path}.", automation_toml)
+            elif ref != roadmap_path:
+                add(warnings, "automation_roadmap_path_mismatch", f"Automation prompt references {ref}; state points to {roadmap_path}.", automation_toml)
+
+    if automation_prompt and not hard_stop_guard:
+        add(warnings, "automation_prompt_missing_hard_stop_guard", "Automation prompt does not include an all_phases_complete/completed_pending_pause hard-stop guard.", automation_toml)
+
+    deep_review_prompt = find_deep_review_prompt(state_dir, state)
+    if complete and deep_review_prompt is None:
+        add(warnings, "missing_deep_review_prompt", "Completed state does not include or colocate a deep-review prompt path.")
+    elif complete and deep_review_prompt is not None:
+        deep_review_path = resolve_repo_path(repo_root, str(deep_review_prompt))
+        if deep_review_path and not deep_review_path.exists():
+            add(warnings, "deep_review_prompt_missing_file", "Deep-review prompt path does not exist.", deep_review_path)
+
+    if complete and str(automation_status).upper() == "ACTIVE":
+        if hard_stop_guard:
+            add(warnings, "completed_state_active_with_hard_stop", "State is complete and automation is ACTIVE, but prompt contains an explicit hard-stop guard.", automation_toml)
+        else:
+            add(errors, "completed_state_active_automation", "State is complete but automation is ACTIVE and lacks an explicit hard-stop guard.", automation_toml)
+
+    branch_info = validate_branch(repo_root, forms, state, complete, warnings)
+
+    status_proc = run_git(repo_root, ["status", "--short"])
+    worktree_dirty = False
+    if status_proc.returncode == 0:
+        worktree_dirty = bool(status_proc.stdout.strip())
+        if worktree_dirty:
+            add(warnings, "worktree_dirty", "Repository has uncommitted changes.")
+    else:
+        add(warnings, "git_status_failed", status_proc.stderr.strip() or "git status --short failed")
+
+    add(info, "state_file", "Validated delivery state file.", state_file)
+    if roadmap_path:
+        add(info, "roadmap_path", "Validated roadmap path from state.", roadmap_path)
+    if delivery_log:
+        add(info, "delivery_log", "Checked delivery log path.", delivery_log)
+    if review_dir:
+        add(info, "review_dir", "Checked review directory.", review_dir)
+
+    return {
+        "automation_id": automation_id,
+        "automation_status": automation_status,
+        "automation_toml": path_for_report(automation_toml),
+        "automation_roadmap_references": [str(path) for path in automation_refs],
+        "hard_stop_guard": hard_stop_guard,
+        "repo_root": str(repo_root),
+        "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
+        "state_file": path_for_report(state_file),
+        "delivery_log": path_for_report(delivery_log),
+        "review_dir": path_for_report(review_dir),
+        "roadmap_path": path_for_report(roadmap_path),
+        "roadmap_status": roadmap_header.get("status"),
+        "roadmap_current_phase": roadmap_header.get("current phase"),
+        "state_status": state.get("status"),
+        "state_current_phase": state.get("current_phase"),
+        "all_phases_complete": complete,
+        "deep_review_prompt": str(deep_review_prompt) if deep_review_prompt else None,
+        "current_branch": branch_info.get("current_branch"),
+        "expected_branch": branch_info.get("expected_branch"),
+        "worktree_dirty": worktree_dirty,
+        "errors": errors,
+        "warnings": warnings,
+        "info": info,
+    }
+
+
+def print_text(report: Dict[str, Any]) -> None:
+    for key in (
+        "automation_id",
+        "automation_status",
+        "roadmap_path",
+        "state_file",
+        "state_status",
+        "state_current_phase",
+        "all_phases_complete",
+        "current_branch",
+        "expected_branch",
+        "worktree_dirty",
+    ):
+        if key in report:
+            print(f"{key}: {report.get(key)}")
+    for section in ("errors", "warnings", "info"):
+        items = report.get(section) or []
+        print(f"{section}: {len(items)}")
+        for item in items:
+            suffix = f" [{item['path']}]" if item.get("path") else ""
+            print(f"- {item['code']}: {item['message']}{suffix}")
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate phase-gated roadmap delivery artifacts without mutating files.")
+    parser.add_argument("--repo-root", required=True, help="Repository root to validate.")
+    parser.add_argument("--roadmap-slug", help="Roadmap slug, accepting hyphen or underscore form.")
+    parser.add_argument("--automation-id", help="Codex automation id under ~/.codex/automations.")
+    parser.add_argument("--strict", action="store_true", help="Return non-zero when warnings are present.")
+    parser.add_argument("--json", action="store_true", help="Emit JSON output.")
+    args = parser.parse_args(argv)
+
+    if not args.roadmap_slug and not args.automation_id:
+        parser.error("at least one of --roadmap-slug or --automation-id is required")
+
+    report = validate(Path(args.repo_root), args.roadmap_slug, args.automation_id)
+    if args.json:
+        print(json.dumps(report, indent=2, sort_keys=True))
+    else:
+        print_text(report)
+
+    if report.get("errors"):
+        return 1
+    if args.strict and report.get("warnings"):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

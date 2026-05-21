@@ -1,10 +1,39 @@
 # Autonomous Roadmap Delivery Skill Phased Roadmap
 
-Status: In Progress
-Current phase: Phase 0 - Scope Confirmation
-Last updated: 2026-05-20
-Next action: Review Phase 0 kickoff artifacts, then begin Phase 1 if the review verdict is delivered.
+Status: Delivered
+Current phase: Complete
+Last updated: 2026-05-21
+Last completed phase: Phase 10 - Operational Hardening And Maintenance
+Next action: Final human review or publication can begin only with explicit approval; do not push, promote, or merge automatically.
 Blocked by: None
+Phase 10 note: Delivered after approved narrow escalation updated the
+installed status helper, maintenance checklist, troubleshooting layout
+guidance, and repository-local fixture tests. Skill validation, script
+compilation, unittest fixtures, status inspection, artifact validation,
+and SKILL.md routing checks passed.
+Phase 9 note: Delivered after adding repository-local unittest fixtures and
+private replay prompts. The helper script harness covers six representative
+scenarios across status inspection and artifact validation; skill validation
+and current artifact validation passed.
+Phase 8 note: Delivered after approved narrow escalation updated
+`review-and-fix.md` and `phase-loop.md`. Manual historical review checks,
+exact verdict checks, future-phase guard checks, skill validation, and current
+artifact validation passed.
+Phase 7 note: Delivered after approved narrow escalation updated setup,
+troubleshooting, and finalization references. The setup fixture, prompt/path
+checks, troubleshooting coverage checks, skill validation, current artifact
+validation, and safety scan passed.
+Phase 6 note: Delivered after approved narrow escalation wrote the read-only
+artifact validator and reference updates. Compile, skill validation, real
+automation validation, current automation validation, read-only scan, and all
+required local fixtures passed.
+Phase 5 note: Delivered after skill validation, compile checks, pilot status
+inspection, setup-reference smoke, and completed-state handling checks passed.
+Phase 4 note: Delivered after approved narrow escalation wrote the read-only
+status script and compile, skill validation, and pilot smoke checks passed.
+Phase 3 note: Delivered after approved narrow escalation wrote the installed skill reference pack and validation/safety checks passed.
+Phase 2 note: Delivered after approved narrow escalation for updating `$CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md`.
+Phase 1 note: Delivered after approved narrow escalation for creating and updating `$CODEX_HOME/skills/autonomous-roadmap-delivery`.
 
 ## Source Inputs
 
@@ -15,9 +44,9 @@ This roadmap distills three source documents into an implementation plan for:
 
 Source documents:
 
-- `/Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/autonomous_roadmap_delivery_skill_development_brief.md`
-- `/Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/codex_phase_gated_delivery_automation_template.md`
-- `/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation/roadmaps/automated-roadmap-delivery-strategy.md`
+- `$PILOT_REPO_ROOT/roadmaps/automation/autonomous_roadmap_delivery_skill_development_brief.md`
+- `$PILOT_REPO_ROOT/roadmaps/automation/codex_phase_gated_delivery_automation_template.md`
+- `$ROADMAP_REPO_ROOT/roadmaps/automated-roadmap-delivery-strategy.md`
 
 ## Automation Artifacts
 
@@ -35,6 +64,13 @@ Current files:
 - `automation/autonomous-roadmap-delivery-skill/review_fix_state.json`
 - `automation/autonomous-roadmap-delivery-skill/review_fix_log.md`
 - `automation/autonomous-roadmap-delivery-skill/reviews/`
+
+Codex app automation:
+
+- ID: `autonomous-roadmap-delivery-skill`
+- Status: PAUSED
+- Cadence: hourly
+- Execution environment: worktree
 
 ## Target Outcome
 
@@ -74,7 +110,7 @@ The hardening release should improve confidence and repeatability:
 Recommended install target:
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/
+$CODEX_HOME/skills/autonomous-roadmap-delivery/
 ```
 
 Recommended source package:
@@ -150,13 +186,13 @@ Confirm the v1 installation target, source-of-truth documents, and the first sup
 - Skill development brief.
 - Phase-gated delivery template.
 - Strategy document.
-- Existing roadmap automation examples in `/Users/dzianissokalau/Documents/projects/async-research`.
+- Existing roadmap automation examples in `$PILOT_REPO_ROOT`.
 
 ### Implementation Steps
 
 1. Confirm the skill name is `autonomous-roadmap-delivery`.
-2. Confirm the install target is `/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery`.
-3. Confirm v1 is repo-specific to `/Users/dzianissokalau/Documents/projects/async-research`.
+2. Confirm the install target is `$CODEX_HOME/skills/autonomous-roadmap-delivery`.
+3. Confirm v1 is repo-specific to `$PILOT_REPO_ROOT`.
 4. Confirm that platform topics remain backlog, not v1 blockers.
 5. Pick one delivered or active roadmap automation as the pilot inspection target.
 
@@ -176,7 +212,7 @@ Confirm the v1 installation target, source-of-truth documents, and the first sup
 ### Non-Goals
 
 - Do not create the skill in this phase unless the target is already confirmed.
-- Do not change any async-research roadmap files.
+- Do not change any pilot repository roadmap files.
 - Do not create or modify Codex app automations.
 
 ### Stop Conditions
@@ -194,8 +230,8 @@ Create the skill directory structure and machine-readable metadata so Codex can 
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/SKILL.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/agents/openai.yaml
+$CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/agents/openai.yaml
 ```
 
 ### Implementation Steps
@@ -232,7 +268,7 @@ Create the skill directory structure and machine-readable metadata so Codex can 
 Run:
 
 ```bash
-/Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery
+$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py $CODEX_HOME/skills/autonomous-roadmap-delivery
 ```
 
 ### Non-Goals
@@ -255,7 +291,7 @@ Write a concise `SKILL.md` body that routes Codex to the right reference file an
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/SKILL.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md
 ```
 
 ### Implementation Steps
@@ -324,12 +360,12 @@ Create the detailed reference files used by the skill for setup, delivery, revie
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/setup-automation.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/phase-loop.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/review-and-fix.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/state-log-and-branches.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/finalization-and-promotion.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/troubleshooting.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/setup-automation.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/phase-loop.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/review-and-fix.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/state-log-and-branches.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/finalization-and-promotion.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/troubleshooting.md
 ```
 
 ### Reference Requirements
@@ -436,7 +472,7 @@ Include:
 Suggested checks:
 
 ```bash
-rg -n "git add \\.|force-push|push origin HEAD:main|completed_pending_pause|all_phases_complete" /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery
+rg -n "git add \\.|force-push|push origin HEAD:main|completed_pending_pause|all_phases_complete" $CODEX_HOME/skills/autonomous-roadmap-delivery
 ```
 
 ### Non-Goals
@@ -459,7 +495,7 @@ Implement `inspect_delivery_state.py` as a deterministic read-only helper that r
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
+$CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
 ```
 
 ### Interface
@@ -467,7 +503,7 @@ Implement `inspect_delivery_state.py` as a deterministic read-only helper that r
 Inputs:
 
 ```text
---repo-root /Users/dzianissokalau/Documents/projects/async-research
+--repo-root $PILOT_REPO_ROOT
 --roadmap-slug <slug>
 --automation-id <automation-id>
 --json
@@ -481,8 +517,8 @@ Output JSON:
 {
   "automation_id": "example-delivery",
   "automation_status": "ACTIVE",
-  "roadmap_path": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/in_progress_example_roadmap.md",
-  "state_file": "/Users/dzianissokalau/Documents/projects/async-research/roadmaps/automation/example/delivery_state.json",
+  "roadmap_path": "$PILOT_REPO_ROOT/roadmaps/in_progress_example_roadmap.md",
+  "state_file": "$PILOT_REPO_ROOT/roadmaps/automation/example/delivery_state.json",
   "state_status": "not_started",
   "current_phase": 1,
   "last_delivered_phase": 0,
@@ -500,7 +536,7 @@ Output JSON:
 
 1. Parse arguments with `argparse`.
 2. Load `delivery_state.json` if a roadmap slug is available.
-3. Load `/Users/dzianissokalau/.codex/automations/<automation-id>/automation.toml` if an automation id is available.
+3. Load `$CODEX_HOME/automations/<automation-id>/automation.toml` if an automation id is available.
 4. Extract:
    - automation status
    - roadmap path from state
@@ -537,13 +573,13 @@ Output JSON:
 Run against a fixture or existing automation:
 
 ```bash
-python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/async-research --roadmap-slug <slug> --json
+python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root $PILOT_REPO_ROOT --roadmap-slug <slug> --json
 ```
 
 Run static checks:
 
 ```bash
-python3 -m py_compile /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
+python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
 ```
 
 ### Non-Goals
@@ -568,7 +604,7 @@ Validate the skill package and run a realistic dry inspection against an existin
 ### Owned Files
 
 - Skill files created in Phases 1-4.
-- Temporary fixtures under `/private/tmp` only if needed.
+- Temporary fixtures under `$TMPDIR` only if needed.
 
 ### Implementation Steps
 
@@ -590,9 +626,9 @@ Validate the skill package and run a realistic dry inspection against an existin
 ### Required Verification
 
 ```bash
-/Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery
-python3 -m py_compile /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
-python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/async-research --roadmap-slug <pilot-slug> --json
+$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py $CODEX_HOME/skills/autonomous-roadmap-delivery
+python3 -m py_compile $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py
+python3 $CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root $PILOT_REPO_ROOT --roadmap-slug <pilot-slug> --json
 ```
 
 ### Non-Goals
@@ -617,9 +653,9 @@ Add `validate_delivery_artifacts.py` to catch inconsistent roadmap automation st
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/state-log-and-branches.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/troubleshooting.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/state-log-and-branches.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/troubleshooting.md
 ```
 
 ### Interface
@@ -627,7 +663,7 @@ Add `validate_delivery_artifacts.py` to catch inconsistent roadmap automation st
 Inputs:
 
 ```text
---repo-root /Users/dzianissokalau/Documents/projects/async-research
+--repo-root $PILOT_REPO_ROOT
 --roadmap-slug <slug>
 --automation-id <automation-id>
 --strict
@@ -696,9 +732,9 @@ Make setup and repair flows operationally reliable while preserving a conservati
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/setup-automation.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/troubleshooting.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/finalization-and-promotion.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/setup-automation.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/troubleshooting.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/finalization-and-promotion.md
 ```
 
 Optional scripts may be added only after repeated manual steps prove deterministic enough.
@@ -767,8 +803,8 @@ Improve the quality and repeatability of the review/fix loop without creating a 
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/review-and-fix.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/phase-loop.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/review-and-fix.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/phase-loop.md
 ```
 
 Optional fixture files may be added under a test or fixture directory if a source-controlled skill repository is later created.
@@ -912,9 +948,9 @@ Turn the skill into a maintainable workflow asset after v1 and evals prove usefu
 ### Owned Files
 
 ```text
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/SKILL.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/references/*.md
-/Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/*.py
+$CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/references/*.md
+$CODEX_HOME/skills/autonomous-roadmap-delivery/scripts/*.py
 ```
 
 Optional future source repository files:

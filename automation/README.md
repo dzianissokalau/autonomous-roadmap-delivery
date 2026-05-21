@@ -33,6 +33,6 @@ in the project root or `../roadmaps/`.
 
 ## Active Roadmaps
 
-| Roadmap | Status | Phase | State |
-|---|---|---|---|
-| `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md` | In Progress | Phase 0 - Scope Confirmation | `autonomous-roadmap-delivery-skill/delivery_state.json` |
+| Roadmap | Status | Phase | Automation | State |
+|---|---|---|---|---|
+| `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md` | In Progress | Phase 0 - Scope Confirmation | `autonomous-roadmap-delivery-skill` hourly, ACTIVE | `autonomous-roadmap-delivery-skill/delivery_state.json` |
