@@ -863,3 +863,80 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-7`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-8` and start Phase 8 -
   Automation Setup Integration.
+
+## Phase 8 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-8`
+
+### Scope
+
+- Integrate phase model policy into new automation setup.
+- Keep changes scoped to setup, model-policy, and state/status references.
+- Do not mutate live automation config, publish branches, promote to `main`, or
+  implement Phase 9 test fixture expansion.
+
+### Changes
+
+- Updated `setup-automation.md` so new roadmap delivery automations create
+  `phase_model_policy.json` by default, collect model/reasoning/stall/notification
+  setup inputs, resolve the first phase policy before state save, and refuse
+  activation when validation or readback fails.
+- Updated `model-policy-and-stall-control.md` with setup integration guidance,
+  lower-cost versus higher-reasoning phase selection, first-phase automation
+  readback, and activation blockers.
+- Updated `state-log-and-branches.md` with setup-time state mirroring rules and
+  reconciliation warnings for policy/readback or prompt hard-stop mismatches.
+- Advanced the roadmap header, delivery state, and review/fix state to Phase 9
+  after a delivered review verdict. The Phase 8 to Phase 9 retarget plan
+  resolved to policy defaults and the saved automation already matched
+  `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- Dry-run setup fixture under `/private/tmp`: passed. The generated
+  `phase_model_policy.json` validated with no errors, the paused automation
+  config matched the first phase policy, and prompt marker inspection confirmed
+  the model-policy hard stop.
+- `python3 -m unittest discover -s tests -v`: passed, 31 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase8-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected `worktree_dirty` warning before Phase 8
+  bookkeeping was committed.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected `worktree_dirty` warning before commit.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 8 - Automation Setup Integration' --json`:
+  passed; Phase 9 falls back to policy defaults and no automation update is
+  needed.
+- Manual marker inspection with `rg`: passed; setup/model/state references
+  include policy setup inputs, lower-cost/high-reasoning guidance, activation
+  blockers, prompt hard-stop requirements, and setup state mirroring.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-8-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- The validator does not yet assert a distinct model-policy prompt-hard-stop
+  marker; Phase 8 used a dry-run prompt marker check, and Phase 9 owns broader
+  fixtures and replay prompts.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-9` and start Phase 9 -
+  Tests, Fixtures, And Replay Prompts.

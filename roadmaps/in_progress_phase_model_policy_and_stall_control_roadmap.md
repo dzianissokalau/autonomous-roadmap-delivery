@@ -1,10 +1,10 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 8 - Automation Setup Integration
-Last completed phase: Phase 7 - Completion Pause And Alert Flow
+Current phase: Phase 9 - Tests, Fixtures, And Replay Prompts
+Last completed phase: Phase 8 - Automation Setup Integration
 Last updated: 2026-05-21
-Next action: Start Phase 8 and integrate phase model policy into automation setup.
+Next action: Start Phase 9 and add tests, fixtures, and replay prompts.
 Blocked by: None
 
 ## Purpose

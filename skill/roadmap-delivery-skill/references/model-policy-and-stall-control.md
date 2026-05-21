@@ -60,6 +60,41 @@ Allowed `reasoning_effort` values:
 - `high`
 - `xhigh`
 
+## Setup Integration
+
+New roadmap delivery automations should create a phase model policy before the
+automation is saved or activated. Setup must collect or confirm:
+
+- default model
+- default reasoning effort
+- optional per-phase model and reasoning overrides
+- finalization model and reasoning effort
+- `max_stalled_runs`
+- notification mode and fallback
+
+Use defaults for ordinary phases and add numbered overrides only when the
+roadmap or operator has a concrete reason. Documentation-only or status-only
+phases can use lower-cost models or lower reasoning. Implementation-heavy,
+multi-file, migration, validator, and finalization phases should use the
+strongest approved coding model and higher reasoning. Do not silently assign an
+expensive model to every phase; make the tradeoff inspectable in
+`phase_model_policy.json`.
+
+Setup resolves the first phase's required model and reasoning from the policy,
+then saves the Codex app automation or runner config with those exact values.
+Read back the saved config before reporting success. If readback differs from
+policy, correct it only when the automation-config surface is approved; if it
+cannot be corrected, leave the automation paused or blocked and record the
+mismatch.
+
+Activation is not allowed until:
+
+- `phase_model_policy.json` validates
+- the saved automation model and reasoning match the first phase policy
+- the saved prompt includes the start-run model-policy hard stop
+- repository artifacts, roadmap path, state, log, reviews, branch, and
+  automation prompt reconcile without validator errors
+
 ## Start-Run Gate
 
 Before implementation:

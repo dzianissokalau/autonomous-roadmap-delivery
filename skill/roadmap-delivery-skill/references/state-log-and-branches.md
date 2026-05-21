@@ -53,6 +53,28 @@ passes, and return the current phase to `not_started`, `delivering`, or
 does not prevent delivery when a later repair is recorded and reconciliation
 passes.
 
+## Setup State Fields
+
+During new automation setup, resolve `required_model` and
+`required_reasoning_effort` from `phase_model_policy.json` for the first current
+phase before saving `delivery_state.json`. Set `max_stalled_runs` from policy,
+defaulting to `3` only when policy omits it.
+
+Set `configured_automation_model` and
+`configured_automation_reasoning_effort` only from saved automation readback or
+another explicit runner config. Do not copy desired proposal values into these
+fields before readback; unknown configured values should stay null and block
+activation when the roadmap is model-strict.
+
+After setup readback:
+
+- if configured values match required values, mirror them in state and keep
+  `blocked_reason` null
+- if configured values are missing or mismatched, keep the automation paused or
+  mark state blocked, record the mismatch, and do not activate delivery
+- if the saved prompt lacks the model-policy hard stop, repair the prompt before
+  activation or record an automation-config blocker
+
 ## Delivery Log Schema
 
 The log is append-only. Each phase entry should record:
@@ -200,6 +222,8 @@ Warn or block when:
 - roadmap current phase differs from state current phase
 - state branch differs from current branch
 - latest review verdict differs from state
+- policy required model/reasoning differ from saved automation readback
+- saved automation prompt lacks the model-policy hard stop
 - state is blocked but the next run is trying to advance before classifying and
   repairing the blocker
 - state says complete but automation remains active
@@ -237,10 +261,11 @@ warnings, such as a GitHub-only reviewer without local automation config.
 Without `--strict`, warnings return exit code 0 and errors return non-zero.
 
 It checks the delivery state, delivery log, review directory, roadmap lifecycle
-filename, state roadmap path, automation prompt roadmap references, hard-stop
-guard, state/roadmap current phase, completion/deep-review evidence, completed
-ACTIVE automation drift, missing automation config, review verdict values,
-branch naming, and dirty worktree status.
+filename, state roadmap path, automation prompt roadmap references, model-policy
+hard-stop guard, required versus configured model/reasoning, state/roadmap
+current phase, completion/deep-review evidence, completed ACTIVE automation
+drift, missing automation config, review verdict values, branch naming, and
+dirty worktree status.
 
 ## Maintenance Checklist
 
