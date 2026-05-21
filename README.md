@@ -18,6 +18,12 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 - Codex automation: `autonomous-roadmap-delivery-skill` hourly, PAUSED
 - Repository skill snapshot: `skill/roadmap-delivery-skill/`
 
+## Planned Roadmaps
+
+- `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`:
+  model-aware automation retargeting, stalled-run pause behavior, and operator
+  alerts.
+
 ## Operating Model
 
 Use a phase-gated delivery loop:
