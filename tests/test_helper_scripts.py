@@ -18,9 +18,35 @@ INSPECT_SCRIPT = SKILL_ROOT / "scripts" / "inspect_delivery_state.py"
 VALIDATE_SCRIPT = SKILL_ROOT / "scripts" / "validate_delivery_artifacts.py"
 COMPUTE_SCRIPT = SKILL_ROOT / "scripts" / "compute_progress_signature.py"
 WRITE_ALERT_SCRIPT = SKILL_ROOT / "scripts" / "write_operator_alert.py"
+PLAN_SCRIPT = SKILL_ROOT / "scripts" / "plan_automation_retarget.py"
 
 
 class DeliveryFixture:
+    @staticmethod
+    def build_model_policy_text(
+        *,
+        defaults_model="gpt-5.5",
+        defaults_reasoning="xhigh",
+        max_stalled_runs=3,
+        notification=None,
+        phases=None,
+    ):
+        if notification is None:
+            notification = {"mode": "alert_file", "fallback": "alert_file"}
+        if phases is None:
+            phases = {
+                "1": {"model": defaults_model, "reasoning_effort": defaults_reasoning},
+                "finalization": {"model": defaults_model, "reasoning_effort": defaults_reasoning},
+            }
+        policy = {
+            "schema_version": 1,
+            "max_stalled_runs": max_stalled_runs,
+            "notification": notification,
+            "defaults": {"model": defaults_model, "reasoning_effort": defaults_reasoning},
+            "phases": phases,
+        }
+        return json.dumps(policy, indent=2)
+
     def __init__(
         self,
         tmpdir,
@@ -196,17 +222,11 @@ class DeliveryFixture:
             )
         if write_model_policy:
             if policy_text is None:
-                policy = {
-                    "schema_version": 1,
-                    "max_stalled_runs": policy_max_stalled_runs,
-                    "notification": {"mode": "alert_file", "fallback": "alert_file"},
-                    "defaults": {"model": policy_model, "reasoning_effort": policy_reasoning},
-                    "phases": {
-                        "1": {"model": policy_model, "reasoning_effort": policy_reasoning},
-                        "finalization": {"model": policy_model, "reasoning_effort": policy_reasoning},
-                    },
-                }
-                policy_text = json.dumps(policy, indent=2)
+                policy_text = self.build_model_policy_text(
+                    defaults_model=policy_model,
+                    defaults_reasoning=policy_reasoning,
+                    max_stalled_runs=policy_max_stalled_runs,
+                )
             (state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
         if not omit_review_dir:
             (review_dir / f"{self.slug}-phase-1-review-iteration-1.md").write_text(
@@ -390,6 +410,29 @@ class HelperScriptTests(unittest.TestCase):
                 str(fixture.repo_root),
                 "--roadmap-slug",
                 fixture.slug,
+                "--json",
+                *extra_args,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=fixture.env(),
+            check=False,
+        )
+        self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
+        return json.loads(proc.stdout)
+
+    def run_plan(self, fixture, *extra_args, allowed_returncodes=(0,)):
+        proc = subprocess.run(
+            [
+                "python3",
+                str(PLAN_SCRIPT),
+                "--repo-root",
+                str(fixture.repo_root),
+                "--roadmap-slug",
+                fixture.slug,
+                "--automation-id",
+                fixture.automation_id,
                 "--json",
                 *extra_args,
             ],
@@ -889,6 +932,58 @@ class HelperScriptTests(unittest.TestCase):
             self.assertFalse(inspect["model_mismatch"])
             self.assertEqual(inspect["stalled_run_count"], 0)
 
+    def test_model_policy_phase_override_controls_required_values(self):
+        policy_text = DeliveryFixture.build_model_policy_text(
+            defaults_model="gpt-5.4",
+            defaults_reasoning="medium",
+            phases={
+                "2": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+            },
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                current_phase="Phase 2 - Fixture",
+                write_model_policy=True,
+                policy_text=policy_text,
+                automation_model="gpt-5.5",
+                automation_reasoning="xhigh",
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertEqual(validate["model_policy"]["required_model"], "gpt-5.5")
+            self.assertEqual(validate["model_policy"]["required_reasoning_effort"], "xhigh")
+            self.assertFalse(validate["model_policy"]["model_mismatch"])
+            self.assertNotIn("automation_model_mismatch", self.error_codes(validate))
+            self.assertNotIn("automation_reasoning_mismatch", self.error_codes(validate))
+
+    def test_model_policy_finalization_override_controls_required_values(self):
+        policy_text = DeliveryFixture.build_model_policy_text(
+            defaults_model="gpt-5.4",
+            defaults_reasoning="medium",
+            phases={
+                "1": {"model": "gpt-5.4", "reasoning_effort": "medium"},
+                "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+            },
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                current_phase="finalization",
+                write_model_policy=True,
+                policy_text=policy_text,
+                automation_model="gpt-5.5",
+                automation_reasoning="xhigh",
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertEqual(validate["model_policy"]["required_model"], "gpt-5.5")
+            self.assertEqual(validate["model_policy"]["required_reasoning_effort"], "xhigh")
+            self.assertFalse(validate["model_policy"]["reasoning_mismatch"])
+
     def test_model_policy_mismatch_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(
@@ -902,6 +997,24 @@ class HelperScriptTests(unittest.TestCase):
 
             self.assertIn("automation_model_mismatch", self.error_codes(validate))
             self.assertTrue(validate["model_policy"]["model_mismatch"])
+
+    def test_model_policy_unknown_config_is_error_when_state_cannot_prove_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, write_automation_config=False)
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["configured_automation_model"] = None
+            state["configured_automation_reasoning_effort"] = None
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+            validate = self.run_validate(fixture)
+
+            codes = self.error_codes(validate)
+            self.assertIn("automation_model_unknown", codes)
+            self.assertIn("automation_reasoning_unknown", codes)
+            self.assertIn("missing_automation_config", self.warning_codes(validate))
+            self.assertTrue(validate["model_policy"]["model_unknown"])
+            self.assertTrue(validate["model_policy"]["reasoning_unknown"])
 
     def test_invalid_model_policy_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -917,6 +1030,63 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("invalid_max_stalled_runs", codes)
             self.assertIn("invalid_notification_mode", codes)
             self.assertIn("invalid_default_reasoning_effort", codes)
+
+    def test_invalid_phase_model_policy_entries_are_errors(self):
+        policy_text = DeliveryFixture.build_model_policy_text(
+            phases={
+                "1": {"model": "gpt-5.5", "reasoning_effort": "warp"},
+                "2": "not an object",
+                "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, policy_text=policy_text)
+
+            validate = self.run_validate(fixture)
+
+            codes = self.error_codes(validate)
+            self.assertIn("invalid_phase_reasoning_effort", codes)
+            self.assertIn("invalid_phase_policy_entry", codes)
+
+    def test_retarget_plan_uses_next_phase_policy_override(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True)
+            roadmap_path = fixture.repo_root / "roadmaps" / fixture.roadmap_filename
+            roadmap_path.write_text(
+                roadmap_path.read_text(encoding="utf-8")
+                + "\n## Phase 2 - Next Fixture\n\nNext fixture body.\n",
+                encoding="utf-8",
+            )
+            policy_text = DeliveryFixture.build_model_policy_text(
+                defaults_model="gpt-5.4",
+                defaults_reasoning="medium",
+                phases={
+                    "2": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                    "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                },
+            )
+            (fixture.state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
+
+            plan = self.run_plan(fixture, "--delivered-phase", "Phase 1 - Fixture")
+
+            self.assertEqual(plan["next_phase"], "Phase 2 - Next Fixture")
+            self.assertEqual(plan["target"]["source"], "phases.2")
+            self.assertEqual(plan["target"]["model"], "gpt-5.5")
+            self.assertEqual(plan["target"]["reasoning_effort"], "xhigh")
+            self.assertEqual(plan["retarget"]["status"], "not_needed")
+
+    def test_model_policy_replay_prompts_cover_required_scenarios(self):
+        prompt_text = (REPO_ROOT / "evals" / "model-policy-prompts.md").read_text(encoding="utf-8")
+
+        for marker in (
+            "Wrong Model At Start",
+            "Retarget Next Phase",
+            "Three Stalled Runs",
+            "Custom Stalled Run Threshold",
+            "Delivered Roadmap Completion Alert",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, prompt_text)
 
     def test_blocked_active_without_remediation_guard_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:

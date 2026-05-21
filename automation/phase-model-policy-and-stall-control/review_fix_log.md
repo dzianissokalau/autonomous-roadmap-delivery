@@ -128,3 +128,21 @@ No findings. Phase 7 adds completion hard-stop and pause-request guidance,
 completed-alert enforcement, completion pause/alert inspection fields, and
 fixture coverage for complete+paused, complete+active, missing completed alert,
 and completed notification failure cases.
+
+## Phase 8 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 8 integrates phase model policy into new automation setup,
+including default `phase_model_policy.json` generation, setup-time
+model/reasoning/stall/notification inputs, first-phase automation readback,
+activation blockers, and setup state mirroring.
+
+## Phase 9 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 9 adds reusable model-policy fixture generation, regression
+coverage for policy overrides, unknown configured model/reasoning, invalid
+phase entries, retarget planning, and replay prompts for model mismatch,
+retargeting, stalled runs, custom thresholds, and completion alerts.

@@ -1,28 +1,23 @@
 {
   "roadmap": "roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-9",
-  "branch_reason": "Phase 8 was delivered on codex/phase-model-policy-and-stall-control-phase-8; the next run should continue from the Phase 9 branch.",
+  "current_phase": "Phase 10 - Migration, Release, And Documentation",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-10",
+  "branch_reason": "Phase 9 was delivered on codex/phase-model-policy-and-stall-control-phase-9; the next run should continue from the Phase 10 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
     "commands": [
       {
-        "command": "Dry-run setup fixture under /private/tmp with generated phase_model_policy.json, paused automation.toml, first-phase model/readback match, and prompt model-policy hard-stop markers",
-        "status": "passed",
-        "details": "Temporary setup fixture validated with no errors; only empty_review_dir was allowed because first setup has not produced a review yet. Prompt marker inspection found phase_model_policy.json, model/reasoning hard stop, Blocked Remediation Mode, and completion hard-stop markers."
-      },
-      {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "31 helper-script tests passed."
+        "details": "37 helper-script tests passed, including policy fixture utilities, phase/finalization policy overrides, unknown configured model/reasoning, invalid phase-policy entries, retarget planning, stall/alert coverage, and replay prompt marker coverage."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase8-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
+        "command": "PYTHONPYCACHEPREFIX=${TMPDIR:-/private/tmp}/roadmap-delivery-skill-model-policy-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
         "status": "passed",
-        "details": "Inspection, validation, retarget planner, progress signature, and operator alert scripts compiled."
+        "details": "Required Phase 9 inspect and validation helper scripts compiled."
       },
       {
         "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
@@ -37,33 +32,33 @@
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
         "status": "passed_with_warning",
-        "details": "Validation reported no errors, model policy match, run log valid, and only the expected worktree_dirty warning from the Phase 8 diff."
+        "details": "Validation reported no errors, model policy match, run log valid, and only the expected worktree_dirty warning from the Phase 9 diff."
       },
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed_with_warning",
-        "details": "Inspection reported Phase 8, gpt-5.5/xhigh configuration, no model mismatch, and only the expected worktree_dirty warning from the Phase 8 diff."
+        "details": "Inspection reported Phase 9, gpt-5.5/xhigh configuration, no model mismatch, no blocker, and only the expected worktree_dirty warning from the Phase 9 diff."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 8 - Automation Setup Integration' --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 9 - Tests, Fixtures, And Replay Prompts' --json",
         "status": "passed",
-        "details": "Phase 9 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
+        "details": "Phase 10 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
       },
       {
-        "command": "rg -n \"Initial Phase Model Policy|default model|per-phase model|finalization model|lower-cost|high-reasoning|phase_model_policy\\.json|model-policy start-run hard stop|wrong model or reasoning|Activation is not allowed|Setup State Fields|policy required model/reasoning\" skill/roadmap-delivery-skill/references/setup-automation.md skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md skill/roadmap-delivery-skill/references/state-log-and-branches.md",
+        "command": "rg -n \"Wrong Model At Start|Retarget Next Phase|Three Stalled Runs|Custom Stalled Run Threshold|Delivered Roadmap Completion Alert|evals/model-policy-prompts\\.md\" evals tests/test_helper_scripts.py",
         "status": "passed",
-        "details": "Manual marker inspection found setup policy inputs, activation gates, prompt hard-stop requirements, and setup state mirroring guidance."
+        "details": "Manual marker inspection found all required model-policy replay scenarios and cross-references."
       }
     ],
-    "completed_at": "2026-05-21T17:48:15Z"
+    "completed_at": "2026-05-21T19:41:20Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-8-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-9-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T17:48:15Z",
-    "summary": "Phase 8 delivered policy-first automation setup guidance, first-phase model/readback requirements, activation blockers, and setup state mirroring."
+    "completed_at": "2026-05-21T19:41:20Z",
+    "summary": "Phase 9 delivered model-policy fixture utilities, expanded helper-script regression coverage, retarget-plan coverage, and replay prompts for model mismatch, retargeting, stalled runs, custom thresholds, and completion alerts."
   },
-  "last_delivered_phase": "Phase 8 - Automation Setup Integration",
+  "last_delivered_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -142,11 +137,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 12,
+  "run_count": 13,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:f48e75dd286e8cc5c80dfb35d1993f73378ceffac4f6f5d34f883342942dc1b5",
-  "last_progress_at": "2026-05-21T17:48:15Z",
+  "last_progress_signature": "sha256:fc8faa7f5ed4f8489e66d7de29374215f2e7a7dbbf16fbf55b5ce1c68cb646e6",
+  "last_progress_at": "2026-05-21T19:41:20Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -158,11 +153,11 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T16:44:55Z"
   },
-  "updated_at": "2026-05-21T17:48:15Z",
+  "updated_at": "2026-05-21T19:41:20Z",
   "last_phase_retarget": {
-    "completed_at": "2026-05-21T17:48:15Z",
-    "delivered_phase": "Phase 8 - Automation Setup Integration",
-    "next_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
+    "completed_at": "2026-05-21T19:41:20Z",
+    "delivered_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
+    "next_phase": "Phase 10 - Migration, Release, And Documentation",
     "required_model": "gpt-5.5",
     "required_reasoning_effort": "xhigh",
     "configured_automation_model": "gpt-5.5",

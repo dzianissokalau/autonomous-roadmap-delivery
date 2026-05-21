@@ -7,6 +7,9 @@ fixtures or copied repositories only.
 Do not include expected answers in the prompt shown to the model. Score the
 response afterward against the rubric below.
 
+For model-policy-specific start-run, stall, retarget, and completion replay
+coverage, use `evals/model-policy-prompts.md`.
+
 ## Scoring Rubric
 
 - Correctly identifies the roadmap, state file, automation config, branch, and

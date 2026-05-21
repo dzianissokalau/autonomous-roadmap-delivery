@@ -7,6 +7,9 @@ copied roadmap artifacts only.
 Do not show the expected disposition to the model. Score after the run using the
 rubric below.
 
+For model-policy-specific blocker, retarget, stall, and completion replay
+coverage, use `evals/model-policy-prompts.md`.
+
 ## Scoring Rubric
 
 - Leads with concrete review findings and cites the smallest relevant artifact.
