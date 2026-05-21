@@ -1,0 +1,67 @@
+{
+  "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
+  "roadmap_slug": "phase-model-policy-and-stall-control",
+  "current_phase": "Phase 1 - Skill Routing And Reference Docs",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-1",
+  "branch_reason": "Phase 0 was delivered on codex/phase-model-policy-and-stall-control-phase-0; the next run should continue from the Phase 1 branch.",
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": {
+    "commands": [
+      {
+        "command": "Manual review: check the roadmap for contradictions with existing skill guarantees",
+        "status": "passed",
+        "details": "The roadmap states that skills cannot switch an already-running model and keeps model control in the automation or runner."
+      },
+      {
+        "command": "Manual review: confirm the policy can represent low-cost docs, high-reasoning implementation, finalization, and disabled notifications for tests",
+        "status": "passed",
+        "details": "The recommended policy includes per-phase model overrides, a finalization pseudo-phase, and notification mode none for tests and dry runs."
+      },
+      {
+        "command": "LC_ALL=C rg -n '[^ -~]' roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md automation/phase-model-policy-and-stall-control",
+        "status": "passed",
+        "details": "No non-ASCII characters were found in the roadmap or automation artifacts."
+      },
+      {
+        "command": "git diff --check",
+        "status": "passed",
+        "details": "No whitespace errors were found."
+      }
+    ],
+    "completed_at": "2026-05-21T13:22:19Z"
+  },
+  "last_review": {
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-0-review-iteration-1.md",
+    "verdict": "delivered",
+    "completed_at": "2026-05-21T13:22:19Z",
+    "summary": "Phase 0 policy contract is explicit, internally consistent, and ready for Phase 1 implementation."
+  },
+  "last_delivered_phase": "Phase 0 - Policy Contract",
+  "blocked_reason": null,
+  "auto_advance_after_delivered_review": true,
+  "commit_delivered_phase_locally": true,
+  "push_to_github": false,
+  "required_model": "gpt-5.5",
+  "required_reasoning_effort": "xhigh",
+  "configured_automation_model": "gpt-5.5",
+  "configured_automation_reasoning_effort": "xhigh",
+  "run_count": 1,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": "manual:phase-0-delivered:2026-05-21T13:22:19Z",
+  "last_progress_at": "2026-05-21T13:22:19Z",
+  "last_operator_alert": null,
+  "automation": {
+    "id": "phase-model-policy-and-stall-control",
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh",
+    "execution_environment": "worktree",
+    "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
+    "created_or_updated_at": "2026-05-21T13:22:19Z"
+  },
+  "updated_at": "2026-05-21T13:22:19Z"
+}

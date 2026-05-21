@@ -1,9 +1,10 @@
 # Phase Model Policy And Stall Control Roadmap
 
-Status: Not Started
-Current phase: Phase 0 - Policy Contract
+Status: Active
+Current phase: Phase 1 - Skill Routing And Reference Docs
+Last completed phase: Phase 0 - Policy Contract
 Last updated: 2026-05-21
-Next action: Confirm the policy file shape, model-selection semantics, and alert sinks.
+Next action: Start Phase 1 and add model-policy routing and reference docs.
 Blocked by: None
 
 ## Purpose
@@ -132,6 +133,40 @@ Future notification modes:
 - `email`
 - `codex_thread`
 - `webhook`
+
+## Phase 0 Decisions
+
+Phase 0 confirms the policy contract as follows:
+
+- Public term: `phase model policy`.
+- Operator-facing description: model-aware automation.
+- Required policy fields:
+  - `schema_version`
+  - `max_stalled_runs`
+  - `notification`
+  - `defaults`
+  - `phases`
+- Allowed `reasoning_effort` values:
+  - `minimal`
+  - `low`
+  - `medium`
+  - `high`
+  - `xhigh`
+- `finalization` is a pseudo-phase entry, not a numbered implementation phase.
+- Initial notification sinks:
+  - `alert_file`: required local fallback
+  - `github_issue`: optional external sink
+  - `none`: allowed only for tests and dry runs
+- Repeated non-progress is reported as `stalled`; delivery state becomes
+  `blocked`, automation is paused, and a stalled alert is written.
+- Retarget failures are blocking. After a phase is delivered, failed retargeting
+  pauses or blocks the automation, writes an alert, and prevents the next phase
+  from starting.
+- The skill must keep saying explicitly that it cannot switch the model of an
+  already-running Codex session. The automation or runner must be configured
+  before the next run starts.
+- This roadmap delivery automation is configured for `gpt-5.5` with `xhigh`
+  reasoning until a later phase implements per-phase retargeting.
 
 ## Progress Signature
 

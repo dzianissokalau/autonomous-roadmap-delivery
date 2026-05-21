@@ -1,0 +1,15 @@
+{
+  "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
+  "roadmap_slug": "phase-model-policy-and-stall-control",
+  "current_phase": "Phase 1 - Skill Routing And Reference Docs",
+  "status": "idle",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "latest_review": {
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-0-review-iteration-1.md",
+    "verdict": "delivered",
+    "completed_at": "2026-05-21T13:22:19Z"
+  },
+  "unresolved_findings": [],
+  "updated_at": "2026-05-21T13:22:19Z"
+}
