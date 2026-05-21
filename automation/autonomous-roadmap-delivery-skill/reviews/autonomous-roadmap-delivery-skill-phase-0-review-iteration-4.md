@@ -1,6 +1,6 @@
 # Phase 0 Review - Iteration 4
 
-Status: delivered
+Verdict: delivered
 Date: 2026-05-20
 Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
@@ -36,7 +36,3 @@ Branch: `main`
   The automation prompt now explicitly covers that path.
 - Prior blocked review artifacts remain as environment history and should not
   be interpreted as the latest Phase 0 verdict.
-
-## Verdict
-
-delivered

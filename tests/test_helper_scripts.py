@@ -29,6 +29,7 @@ class DeliveryFixture:
         prompt_path="roadmaps/eval_fixture_roadmap.md",
         hard_stop_guard=True,
         state_layout="roadmaps",
+        write_automation_config=True,
     ):
         self.tmpdir = Path(tmpdir)
         self.repo_root = self.tmpdir / "repo"
@@ -47,11 +48,12 @@ class DeliveryFixture:
             omit_review_dir=omit_review_dir,
             state_layout=state_layout,
         )
-        self._write_automation_config(
-            automation_status=automation_status,
-            prompt_path=prompt_path,
-            hard_stop_guard=hard_stop_guard,
-        )
+        if write_automation_config:
+            self._write_automation_config(
+                automation_status=automation_status,
+                prompt_path=prompt_path,
+                hard_stop_guard=hard_stop_guard,
+            )
         self._init_git()
         if dirty_worktree:
             (self.repo_root / "operator-notes.txt").write_text("unrelated local note\n", encoding="utf-8")
@@ -209,8 +211,29 @@ class HelperScriptTests(unittest.TestCase):
         self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
         return json.loads(proc.stdout)
 
-    def run_validate(self, fixture):
-        return self.run_json(VALIDATE_SCRIPT, fixture, allowed_returncodes=(0, 1))
+    def run_validate(self, fixture, *extra_args, allowed_returncodes=(0, 1)):
+        return self.run_json(VALIDATE_SCRIPT, fixture, *extra_args, allowed_returncodes=allowed_returncodes)
+
+    def run_validate_proc(self, fixture, *extra_args):
+        return subprocess.run(
+            [
+                "python3",
+                str(VALIDATE_SCRIPT),
+                "--repo-root",
+                str(fixture.repo_root),
+                "--roadmap-slug",
+                fixture.slug,
+                "--automation-id",
+                fixture.automation_id,
+                "--json",
+                *extra_args,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=fixture.env(),
+            check=False,
+        )
 
     def run_inspect(self, fixture):
         return self.run_json(INSPECT_SCRIPT, fixture)
@@ -257,6 +280,17 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("stale_automation_roadmap_path", self.warning_codes(validate))
             self.assertEqual(validate["errors"], [])
 
+    def test_missing_automation_config_is_warning_for_both_helpers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_automation_config=False)
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertIn("missing_automation_config", self.warning_codes(inspect))
+            self.assertIn("missing_automation_config", self.warning_codes(validate))
+            self.assertEqual(validate["errors"], [])
+
     def test_completed_active_without_hard_stop_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(
@@ -298,6 +332,44 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("worktree_dirty", self.warning_codes(inspect))
             self.assertIn("worktree_dirty", self.warning_codes(validate))
             self.assertEqual(validate["errors"], [])
+
+    def test_branch_mismatch_warnings_are_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, current_phase="Phase 2 - Fixture")
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("state_branch_name_mismatch", self.warning_codes(validate))
+            self.assertIn("current_branch_name_mismatch", self.warning_codes(validate))
+            self.assertEqual(validate["errors"], [])
+
+    def test_missing_state_file_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp)
+            (fixture.state_dir / "delivery_state.json").unlink()
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("missing_state_file", self.error_codes(validate))
+
+    def test_invalid_state_json_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp)
+            (fixture.state_dir / "delivery_state.json").write_text("{not valid json\n", encoding="utf-8")
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("invalid_state_json", self.error_codes(validate))
+
+    def test_strict_mode_allows_named_warning_codes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_automation_config=False)
+
+            strict = self.run_validate_proc(fixture, "--strict")
+            allowed = self.run_validate_proc(fixture, "--strict", "--allow-warning", "missing_automation_config")
+
+            self.assertEqual(strict.returncode, 1, strict.stdout)
+            self.assertEqual(allowed.returncode, 0, allowed.stderr or allowed.stdout)
 
 
 if __name__ == "__main__":

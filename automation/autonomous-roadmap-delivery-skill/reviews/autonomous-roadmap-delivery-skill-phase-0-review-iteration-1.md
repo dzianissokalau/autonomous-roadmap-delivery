@@ -1,6 +1,6 @@
 # Phase 0 Review - Iteration 1
 
-Status: blocked
+Verdict: blocked
 Date: 2026-05-20
 Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
@@ -39,7 +39,3 @@ Branch: `main`
   ownership.
 - The next run will remain blocked until the skill install target is made
   writable to the automation or a human-approved escalation path is available.
-
-## Verdict
-
-blocked

@@ -1,6 +1,6 @@
 # Phase 0 Review - Iteration 2
 
-Status: blocked
+Verdict: blocked
 Date: 2026-05-20
 Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
@@ -37,7 +37,3 @@ Branch: `main`
 - The next automation run will continue to block until
   `$CODEX_HOME/skills` is writable to this automation or a
   human-approved write path is provided.
-
-## Verdict
-
-blocked

@@ -1,6 +1,6 @@
 # Phase 0 Review - Iteration 3
 
-Status: blocked
+Verdict: blocked
 Date: 2026-05-20
 Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
@@ -49,7 +49,3 @@ Branch: `main`
 - This is the third blocked review iteration. Further automatic retries should
   wait for the install target to become writable to the automation or for a
   human-approved writable target to be chosen.
-
-## Verdict
-
-blocked

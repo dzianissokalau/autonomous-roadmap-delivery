@@ -119,7 +119,8 @@ The helper scripts should be deterministic and read-only:
   stale prompt-path warnings, and deep-review prompt presence.
 - `scripts/validate_delivery_artifacts.py` validates delivery artifacts and
   returns JSON with `errors`, `warnings`, and `info`; errors are blockers,
-  warnings require explanation, and `--strict` should fail on warnings.
+  warnings require explanation, and `--strict` should fail on warnings except
+  codes explicitly passed with `--allow-warning`.
 
 The skill should preserve unrelated user changes, avoid broad staging, avoid
 force-pushes unless explicitly approved by a human for publication cleanup, and
@@ -174,6 +175,7 @@ PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-compile-pycache" python3 
 PYTHONPATH="$TMPDIR/autonomous-roadmap-delivery-pyyaml" PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-skill-pycache" python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" skill/autonomous-roadmap-delivery
 PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-inspect-pycache" python3 skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
 PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-validate-pycache" python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
+PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-strict-pycache" python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --strict --allow-warning missing_automation_config --allow-warning roadmap_lifecycle_filename_unconfirmed --allow-warning automation_prompt_missing_hard_stop_guard
 ```
 
 Also inspect these behavior-specific questions:

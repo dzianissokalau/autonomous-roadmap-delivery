@@ -93,7 +93,7 @@
     "state_file": "$PILOT_REPO_ROOT/roadmaps/automation/<pilot-roadmap-slug>/delivery_state.json",
     "roadmap": "$PILOT_REPO_ROOT/roadmaps/delivered_<pilot-roadmap-slug>_roadmap.md"
   },
-  "updated_at": "2026-05-21T06:44:46Z",
+  "updated_at": "2026-05-21T09:52:55Z",
   "all_phases_complete": true,
   "finalization": {
     "deep_review_prompt": "automation/autonomous-roadmap-delivery-skill/deep_review_prompt.md",
@@ -105,6 +105,18 @@
       "status": "sanitized_before_history_rewrite",
       "details": "Committed review artifacts use placeholders for local home paths, roadmap repository paths, temp directories, pilot repository names, pilot roadmap slugs, repository owner strings, and test email values.",
       "history_rewrite_required": true
+    },
+    "external_review_fixes": {
+      "completed_at": "2026-05-21T09:52:55Z",
+      "source_report": "$USER_DOWNLOADS/deep-review-report.md",
+      "status": "fixed",
+      "fixes": [
+        "inspect_delivery_state.py reports missing automation config as a warning instead of exiting 2",
+        "validate_delivery_artifacts.py supports --allow-warning for strict-mode expected warnings",
+        "tests cover missing automation config, branch mismatch, missing state, invalid state JSON, and strict warning allowlist behavior",
+        "Phase 0 review artifacts use inline Verdict fields consistently",
+        "repository skill snapshot and installed skill package match after the fixes"
+      ]
     }
   }
 }

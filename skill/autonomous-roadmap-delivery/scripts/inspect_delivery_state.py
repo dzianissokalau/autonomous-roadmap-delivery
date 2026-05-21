@@ -266,18 +266,19 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     if automation_id:
         automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
         if not automation_toml.exists():
-            raise RuntimeError(f"Automation config does not exist: {automation_toml}")
-        automation_data = parse_minimal_toml(automation_toml)
-        automation_status = automation_data.get("status")
-        automation_prompt = str(automation_data.get("prompt") or "")
-        automation_roadmap_references = extract_roadmap_references(automation_prompt, repo_root)
-        if args.roadmap_slug and forms["dash"] and forms["dir"]:
-            if forms["dash"] not in automation_prompt and forms["dir"] not in automation_prompt and forms["dash"] not in automation_id and forms["dir"] not in automation_id:
-                add_warning(
-                    warnings,
-                    "automation_slug_mismatch",
-                    f"Automation {automation_id!r} does not appear to reference roadmap slug {args.roadmap_slug!r}.",
-                )
+            add_warning(warnings, "missing_automation_config", f"Automation config does not exist: {automation_toml}")
+        else:
+            automation_data = parse_minimal_toml(automation_toml)
+            automation_status = automation_data.get("status")
+            automation_prompt = str(automation_data.get("prompt") or "")
+            automation_roadmap_references = extract_roadmap_references(automation_prompt, repo_root)
+            if args.roadmap_slug and forms["dash"] and forms["dir"]:
+                if forms["dash"] not in automation_prompt and forms["dir"] not in automation_prompt and forms["dash"] not in automation_id and forms["dir"] not in automation_id:
+                    add_warning(
+                        warnings,
+                        "automation_slug_mismatch",
+                        f"Automation {automation_id!r} does not appear to reference roadmap slug {args.roadmap_slug!r}.",
+                    )
 
     if not args.roadmap_slug and automation_prompt:
         match = re.search(r"(?:roadmaps/)?automation/([A-Za-z0-9_-]+)/delivery_state\.json", automation_prompt)

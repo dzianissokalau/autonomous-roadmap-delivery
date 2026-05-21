@@ -135,14 +135,15 @@ and `info`:
 
 The validator is read-only. It does not repair stale paths, pause automations,
 stage files, or update delivery state. Use `--strict` when warnings should fail
-a CI or smoke check. Without `--strict`, warnings return exit code 0 and errors
-return non-zero.
+a CI or smoke check. Use `--allow-warning <code>` for expected environment
+warnings, such as a GitHub-only reviewer without local automation config.
+Without `--strict`, warnings return exit code 0 and errors return non-zero.
 
 It checks the delivery state, delivery log, review directory, roadmap lifecycle
 filename, state roadmap path, automation prompt roadmap references, hard-stop
 guard, state/roadmap current phase, completion/deep-review evidence, completed
-ACTIVE automation drift, review verdict values, branch naming, and dirty
-worktree status.
+ACTIVE automation drift, missing automation config, review verdict values,
+branch naming, and dirty worktree status.
 
 ## Maintenance Checklist
 

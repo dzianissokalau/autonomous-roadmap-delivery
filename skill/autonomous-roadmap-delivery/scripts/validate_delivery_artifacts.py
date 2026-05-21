@@ -559,12 +559,29 @@ def print_text(report: Dict[str, Any]) -> None:
             print(f"- {item['code']}: {item['message']}{suffix}")
 
 
+def parse_allowed_warning_codes(values: Optional[List[str]]) -> set[str]:
+    codes: set[str] = set()
+    for value in values or []:
+        for code in value.split(","):
+            cleaned = code.strip()
+            if cleaned:
+                codes.add(cleaned)
+    return codes
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Validate phase-gated roadmap delivery artifacts without mutating files.")
     parser.add_argument("--repo-root", required=True, help="Repository root to validate.")
     parser.add_argument("--roadmap-slug", help="Roadmap slug, accepting hyphen or underscore form.")
     parser.add_argument("--automation-id", help="Codex automation id under ~/.codex/automations.")
     parser.add_argument("--strict", action="store_true", help="Return non-zero when warnings are present.")
+    parser.add_argument(
+        "--allow-warning",
+        action="append",
+        default=[],
+        metavar="CODE",
+        help="Warning code to allow under --strict. May be repeated or comma-separated.",
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON output.")
     args = parser.parse_args(argv)
 
@@ -579,8 +596,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if report.get("errors"):
         return 1
-    if args.strict and report.get("warnings"):
-        return 1
+    if args.strict:
+        allowed_warnings = parse_allowed_warning_codes(args.allow_warning)
+        blocking_warnings = [item for item in report.get("warnings", []) if item.get("code") not in allowed_warnings]
+        if blocking_warnings:
+            return 1
     return 0
 
 

@@ -1695,3 +1695,21 @@ Branch: `codex/autonomous-roadmap-delivery-skill-phase-10`
 - Because the branch had already been pushed with unsanitized commits, this
   sanitation requires rewriting/squashing the phase branch and force-pushing the
   sanitized branch after human approval.
+
+## External Deep Review Fixes - 2026-05-21T09:52:55Z
+
+- Addressed findings from the external deep review report.
+- Changed `inspect_delivery_state.py` so a supplied but missing automation
+  config is reported as `missing_automation_config` warning JSON instead of a
+  `RuntimeError`/exit 2.
+- Added `--allow-warning <code>` support to `validate_delivery_artifacts.py`
+  so strict mode can be used in GitHub-only review environments while still
+  failing on unexpected warnings.
+- Expanded `tests/test_helper_scripts.py` from 7 to 12 tests covering missing
+  automation config, branch mismatch warnings, missing state file, invalid state
+  JSON, and strict warning allowlisting.
+- Normalized Phase 0 review artifacts to use inline `Verdict:` fields.
+- Updated the deep review prompt and state-log reference for strict-mode
+  allowlisted warnings.
+- Synced the changed helper scripts and references into the installed skill and
+  confirmed the installed skill matches the repository snapshot.
