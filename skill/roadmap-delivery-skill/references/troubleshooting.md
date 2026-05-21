@@ -104,9 +104,36 @@ Repeated non-progress:
 - Compute or inspect the durable progress signature.
 - If the signature is unchanged, increment `stalled_run_count`.
 - At `max_stalled_runs`, keep state blocked, pause or request pause, and write
-  a stalled alert.
+  a stalled alert with `write_operator_alert.py`.
 - Before counting another stall, run Blocked Run Remediation for any explicit
   blocker.
+
+## Operator Alert Problems
+
+Alert files are the durable fallback for stalled, completed, blocked, and
+retarget-failed automation states. Always write the local alert before relying
+on optional notification sinks.
+
+If `last_operator_alert.file` is missing:
+
+- keep or set state blocked when the alert was required for a blocker
+- rerun `write_operator_alert.py` with the same alert kind and reason
+- rerun artifact validation
+- record the repaired alert path in the delivery log
+
+If an optional notification sink fails:
+
+- do not delete or rewrite the local alert file
+- record `notification_status: failed` and the failure reason in
+  `last_operator_alert`
+- append the notification failure to `delivery_log.md`
+- classify missing credentials or unavailable approval as
+  `permission-gated`
+
+If alert content would expose secrets or sensitive private paths to an external
+sink, do not send the external notification. Keep the local alert, record the
+redaction concern, and ask for operator approval before sending anything
+outside the repository.
 
 ## Automation Saved ACTIVE Despite Requested PAUSED
 

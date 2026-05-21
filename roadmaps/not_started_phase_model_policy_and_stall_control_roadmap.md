@@ -1,11 +1,10 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 6 - Alert Files And Optional Notification Sinks
-Last completed phase: Phase 5 - Progress Signature And Stall Counter
+Current phase: Phase 7 - Completion Pause And Alert Flow
+Last completed phase: Phase 6 - Alert Files And Optional Notification Sinks
 Last updated: 2026-05-21
-Next action: Start Phase 6 and add durable operator alert files with optional
-notification sink boundaries.
+Next action: Start Phase 7 and add completion pause plus completion alert flow.
 Blocked by: None
 
 ## Purpose

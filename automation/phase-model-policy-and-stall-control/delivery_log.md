@@ -659,3 +659,79 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-5`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-6` and start Phase 6 -
   Alert Files And Optional Notification Sinks.
+
+## Phase 6 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-6`
+
+### Scope
+
+- Add durable local alert-file generation for stalled, completed, blocked, and
+  retarget-failed automation states.
+- Define optional notification sink boundaries and failure fallback behavior.
+- Keep changes scoped to the Phase 6 helper script, validator, references, and
+  fixture coverage.
+
+### Changes
+
+- Added `write_operator_alert.py`, which writes deterministic local alert files
+  under `automation/<slug>/alerts/`, records `last_operator_alert` in state,
+  and appends alert/notification failure evidence to the delivery log.
+- Updated `validate_delivery_artifacts.py` to validate recorded operator alert
+  kind, file existence, required alert context markers, and notification
+  failure status.
+- Expanded `model-policy-and-stall-control.md` with alert context
+  requirements, local fallback semantics, `github_issue` boundaries, and
+  future sink extension points.
+- Expanded `troubleshooting.md` with missing alert repair and failed
+  notification handling.
+- Added helper-script tests for alert generation, notification failure
+  fallback, and missing recorded alert files.
+- Advanced the roadmap header and delivery/review state to Phase 7 after a
+  delivered review verdict. The Phase 6 to Phase 7 retarget plan resolved to
+  policy defaults and the saved automation already matched
+  `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 25 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase6-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 6 - Alert Files And Optional Notification Sinks' --json`:
+  passed; Phase 7 falls back to policy defaults and no automation update is
+  needed.
+- Manual alert template inspection with `rg`: passed; required operator
+  context markers are present.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-6-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- External `github_issue` delivery remains optional and gated by credentials
+  and approval; Phase 6 intentionally does not send external notifications.
+- Phase 7 still owns completion pause behavior and completion-alert wiring.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-7` and start Phase 7 -
+  Completion Pause And Alert Flow.

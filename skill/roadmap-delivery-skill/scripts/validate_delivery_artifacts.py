@@ -23,6 +23,22 @@ COMPLETED_STATUSES = {"complete", "completed", "delivered", "completed_pending_p
 ACTIVE_STATUSES = {"in progress", "active", "not_started", "delivering", "verifying", "reviewing", "fixing", "blocked"}
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 KNOWN_NOTIFICATION_MODES = {"alert_file", "github_issue", "none", "slack", "email", "codex_thread", "webhook"}
+VALID_ALERT_KINDS = {"stalled", "completed", "blocked", "retarget-failed"}
+REQUIRED_ALERT_MARKERS = (
+    "Roadmap:",
+    "Phase:",
+    "Status:",
+    "Reason:",
+    "Required model:",
+    "Configured model:",
+    "Required reasoning effort:",
+    "Configured reasoning effort:",
+    "Last verification:",
+    "Last review:",
+    "State file:",
+    "Delivery log:",
+    "Next human action:",
+)
 POLICY_STATE_FIELDS = (
     "required_model",
     "required_reasoning_effort",
@@ -546,6 +562,66 @@ def validate_progress_tracking(
     return progress
 
 
+def validate_operator_alert(
+    repo_root: Path,
+    state_dir: Path,
+    state: Dict[str, Any],
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "alert_dir": str(state_dir / "alerts"),
+        "last_operator_alert": state.get("last_operator_alert"),
+    }
+    alert_dir = state_dir / "alerts"
+    if alert_dir.exists() and not alert_dir.is_dir():
+        add(errors, "operator_alert_path_not_directory", "Alert path exists but is not a directory.", alert_dir)
+        return result
+
+    last_alert = state.get("last_operator_alert")
+    if last_alert is None:
+        if normalized(state.get("status")) == "blocked" and state.get("blocked_reason"):
+            add(warnings, "blocked_state_missing_operator_alert", "Blocked state has a blocked_reason but no last_operator_alert.")
+        return result
+    if not isinstance(last_alert, dict):
+        add(errors, "invalid_operator_alert_state", "last_operator_alert must be an object when present.")
+        return result
+
+    kind = last_alert.get("kind")
+    if kind not in VALID_ALERT_KINDS:
+        add(errors, "invalid_operator_alert_kind", f"Alert kind {kind!r} is not one of {sorted(VALID_ALERT_KINDS)}.")
+
+    file_value = last_alert.get("file")
+    if not isinstance(file_value, str) or not file_value.strip():
+        add(errors, "missing_operator_alert_file", "last_operator_alert.file must be a non-empty path.")
+        return result
+    alert_path = resolve_repo_path(repo_root, file_value)
+    result["alert_file"] = str(alert_path) if alert_path else None
+    if not alert_path or not alert_path.exists():
+        add(errors, "missing_operator_alert_file", "Recorded operator alert file does not exist.", alert_path)
+        return result
+    if not alert_path.is_file():
+        add(errors, "operator_alert_not_file", "Recorded operator alert path is not a file.", alert_path)
+        return result
+
+    text = read_text(alert_path, errors, "operator_alert_unreadable")
+    if text is not None:
+        for marker in REQUIRED_ALERT_MARKERS:
+            if marker not in text:
+                add(errors, "operator_alert_missing_context", f"Alert file is missing required marker {marker!r}.", alert_path)
+        if kind and f"Alert kind: `{kind}`" not in text and f"Alert kind: {kind}" not in text:
+            add(warnings, "operator_alert_kind_not_visible", "Alert file does not visibly include the recorded alert kind.", alert_path)
+
+    notification_status = last_alert.get("notification_status")
+    notification_failure = last_alert.get("notification_failure")
+    if notification_status == "failed" and not notification_failure:
+        add(warnings, "operator_alert_failure_missing_reason", "Notification status is failed but no notification_failure was recorded.")
+    if notification_failure and notification_status != "failed":
+        add(warnings, "operator_alert_failure_status_mismatch", "notification_failure is present but notification_status is not failed.")
+
+    return result
+
+
 def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
     branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
     proc = run_git(repo_root, ["branch", "--show-current"])
@@ -700,6 +776,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     if policy_path is not None:
         model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings)
     progress_tracking = validate_progress_tracking(repo_root, state_file, state, errors, warnings) if state_file else None
+    operator_alert = validate_operator_alert(repo_root, state_dir, state, errors, warnings) if state_dir else None
 
     deep_review_prompt = find_deep_review_prompt(state_dir, state)
     if complete and deep_review_prompt is None:
@@ -743,6 +820,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "blocked_remediation_guard": blocked_remediation_guard,
         "model_policy": model_policy or None,
         "progress_tracking": progress_tracking,
+        "operator_alert": operator_alert,
         "repo_root": str(repo_root),
         "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
         "state_file": path_for_report(state_file),

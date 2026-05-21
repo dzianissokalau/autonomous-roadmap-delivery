@@ -159,7 +159,7 @@ make the required action explicit.
 ## Alerts
 
 Always write a local alert file before relying on optional external
-notifications:
+notifications. Use:
 
 ```text
 automation/<roadmap-slug>/alerts/<timestamp>-<kind>.md
@@ -172,5 +172,41 @@ Initial alert kinds:
 - `blocked`
 - `retarget-failed`
 
-External sinks such as GitHub issues, Slack, email, or webhooks are optional
-and must fail safe to the local alert file.
+Each alert must include enough operator context to act without reopening the
+whole run transcript:
+
+- roadmap path
+- current phase
+- current status
+- alert reason
+- required and configured model/reasoning when known
+- last verification summary
+- last review summary
+- state, delivery log, and review paths
+- next human action
+
+Use `write_operator_alert.py` for deterministic local alerts:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/write_operator_alert.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <roadmap-slug> \
+  --kind stalled \
+  --reason "Stalled after 3 consecutive runs without durable progress." \
+  --json
+```
+
+Optional external sinks are conservative:
+
+- `github_issue`: create one tracking issue per roadmap automation when
+  credentials and approval are available; append or comment for repeated
+  alerts; include state/log/review paths rather than large pasted logs.
+- `none`: allowed only for tests and dry runs; the local alert still records
+  the event.
+- Slack, email, Codex thread, and webhook delivery are future extension
+  points until a phase explicitly implements them.
+
+If an external sink fails, preserve the local alert file, record
+`notification_status: failed` and the failure reason in `last_operator_alert`,
+append the failure to the delivery log, and continue to fail safe to the local
+alert file.

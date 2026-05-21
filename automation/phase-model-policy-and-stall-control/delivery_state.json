@@ -1,9 +1,9 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 6 - Alert Files And Optional Notification Sinks",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-6",
-  "branch_reason": "Phase 5 was delivered on codex/phase-model-policy-and-stall-control-phase-5; the next run should continue from the Phase 6 branch.",
+  "current_phase": "Phase 7 - Completion Pause And Alert Flow",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-7",
+  "branch_reason": "Phase 6 was delivered on codex/phase-model-policy-and-stall-control-phase-6; the next run should continue from the Phase 7 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
@@ -12,12 +12,12 @@
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "22 helper-script tests passed, including first run, progress detected, no progress detected, threshold reached, custom threshold, and corrupt run log coverage."
+        "details": "25 helper-script tests passed, including alert generation, notification failure fallback, missing recorded alert detection, progress/stall handling, model policy validation, and artifact validation coverage."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase5-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py",
+        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase6-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
         "status": "passed",
-        "details": "Inspection, validation, retarget planner, and progress signature scripts compiled."
+        "details": "Inspection, validation, retarget planner, progress signature, and operator alert scripts compiled."
       },
       {
         "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
@@ -32,28 +32,33 @@
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
         "status": "passed_with_warning",
-        "details": "Validation reported no errors, no model mismatch, progress tracking present, run log valid, and only the expected worktree_dirty warning before Phase 5 bookkeeping was committed."
+        "details": "Validation reported no errors, no model mismatch, progress tracking present, operator alert validation present, run log valid, and only the expected worktree_dirty warning before Phase 6 bookkeeping was committed."
       },
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed_with_warning",
-        "details": "Inspection reported required/configured model fields, progress_detected true, next_run_count 9, next_stalled_run_count 0, run_log_valid true, and only the expected worktree_dirty warning before Phase 5 bookkeeping was committed."
+        "details": "Inspection reported required/configured model fields, progress_detected true, next_run_count 10, next_stalled_run_count 0, run_log_valid true, and only the expected worktree_dirty warning before Phase 6 bookkeeping was committed."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/compute_progress_signature.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 6 - Alert Files And Optional Notification Sinks' --json",
         "status": "passed",
-        "details": "Progress signature dry-run reported progress would be detected, next run count 9, stalled count 0, and no threshold alert required."
+        "details": "Phase 7 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
+      },
+      {
+        "command": "rg -n \"Roadmap:|Phase:|Status:|Reason:|Required model:|Configured model:|Last verification:|Last review:|Next human action:|Notification failure\" skill/roadmap-delivery-skill/scripts/write_operator_alert.py skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md skill/roadmap-delivery-skill/references/troubleshooting.md",
+        "status": "passed",
+        "details": "Manual alert template inspection found the required operator context markers in the helper and references."
       }
     ],
-    "completed_at": "2026-05-21T16:20:00Z"
+    "completed_at": "2026-05-21T16:31:00Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-5-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-6-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T16:20:00Z",
-    "summary": "Phase 5 delivered durable progress signatures, stalled-run counter handling, JSONL run log validation, status reporting, and required fixture coverage."
+    "completed_at": "2026-05-21T16:31:00Z",
+    "summary": "Phase 6 delivered durable local operator alert files, optional notification sink boundaries, fallback recording, validator checks, and fixture coverage."
   },
-  "last_delivered_phase": "Phase 5 - Progress Signature And Stall Counter",
+  "last_delivered_phase": "Phase 6 - Alert Files And Optional Notification Sinks",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -71,11 +76,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 9,
+  "run_count": 10,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:c3aeb7f2d8962e7e6525f587edbdca46c727850669c3baff70341e918c7cf01d",
-  "last_progress_at": "2026-05-21T16:20:00Z",
+  "last_progress_signature": "sha256:8f939443994796eb55605e3e791c5b19a03f97408fcf27383b90d6da45665c2f",
+  "last_progress_at": "2026-05-21T16:31:30Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -87,5 +92,5 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T14:59:17Z"
   },
-  "updated_at": "2026-05-21T16:20:00Z"
+  "updated_at": "2026-05-21T16:31:30Z"
 }

@@ -92,3 +92,21 @@ documents finalization retarget behavior, expands retarget failure
 troubleshooting, and adds a read-only retarget plan helper. Dry-run checks
 covered next phase policy lookup, default fallback, finalization lookup, and
 the retarget-failed path.
+
+## Phase 5 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 5 adds durable progress signature computation, run-log
+recording, stalled-run counter handling, validation and inspection reporting,
+and fixture coverage for first run, progress, no progress, threshold, custom
+threshold, and corrupt JSONL scenarios.
+
+## Phase 6 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 6 adds deterministic local operator alert files, records
+alert/fallback state, validates recorded alert files, documents optional
+notification sink boundaries, and adds fixture coverage for alert generation,
+notification failure fallback, and missing alert detection.

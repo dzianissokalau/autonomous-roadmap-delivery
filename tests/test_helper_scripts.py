@@ -17,6 +17,7 @@ SKILL_ROOT = Path(
 INSPECT_SCRIPT = SKILL_ROOT / "scripts" / "inspect_delivery_state.py"
 VALIDATE_SCRIPT = SKILL_ROOT / "scripts" / "validate_delivery_artifacts.py"
 COMPUTE_SCRIPT = SKILL_ROOT / "scripts" / "compute_progress_signature.py"
+WRITE_ALERT_SCRIPT = SKILL_ROOT / "scripts" / "write_operator_alert.py"
 
 
 class DeliveryFixture:
@@ -345,6 +346,27 @@ class HelperScriptTests(unittest.TestCase):
         self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
         return json.loads(proc.stdout)
 
+    def run_alert(self, fixture, *extra_args, allowed_returncodes=(0,)):
+        proc = subprocess.run(
+            [
+                "python3",
+                str(WRITE_ALERT_SCRIPT),
+                "--repo-root",
+                str(fixture.repo_root),
+                "--roadmap-slug",
+                fixture.slug,
+                "--json",
+                *extra_args,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=fixture.env(),
+            check=False,
+        )
+        self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
+        return json.loads(proc.stdout)
+
     def set_last_progress_signature_to_current(self, fixture):
         progress = self.run_progress(fixture)
         state_path = fixture.state_dir / "delivery_state.json"
@@ -447,6 +469,86 @@ class HelperScriptTests(unittest.TestCase):
             validate = self.run_validate(fixture)
 
             self.assertIn("invalid_run_log_jsonl", self.error_codes(validate))
+
+    def test_operator_alert_generation_records_state_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, state_status="blocked")
+
+            alert = self.run_alert(
+                fixture,
+                "--kind",
+                "stalled",
+                "--reason",
+                "Stalled after 3 consecutive runs without durable progress.",
+                "--next-action",
+                "Inspect the stalled run and repair the blocker.",
+                "--timestamp",
+                "2026-05-21T12:05:00Z",
+            )
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            alert_path = Path(alert["alert_file"])
+            alert_text = alert_path.read_text(encoding="utf-8")
+            delivery_log = (fixture.state_dir / "delivery_log.md").read_text(encoding="utf-8")
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(alert_path.exists())
+            self.assertTrue(alert["alert_file_relative"].endswith("alerts/2026-05-21T12-05-00Z-stalled.md"))
+            self.assertIn("Roadmap Delivery Alert: Stalled", alert_text)
+            self.assertIn("Phase: `Phase 1 - Fixture`", alert_text)
+            self.assertIn("Required model: `gpt-5.5`", alert_text)
+            self.assertIn("Next human action: Inspect the stalled run", alert_text)
+            self.assertEqual(state["last_operator_alert"]["kind"], "stalled")
+            self.assertEqual(state["last_operator_alert"]["notification_status"], "local_alert_only")
+            self.assertIn("Operator Alert - 2026-05-21T12:05:00Z - Stalled", delivery_log)
+            self.assertEqual(validate["errors"], [])
+
+    def test_notification_failure_preserves_alert_and_records_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, state_status="blocked")
+
+            alert = self.run_alert(
+                fixture,
+                "--kind",
+                "blocked",
+                "--reason",
+                "Manual permission is required before continuing.",
+                "--notification-sink",
+                "github_issue",
+                "--notification-failure",
+                "missing GitHub token",
+                "--timestamp",
+                "2026-05-21T12:06:00Z",
+            )
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            alert_text = Path(alert["alert_file"]).read_text(encoding="utf-8")
+            delivery_log = (fixture.state_dir / "delivery_log.md").read_text(encoding="utf-8")
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(Path(alert["alert_file"]).exists())
+            self.assertEqual(state["last_operator_alert"]["notification_status"], "failed")
+            self.assertEqual(state["last_operator_alert"]["notification_failure"], "missing GitHub token")
+            self.assertIn("Notification failure: missing GitHub token", alert_text)
+            self.assertIn("Notification failure: missing GitHub token", delivery_log)
+            self.assertEqual(validate["errors"], [])
+
+    def test_validate_errors_when_recorded_alert_file_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True)
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["last_operator_alert"] = {
+                "kind": "blocked",
+                "file": "roadmaps/automation/eval_fixture/alerts/missing.md",
+                "timestamp": "2026-05-21T12:07:00Z",
+                "reason": "missing fixture alert",
+                "notification_sink": "alert_file",
+                "notification_status": "local_alert_only",
+            }
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("missing_operator_alert_file", self.error_codes(validate))
 
     def test_clean_in_progress_fixture_passes_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:
