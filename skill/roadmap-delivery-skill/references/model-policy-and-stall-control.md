@@ -66,18 +66,55 @@ Before implementation:
 
 1. Read delivery state and current phase.
 2. Read `phase_model_policy.json` when present.
-3. Resolve required model and reasoning for the current phase.
+3. Resolve required model and reasoning for the current phase. Use a numbered
+   phase override first, then policy defaults.
 4. Read saved automation config or explicit runner config when available.
-5. Compare required versus configured values.
+5. Compare required versus configured values before phase extraction or any
+   phase-owned file edit.
 
 If required and configured values match, continue normal phase extraction.
 
-If they mismatch, do not edit phase-owned files. Record the mismatch, retarget
-the automation only when the operator already approved that surface, then exit
-so the next run starts on the correct model.
+If they mismatch, do not edit phase-owned files. Record:
+
+- current phase
+- required model and reasoning effort
+- configured model and reasoning effort
+- source of the configured values
+- whether retargeting is already approved
+
+Retarget the automation only when the operator already approved that surface,
+then exit so the next run starts on the correct model.
 
 If the active model cannot be proven and the roadmap is model-strict, stop and
 ask for confirmation rather than guessing.
+
+For manual CLI runs, use one of these relaunch patterns:
+
+```bash
+codex exec -m gpt-5.5 \
+  -c 'model_reasoning_effort="xhigh"' \
+  -C /path/to/repo \
+  "Run the next safe phase-gated delivery step for roadmaps/example.md"
+```
+
+```bash
+codex exec -p roadmap-delivery-xhigh \
+  -C /path/to/repo \
+  "Run the next safe phase-gated delivery step for roadmaps/example.md"
+```
+
+For Codex app automations, update the saved automation configuration so
+`model = "<required-model>"` and
+`reasoning_effort = "<required-reasoning-effort>"`, then read the config back.
+If readback does not match, keep or set state blocked and write a local alert.
+
+The gate treats these as stop-before-delivery conditions:
+
+- required model differs from configured model
+- required reasoning effort differs from configured reasoning effort
+- required model exists but no configured model can be proven
+- required reasoning effort exists but no configured reasoning effort can be
+  proven
 
 ## End-Run Retargeting
 

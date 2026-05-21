@@ -390,8 +390,12 @@ def validate_model_policy(
         "required_reasoning_effort": None,
         "configured_model": automation_data.get("model"),
         "configured_reasoning_effort": automation_data.get("reasoning_effort"),
+        "configured_model_source": "automation_config" if automation_data.get("model") else None,
+        "configured_reasoning_source": "automation_config" if automation_data.get("reasoning_effort") else None,
         "model_mismatch": False,
         "reasoning_mismatch": False,
+        "model_unknown": False,
+        "reasoning_unknown": False,
     }
     if not policy_path.exists():
         return result
@@ -459,6 +463,26 @@ def validate_model_policy(
     configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")
     result["configured_model"] = configured_model
     result["configured_reasoning_effort"] = configured_reasoning
+    if configured_model and not result["configured_model_source"]:
+        result["configured_model_source"] = "delivery_state"
+    if configured_reasoning and not result["configured_reasoning_source"]:
+        result["configured_reasoning_source"] = "delivery_state"
+    if required_model and not configured_model:
+        result["model_unknown"] = True
+        add(
+            errors,
+            "automation_model_unknown",
+            f"Required model {required_model!r} is defined but no configured automation or runner model was found.",
+            policy_path,
+        )
+    if required_reasoning and not configured_reasoning:
+        result["reasoning_unknown"] = True
+        add(
+            errors,
+            "automation_reasoning_unknown",
+            f"Required reasoning {required_reasoning!r} is defined but no configured automation or runner reasoning effort was found.",
+            policy_path,
+        )
     if required_model and configured_model and str(required_model) != str(configured_model):
         result["model_mismatch"] = True
         add(errors, "automation_model_mismatch", f"Required model {required_model!r} differs from configured model {configured_model!r}.", policy_path)

@@ -73,3 +73,12 @@ catch active blocked automations without Blocked Remediation Mode, inspect
 output reports model/stall/remediation fields, tests cover policy and blocked
 guard paths, and the shared automation template includes remediation-first
 behavior for future automations.
+
+## Phase 3 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 3 makes the start-run model gate explicit in the phase loop
+and model-policy reference, documents manual CLI/profile relaunch patterns and
+Codex app automation readback expectations, and updates artifact validation to
+error when a required configured model or reasoning effort cannot be proven.

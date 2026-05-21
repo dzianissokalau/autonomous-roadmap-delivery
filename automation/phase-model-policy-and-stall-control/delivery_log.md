@@ -446,3 +446,68 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-2`
 ### Next Action
 
 - Start Phase 3 - Start-Run Model Gate.
+
+## Phase 3 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-3`
+
+### Scope
+
+- Add a start-of-run model gate that stops before implementation on known
+  model or reasoning mismatches.
+- Document exact manual CLI relaunch examples and Codex app automation update
+  expectations.
+- Keep changes scoped to Phase 3 owned reference docs and validator behavior.
+
+### Changes
+
+- `phase-loop.md` now states that reconciliation with `phase_model_policy.json`
+  is the start-run gate before phase extraction or phase-owned file edits.
+- `model-policy-and-stall-control.md` now records mismatch evidence,
+  retarget-and-exit behavior, exact CLI/profile examples, automation readback
+  expectations, and unknown configured model/reasoning stop conditions.
+- `validate_delivery_artifacts.py` now reports configured model/reasoning
+  source fields and errors when a required model or reasoning effort exists
+  but no configured automation or runner value can be proven.
+- Advanced the roadmap header and delivery state to Phase 4 after a delivered
+  review verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 16 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase3-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `git diff --check`: passed.
+- Manual documentation inspection with `rg`: passed; no instruction was found
+  that allows delivery after a known model-policy mismatch.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-3-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- No committed fixture currently exercises the new unknown configured
+  model/reasoning error paths because Phase 3 did not own the test file.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-4` and start Phase 4 -
+  End-Run Retargeting Gate.

@@ -20,6 +20,10 @@ Stop if the current phase, roadmap path, branch, status, review verdicts,
 verification evidence, or automation config disagree. Record the mismatch in
 state/log/review instead of guessing.
 
+This reconciliation is the start-run gate. When `phase_model_policy.json`
+exists, validate the current phase's required model and reasoning effort
+before extracting the phase contract or changing phase-owned files.
+
 ## Blocked Remediation Gate
 
 If `delivery_state.json` has `status: blocked`, do not immediately retry
@@ -51,15 +55,42 @@ successful blocker repair as a delivered phase.
 
 When `phase_model_policy.json` exists:
 
-1. Resolve the current phase's required model and reasoning effort.
-2. Read the configured automation or runner model when available.
-3. Compare required versus configured values before implementation.
-4. If they match, continue.
-5. If they mismatch, do not edit phase-owned files. Record the mismatch in
-   state/log and retarget only when that automation surface is already
-   approved. After retargeting, stop so the next run starts on the right model.
-6. If the configured model cannot be proven and the roadmap is model-strict,
-   stop for operator confirmation rather than guessing.
+1. Read delivery state and resolve the current phase number.
+2. Read the policy defaults and the current phase override; if the phase has no
+   override, use policy defaults.
+3. Read the saved automation config from
+   `~/.codex/automations/<automation-id>/automation.toml`, or read an explicit
+   CLI/profile runner config for manual runs.
+4. Compare required versus configured model and reasoning values before
+   implementation.
+5. If they match, continue to phase extraction.
+6. If they mismatch, do not edit phase-owned files. Update state/log/review
+   with the required and configured values, retarget only when that automation
+   surface is already approved, then stop so the next run starts on the right
+   model.
+7. If the configured model or reasoning effort cannot be proven and the roadmap
+   is model-strict, stop for operator confirmation rather than guessing.
+
+For manual CLI runs, relaunch with explicit model and reasoning settings, for
+example:
+
+```bash
+codex exec -m <required-model> \
+  -c 'model_reasoning_effort="<required-reasoning-effort>"' \
+  -C <repo-root> \
+  "<phase-gated prompt>"
+```
+
+or use a profile that sets both values:
+
+```bash
+codex exec -p <profile-name> -C <repo-root> "<phase-gated prompt>"
+```
+
+For Codex app automations, the saved config must read back with matching
+`model` and `reasoning_effort` values. If an approved retarget changes those
+fields, stop immediately after readback; do not continue delivery in the same
+run.
 
 ## Extract The Phase Contract
 
