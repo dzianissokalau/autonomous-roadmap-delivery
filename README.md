@@ -23,6 +23,12 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 - `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`:
   model-aware automation retargeting, stalled-run pause behavior, and operator
   alerts.
+- `roadmaps/not_started_framework_core_and_release_readiness_roadmap.md`:
+  canonical workflow core, schemas, shared library/CLI, CI, security, release,
+  and demo readiness.
+- `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`:
+  generated host adapters, Claude plugin packaging, provider-neutral model
+  roles, and adapter parity tests.
 
 ## Operating Model
 
