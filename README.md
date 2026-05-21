@@ -5,7 +5,7 @@ artifacts for building the Roadmap Delivery Skill for Codex.
 
 GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
-## Current Roadmap
+## Roadmaps
 
 - Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 - Status: Delivered
@@ -18,11 +18,85 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 - Codex automation: `autonomous-roadmap-delivery-skill` hourly, PAUSED
 - Repository skill snapshot: `skill/roadmap-delivery-skill/`
 
-## Planned Roadmaps
+## Model-Aware Automation Update
 
 - `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`:
-  model-aware automation retargeting, stalled-run pause behavior, and operator
-  alerts.
+  model-aware automation retargeting, stalled-run pause behavior, and local
+  operator alerts. The implementation phases are delivered through Phase 10;
+  finalization, publication, promotion, and automation pause remain separate
+  operator-approved actions.
+
+Model-aware roadmap delivery uses a repository-local policy file:
+
+```text
+automation/<roadmap-slug>/phase_model_policy.json
+```
+
+The policy records default model/reasoning choices, optional per-phase
+overrides, the finalization model, stalled-run threshold, and notification
+fallback. New roadmap delivery automations created with the current setup
+guidance should create this file by default.
+
+Important limitation: the skill cannot switch the model or reasoning effort of
+an already-running Codex session. The Codex app automation, CLI command, or
+runner profile must be configured for the required model before delivery work
+starts. The skill validates that readback and stops before implementation when
+the configured model or reasoning effort cannot be proven.
+
+### Migrating Existing Automations
+
+Existing roadmap delivery automations can adopt model policy incrementally:
+
+1. Create `automation/<roadmap-slug>/phase_model_policy.json` with
+   `schema_version`, `max_stalled_runs`, `notification`, `defaults`, and
+   `phases`.
+2. Add or verify state fields for `required_model`,
+   `required_reasoning_effort`, configured automation model/reasoning,
+   `run_count`, `stalled_run_count`, `max_stalled_runs`,
+   `last_progress_signature`, `last_progress_at`, and `last_operator_alert`.
+3. Resolve the current phase's required model from the policy and read back the
+   saved automation or runner config before editing phase files.
+4. Update the automation prompt to include the start-run model-policy hard
+   stop, Blocker Remediation Mode, completion hard stop, and one-phase delivery
+   guard.
+5. Run artifact validation and status inspection before reactivating scheduled
+   delivery:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <roadmap-slug> \
+  --automation-id <automation-id> \
+  --json
+
+python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <roadmap-slug> \
+  --automation-id <automation-id> \
+  --json
+```
+
+Backward compatibility is intentional: roadmaps without
+`phase_model_policy.json` continue to use legacy behavior unless the roadmap,
+automation guide, or operator explicitly makes model policy strict. Do not add
+policy state fields by guessing desired automation values; configured
+model/reasoning fields should come from readback.
+
+Release notes and residual risks:
+
+- Alert files are always local first; GitHub issues and other external
+  notification sinks are optional and require credentials plus approval.
+- Completed roadmaps still need explicit pause handling when the automation
+  remains active. A hard-stop prompt is a safety backstop, not a substitute for
+  a paused automation.
+- Publication, promotion to `main`, branch deletion, and live automation config
+  changes remain human-approved actions.
+- The repository skill snapshot is the releasable source. Installed
+  `${CODEX_HOME:-$HOME/.codex}/skills/roadmap-delivery-skill` copies should be
+  synchronized only by an approved install or maintenance step.
+
+## Planned Roadmaps
+
 - `roadmaps/not_started_framework_core_and_release_readiness_roadmap.md`:
   canonical workflow core, schemas, shared library/CLI, CI, security, release,
   and demo readiness.

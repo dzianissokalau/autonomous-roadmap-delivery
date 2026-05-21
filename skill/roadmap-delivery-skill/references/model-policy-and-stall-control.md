@@ -60,6 +60,56 @@ Allowed `reasoning_effort` values:
 - `high`
 - `xhigh`
 
+## Migrating Existing Automations
+
+Existing roadmap delivery automations can adopt model policy without rewriting
+their whole history. Treat migration as a reconciliation step, not as phase
+delivery:
+
+1. Confirm the current roadmap path, automation slug, delivery state, delivery
+   log, review directory, branch, and saved automation prompt already agree.
+2. Add `phase_model_policy.json` under the existing
+   `automation/<roadmap-slug>/` directory.
+3. Set policy defaults for ordinary phases, add only justified numbered
+   overrides, add a `finalization` policy entry, and set `max_stalled_runs`.
+4. Add missing state fields for required/configured model and reasoning,
+   run/stall counters, progress signature, and last operator alert.
+5. Resolve the current phase's required model/reasoning from policy.
+6. Read back the Codex app automation, CLI profile, or runner config and record
+   configured model/reasoning only from that readback.
+7. Update the saved prompt so it reads the policy file, performs the start-run
+   model gate before implementation, handles blocked remediation before retry,
+   and hard-stops on completed states.
+8. Run artifact validation and status inspection before allowing scheduled
+   delivery to continue.
+
+If any readback or prompt update requires an unapproved automation-config
+change, stop with state blocked and ask for that approval. Do not infer that
+the active session is on the right model because the policy requests it.
+
+## Backward Compatibility
+
+A missing `phase_model_policy.json` keeps legacy behavior unless the roadmap,
+automation guide, or operator explicitly makes model policy strict. Legacy
+roadmaps should still reconcile state, log, review, branch, and automation
+prompt before delivery.
+
+When introducing policy to an older automation, preserve existing review and
+delivery history. Add new fields and log entries append-only where possible.
+Configured automation model and reasoning fields should stay null until
+readback proves them; desired proposal values are not evidence.
+
+Release and operations notes:
+
+- New setup flows should create policy by default.
+- Existing automations can migrate one roadmap at a time.
+- Local alert files are the durable fallback for stalled, blocked,
+  retarget-failed, and completed states.
+- External notification sinks are optional and must fail safe to the local
+  alert file.
+- Pausing, publication, promotion, branch deletion, and destructive git remain
+  explicit operator-approved actions.
+
 ## Setup Integration
 
 New roadmap delivery automations should create a phase model policy before the

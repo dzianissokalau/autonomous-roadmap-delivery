@@ -1,10 +1,10 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 10 - Migration, Release, And Documentation
-Last completed phase: Phase 9 - Tests, Fixtures, And Replay Prompts
+Current phase: finalization
+Last completed phase: Phase 10 - Migration, Release, And Documentation
 Last updated: 2026-05-21
-Next action: Start Phase 10 and document migration, release, and adoption guidance.
+Next action: Run finalization, write or verify completion alert evidence, and request pause permission if needed.
 Blocked by: None
 
 ## Purpose

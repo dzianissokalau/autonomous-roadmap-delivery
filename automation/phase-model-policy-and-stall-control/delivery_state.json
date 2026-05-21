@@ -1,9 +1,9 @@
 {
   "roadmap": "roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 10 - Migration, Release, And Documentation",
+  "current_phase": "finalization",
   "branch": "codex/phase-model-policy-and-stall-control-phase-10",
-  "branch_reason": "Phase 9 was delivered on codex/phase-model-policy-and-stall-control-phase-9; the next run should continue from the Phase 10 branch.",
+  "branch_reason": "Phase 10 was delivered on codex/phase-model-policy-and-stall-control-phase-10. Finalization is the next pseudo-phase; no finalization branch was created in this run because finalization, publication, promotion, and pause handling remain separate operator-approved actions.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
@@ -12,12 +12,12 @@
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "37 helper-script tests passed, including policy fixture utilities, phase/finalization policy overrides, unknown configured model/reasoning, invalid phase-policy entries, retarget planning, stall/alert coverage, and replay prompt marker coverage."
+        "details": "37 helper-script tests passed, including policy fixture utilities, phase/finalization policy overrides, unknown configured model/reasoning, invalid phase-policy entries, retarget planning, stall/alert coverage, replay prompt marker coverage, completion alerts, and legacy missing-policy behavior."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=${TMPDIR:-/private/tmp}/roadmap-delivery-skill-model-policy-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
+        "command": "PYTHONPYCACHEPREFIX=${TMPDIR:-/private/tmp}/roadmap-delivery-phase10-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
         "status": "passed",
-        "details": "Required Phase 9 inspect and validation helper scripts compiled."
+        "details": "Inspection, validation, retarget planning, progress signature, and operator alert helper scripts compiled."
       },
       {
         "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
@@ -32,33 +32,48 @@
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
         "status": "passed_with_warning",
-        "details": "Validation reported no errors, model policy match, run log valid, and only the expected worktree_dirty warning from the Phase 9 diff."
+        "details": "Validation reported no errors, model policy match, run log valid, and only the expected worktree_dirty warning from the Phase 10 documentation/bookkeeping diff."
       },
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed_with_warning",
-        "details": "Inspection reported Phase 9, gpt-5.5/xhigh configuration, no model mismatch, no blocker, and only the expected worktree_dirty warning from the Phase 9 diff."
+        "details": "Inspection reported Phase 10, gpt-5.5/xhigh configuration, no model mismatch, no blocker, and only the expected worktree_dirty warning from the Phase 10 documentation/bookkeeping diff."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 9 - Tests, Fixtures, And Replay Prompts' --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 10 - Migration, Release, And Documentation' --json",
         "status": "passed",
-        "details": "Phase 10 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
+        "details": "The next pseudo-phase resolves to finalization via phases.finalization; saved automation already matches gpt-5.5/xhigh, so no automation update is needed."
       },
       {
-        "command": "rg -n \"Wrong Model At Start|Retarget Next Phase|Three Stalled Runs|Custom Stalled Run Threshold|Delivered Roadmap Completion Alert|evals/model-policy-prompts\\.md\" evals tests/test_helper_scripts.py",
+        "command": "rg -n \"phase_model_policy\\.json|Migrating Existing Automations|Backward compatibility|cannot switch the model|already-running Codex session|installed.*roadmap-delivery-skill|autonomous-roadmap-delivery($|/)|skills/autonomous-roadmap-delivery\" README.md",
         "status": "passed",
-        "details": "Manual marker inspection found all required model-policy replay scenarios and cross-references."
+        "details": "README contains the required model-policy migration markers, running-model limitation, and installed-skill synchronization guidance; no old installed-skill path examples were found."
+      },
+      {
+        "command": "rg -n \"Migrating Existing Automations|Backward Compatibility|New setup flows|readback|cannot switch the model|legacy behavior|completed states|explicit operator-approved\" skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
+        "status": "passed",
+        "details": "Model-policy reference contains migration, backward-compatibility, readback, completed-state, and operator-approval release guidance."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Installed skill copy remains valid."
+      },
+      {
+        "command": "diff -qr skill/roadmap-delivery-skill /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill || true",
+        "status": "passed_with_expected_differences",
+        "details": "Repository skill snapshot differs from the installed skill copy; synchronization was intentionally not performed without an approved install or maintenance step."
       }
     ],
-    "completed_at": "2026-05-21T19:41:20Z"
+    "completed_at": "2026-05-21T20:19:30Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-9-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-10-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T19:41:20Z",
-    "summary": "Phase 9 delivered model-policy fixture utilities, expanded helper-script regression coverage, retarget-plan coverage, and replay prompts for model mismatch, retargeting, stalled runs, custom thresholds, and completion alerts."
+    "completed_at": "2026-05-21T20:19:30Z",
+    "summary": "Phase 10 delivered migration, release, and adoption documentation for model-aware roadmap delivery, including README migration steps, backward compatibility, running-model limitations, and installed-skill synchronization guidance."
   },
-  "last_delivered_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
+  "last_delivered_phase": "Phase 10 - Migration, Release, And Documentation",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -137,11 +152,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 13,
+  "run_count": 14,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:fc8faa7f5ed4f8489e66d7de29374215f2e7a7dbbf16fbf55b5ce1c68cb646e6",
-  "last_progress_at": "2026-05-21T19:41:20Z",
+  "last_progress_signature": "sha256:2fa83461e2b6f2bed2a749cea847c9b66aedb9f30169b7c1641aee2a64a45a8c",
+  "last_progress_at": "2026-05-21T20:21:26Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -153,16 +168,16 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T16:44:55Z"
   },
-  "updated_at": "2026-05-21T19:41:20Z",
+  "updated_at": "2026-05-21T20:21:26Z",
   "last_phase_retarget": {
-    "completed_at": "2026-05-21T19:41:20Z",
-    "delivered_phase": "Phase 9 - Tests, Fixtures, And Replay Prompts",
-    "next_phase": "Phase 10 - Migration, Release, And Documentation",
+    "completed_at": "2026-05-21T20:19:30Z",
+    "delivered_phase": "Phase 10 - Migration, Release, And Documentation",
+    "next_phase": "finalization",
     "required_model": "gpt-5.5",
     "required_reasoning_effort": "xhigh",
     "configured_automation_model": "gpt-5.5",
     "configured_automation_reasoning_effort": "xhigh",
-    "source": "defaults",
+    "source": "phases.finalization",
     "update_required": false,
     "readback": "ACTIVE, local, gpt-5.5, xhigh"
   }

@@ -1018,3 +1018,85 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-9`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-10` and start Phase 10 -
   Migration, Release, And Documentation.
+
+## Phase 10 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-10`
+
+### Scope
+
+- Document migration, release, and adoption guidance for model-aware roadmap
+  delivery.
+- Keep changes scoped to README, skill metadata, model-policy references, and
+  roadmap/bookkeeping artifacts.
+- Do not mutate live Codex app automation config, synchronize the installed
+  skill package, publish branches, promote to `main`, or start finalization.
+
+### Changes
+
+- Added README guidance for model-aware automation, incremental migration of
+  existing automation directories, backward compatibility for roadmaps without
+  `phase_model_policy.json`, and release residual risks.
+- Updated `skill/roadmap-delivery-skill/SKILL.md` metadata so the skill routes
+  phase model policy and stall-control workflows directly.
+- Added migration and backward-compatibility guidance to
+  `skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md`,
+  including readback, completed-state hard stops, local-alert fallback, and
+  operator-approval boundaries.
+- Advanced the roadmap header, delivery state, and review/fix state to the
+  `finalization` pseudo-phase after a delivered review verdict. The Phase 10
+  to finalization retarget plan resolved to `phases.finalization`; the saved
+  automation already matched `gpt-5.5`/`xhigh`, so no automation config update
+  was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 37 tests.
+- `PYTHONPYCACHEPREFIX=${TMPDIR:-/private/tmp}/roadmap-delivery-phase10-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected Phase 10 dirty-worktree warning before
+  bookkeeping was finalized.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected Phase 10 dirty-worktree warning before
+  bookkeeping was finalized.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 10 - Migration, Release, And Documentation' --json`:
+  passed; finalization policy was found at `phases.finalization` and no
+  automation update was needed.
+- README marker inspection with `rg`: passed; README includes policy,
+  migration, backward compatibility, running-model limitation, and installed
+  skill synchronization guidance without old installed-skill path examples.
+- Model-policy reference marker inspection with `rg`: passed; migration,
+  backward compatibility, readback, completed-state, and operator-approval
+  markers are present.
+- Installed skill validation passed, but `diff -qr` reports expected
+  differences between the repository skill snapshot and installed skill copy.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-10-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- The installed global skill package is valid but not synchronized to the
+  repository snapshot. Synchronization remains an explicit install or
+  maintenance action.
+- Finalization, completion alert handling, automation pause, publication, and
+  promotion remain separate operator-approved steps.
+
+### Next Action
+
+- Stop here. The next automation run should enter `finalization`, confirm
+  final verification/review evidence, write or verify completion alert evidence,
+  and request pause permission if the automation remains active.

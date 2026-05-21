@@ -1,6 +1,6 @@
 ---
 name: roadmap-delivery-skill
-description: Use when Codex needs to set up roadmap delivery automation, inspect roadmap automation status, pause or activate roadmap automation, repair stale roadmap paths, deliver or review one current phase, or finalize/promote delivered roadmap branches in a phase-gated workflow. Do not use for ordinary feature implementation, generic PR review, general project management, unrelated Codex skill creation, or broad release automation without an explicit roadmap phase contract.
+description: Use when Codex needs to set up roadmap delivery automation, inspect roadmap automation status, pause or activate roadmap automation, repair stale roadmap paths, deliver or review one current phase, use phase model policy/stall controls, or finalize/promote delivered roadmap branches in a phase-gated workflow. Do not use for ordinary feature implementation, generic PR review, general project management, unrelated Codex skill creation, or broad release automation without an explicit roadmap phase contract.
 ---
 
 # Roadmap Delivery Skill
