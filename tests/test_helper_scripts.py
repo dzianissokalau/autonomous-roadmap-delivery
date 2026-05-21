@@ -52,6 +52,8 @@ class DeliveryFixture:
         state_last_progress_signature=None,
         state_last_progress_at=None,
         run_log_text=None,
+        all_phases_complete=False,
+        write_deep_review_prompt=False,
     ):
         self.tmpdir = Path(tmpdir)
         self.repo_root = self.tmpdir / "repo"
@@ -83,6 +85,8 @@ class DeliveryFixture:
             state_last_progress_signature=state_last_progress_signature,
             state_last_progress_at=state_last_progress_at,
             run_log_text=run_log_text,
+            all_phases_complete=all_phases_complete,
+            write_deep_review_prompt=write_deep_review_prompt,
         )
         if write_automation_config:
             self._write_automation_config(
@@ -117,6 +121,8 @@ class DeliveryFixture:
         state_last_progress_signature,
         state_last_progress_at,
         run_log_text,
+        all_phases_complete,
+        write_deep_review_prompt,
     ):
         roadmap_path = self.repo_root / "roadmaps" / self.roadmap_filename
         if state_layout == "root":
@@ -178,10 +184,16 @@ class DeliveryFixture:
             "last_progress_signature": state_last_progress_signature,
             "last_progress_at": state_last_progress_at,
             "last_operator_alert": None,
+            "all_phases_complete": all_phases_complete,
             "updated_at": "2026-05-21T00:00:00Z",
         }
         (state_dir / "delivery_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
         (state_dir / "delivery_log.md").write_text("# Fixture Delivery Log\n", encoding="utf-8")
+        if write_deep_review_prompt:
+            (state_dir / "deep_review_prompt.md").write_text(
+                "Review final roadmap completion, verification, and promotion readiness.\n",
+                encoding="utf-8",
+            )
         if write_model_policy:
             if policy_text is None:
                 policy = {
@@ -262,6 +274,25 @@ class DeliveryFixture:
                 "commit",
                 "-m",
                 "fixture",
+            ],
+            cwd=self.repo_root,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+    def commit_all(self, message="fixture update"):
+        subprocess.run(["git", "add", "."], cwd=self.repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=automation.invalid",
+                "commit",
+                "-m",
+                message,
             ],
             cwd=self.repo_root,
             check=True,
@@ -645,6 +676,135 @@ class HelperScriptTests(unittest.TestCase):
             validate = self.run_validate(fixture)
 
             self.assertIn("completed_state_active_automation", self.error_codes(validate))
+
+    def test_completed_and_paused_with_completed_alert_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                write_deep_review_prompt=True,
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--next-action",
+                "Preserve final evidence and keep the automation paused.",
+                "--timestamp",
+                "2026-05-21T12:08:00Z",
+            )
+            fixture.commit_all("record completed alert")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(inspect["all_phases_complete"])
+            self.assertTrue(inspect["completion_alert_present"])
+            self.assertFalse(inspect["completion_pause_required"])
+            self.assertFalse(validate["completion_flow"]["completion_pause_required"])
+            self.assertTrue(validate["completion_flow"]["completion_alert_present"])
+            self.assertEqual(validate["errors"], [])
+            self.assertEqual(validate["warnings"], [])
+
+    def test_completed_but_active_requires_pause(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="ACTIVE",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                write_deep_review_prompt=True,
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--timestamp",
+                "2026-05-21T12:09:00Z",
+            )
+            fixture.commit_all("record active completion state")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(inspect["completion_pause_required"])
+            self.assertTrue(inspect["automation_should_be_paused"])
+            self.assertIn("completed_state_active_automation", self.warning_codes(inspect))
+            self.assertTrue(validate["completion_flow"]["completion_pause_required"])
+            self.assertIn("completed_state_active_with_hard_stop", self.warning_codes(validate))
+            self.assertEqual(validate["errors"], [])
+
+    def test_completed_missing_completed_alert_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                write_deep_review_prompt=True,
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertFalse(inspect["completion_alert_present"])
+            self.assertIn("completed_state_missing_completed_alert", self.warning_codes(inspect))
+            self.assertIn("completed_state_missing_completed_alert", self.error_codes(validate))
+
+    def test_completed_notification_failure_preserves_alert(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                write_deep_review_prompt=True,
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--notification-sink",
+                "github_issue",
+                "--notification-failure",
+                "missing GitHub token",
+                "--timestamp",
+                "2026-05-21T12:10:00Z",
+            )
+            fixture.commit_all("record completed alert notification failure")
+
+            validate = self.run_validate(fixture)
+
+            alert = validate["operator_alert"]["last_operator_alert"]
+            self.assertTrue(validate["completion_flow"]["completion_alert_present"])
+            self.assertEqual(alert["kind"], "completed")
+            self.assertEqual(alert["notification_status"], "failed")
+            self.assertEqual(alert["notification_failure"], "missing GitHub token")
+            self.assertEqual(validate["errors"], [])
 
     def test_missing_review_directory_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:

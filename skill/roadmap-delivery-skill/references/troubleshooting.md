@@ -177,9 +177,41 @@ status inspection. If app automation edits require approval, stop and ask.
 If state says the roadmap is complete and the automation is active:
 
 - do not start a new phase
-- record a hard-stop warning
-- ask whether to pause the automation
+- verify the saved prompt has a completed-state hard-stop guard
+- confirm a `completed` alert file exists and includes enough operator context
+- record a pause-required warning in state/log or inspection output
+- ask whether to pause the automation, unless pause is already approved by the
+  workflow
 - preserve final verification evidence
+
+An active automation with a completed-state hard-stop guard is safer than one
+without the guard, but it is still not fully closed out. Pause remains the next
+operator action.
+
+## Completed State Missing Completed Alert
+
+If a completed roadmap has no `last_operator_alert` or the last alert kind is
+not `completed`:
+
+- do not start phase work
+- run `write_operator_alert.py --kind completed` with the completion reason and
+  next human action
+- rerun artifact validation
+- record the repaired alert path in the delivery log
+
+If the recorded completed alert file is missing, regenerate the local alert
+before relying on optional notification sinks.
+
+## Completed Notification Failure
+
+If a completion notification sink fails:
+
+- preserve the local completed alert file
+- keep `notification_status: failed` and record `notification_failure`
+- ask for credentials or approval only if the operator still wants the external
+  notification sent
+- continue to treat local alert plus pause handling as the durable completion
+  record
 
 ## User Confusion Between Roadmaps
 

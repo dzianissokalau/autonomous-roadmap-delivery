@@ -632,6 +632,55 @@ def validate_operator_alert(
     return result
 
 
+def validate_completion_flow(
+    repo_root: Path,
+    state: Dict[str, Any],
+    complete: bool,
+    operator_alert: Optional[Dict[str, Any]],
+    automation_status: Optional[str],
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "complete": complete,
+        "completion_alert_present": False,
+        "completion_pause_required": complete and str(automation_status).upper() == "ACTIVE",
+        "automation_should_be_paused": complete and str(automation_status).upper() != "PAUSED",
+    }
+    if not complete:
+        return result
+
+    last_alert = state.get("last_operator_alert")
+    if not isinstance(last_alert, dict):
+        add(errors, "completed_state_missing_completed_alert", "Completed state does not record a completed operator alert.")
+        return result
+
+    kind = last_alert.get("kind")
+    result["completion_alert_kind"] = kind
+    file_value = last_alert.get("file")
+    if isinstance(file_value, str) and file_value.strip():
+        alert_path = resolve_repo_path(repo_root, file_value)
+        result["completion_alert_file"] = str(alert_path) if alert_path else None
+    else:
+        alert_path = None
+
+    if kind != "completed":
+        add(errors, "completed_state_missing_completed_alert", f"Completed state records alert kind {kind!r}, not 'completed'.")
+        return result
+    if not alert_path or not alert_path.exists() or not alert_path.is_file():
+        add(errors, "completed_state_missing_completed_alert", "Completed state records a completed alert, but the alert file is missing.", alert_path)
+        return result
+
+    alert_report = operator_alert or {}
+    if not alert_report.get("last_operator_alert"):
+        add(errors, "completed_state_missing_completed_alert", "Completed state alert was not validated.")
+    else:
+        result["completion_alert_present"] = True
+    if last_alert.get("notification_status") == "failed" and not last_alert.get("notification_failure"):
+        add(warnings, "completion_notification_failure_missing_reason", "Completed alert notification failed without a recorded failure reason.")
+    return result
+
+
 def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
     branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
     proc = run_git(repo_root, ["branch", "--show-current"])
@@ -798,6 +847,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings)
     progress_tracking = validate_progress_tracking(repo_root, state_file, state, errors, warnings) if state_file else None
     operator_alert = validate_operator_alert(repo_root, state_dir, state, errors, warnings) if state_dir else None
+    completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, errors, warnings)
 
     deep_review_prompt = find_deep_review_prompt(state_dir, state)
     if complete and deep_review_prompt is None:
@@ -842,6 +892,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "model_policy": model_policy or None,
         "progress_tracking": progress_tracking,
         "operator_alert": operator_alert,
+        "completion_flow": completion_flow,
         "repo_root": str(repo_root),
         "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
         "state_file": path_for_report(state_file),

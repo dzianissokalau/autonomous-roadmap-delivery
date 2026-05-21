@@ -786,3 +786,80 @@ Status: repaired
 
 - Continue Phase 7 from
   `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`.
+
+## Phase 7 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-7`
+
+### Scope
+
+- Add completion pause and completed-alert hard-stop behavior.
+- Keep delivery scoped to finalization/model-policy/troubleshooting references,
+  status/validation helpers, and required helper fixtures.
+- Preserve publication, promotion, and live automation pause as approved human
+  actions.
+
+### Changes
+
+- Added completion hard-stop guidance to `finalization-and-promotion.md`,
+  including final verification, delivered review, deep-review prompt, completed
+  alert, pause or pause request, and status readback requirements.
+- Added completion pause and alert flow guidance to
+  `model-policy-and-stall-control.md`.
+- Expanded troubleshooting for completed state with active automation, missing
+  completed alerts, and completed notification failures.
+- Updated `inspect_delivery_state.py` to report `completion_alert_present`,
+  `completion_pause_required`, and `automation_should_be_paused`.
+- Updated `validate_delivery_artifacts.py` to enforce completed alert evidence
+  and report completion flow state.
+- Added helper fixtures for complete and paused, complete but active, complete
+  with missing alert, and complete with notification failure.
+- Advanced the roadmap header, delivery state, and review/fix state to Phase 8
+  after a delivered review verdict. The Phase 7 to Phase 8 retarget plan
+  resolved to policy defaults and the saved automation already matched
+  `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 31 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase7-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 7 - Completion Pause And Alert Flow' --json`:
+  passed; Phase 8 falls back to policy defaults and no automation update is
+  needed.
+- Manual marker inspection with `rg`: passed; completion hard-stop docs,
+  troubleshooting entries, inspection fields, validator error codes, and
+  fixture assertions are present.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-7-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Actual live automation pausing remains an approved automation-surface action;
+  Phase 7 documents and validates the pause-required state but does not pause
+  this active delivery automation because the roadmap is not complete.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-8` and start Phase 8 -
+  Automation Setup Integration.

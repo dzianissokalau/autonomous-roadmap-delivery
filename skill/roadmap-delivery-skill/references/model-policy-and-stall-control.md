@@ -210,3 +210,31 @@ If an external sink fails, preserve the local alert file, record
 `notification_status: failed` and the failure reason in `last_operator_alert`,
 append the failure to the delivery log, and continue to fail safe to the local
 alert file.
+
+## Completion Pause And Alert Flow
+
+Completion uses the same local-alert fallback as blocked and stalled states,
+but it is also a delivery hard stop.
+
+When state has `all_phases_complete: true`, `status: completed`,
+`status: completed_pending_pause`, or an equivalent completed current phase:
+
+1. Do not extract or start another roadmap phase.
+2. Confirm final verification and latest delivered review evidence.
+3. Confirm a final deep-review prompt or review artifact is recorded when the
+   roadmap requires one.
+4. Write a local `completed` alert with `write_operator_alert.py`.
+5. Attempt to pause the automation only when the pause surface is already
+   approved; otherwise record that pause is pending and ask the operator.
+6. Read back the saved automation status after any pause attempt.
+7. Record alert path, notification status, and pause status in state/log.
+
+Inspection should make this state obvious:
+
+- complete and `PAUSED`: no further automation work is expected
+- complete and `ACTIVE`: pause is still required, even when the prompt contains
+  a hard-stop guard
+- complete with no completed alert: repair the local alert before treating
+  completion as fully handled
+- complete with notification failure: preserve the local alert and surface the
+  failed optional sink

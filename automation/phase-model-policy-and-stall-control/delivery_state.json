@@ -1,9 +1,9 @@
 {
   "roadmap": "roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 7 - Completion Pause And Alert Flow",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-7",
-  "branch_reason": "Phase 6 was delivered on codex/phase-model-policy-and-stall-control-phase-6; the next run should continue from the Phase 7 branch.",
+  "current_phase": "Phase 8 - Automation Setup Integration",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-8",
+  "branch_reason": "Phase 7 was delivered on codex/phase-model-policy-and-stall-control-phase-7; the next run should continue from the Phase 8 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
@@ -12,10 +12,10 @@
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "25 helper-script tests passed, including alert generation, notification failure fallback, missing recorded alert detection, progress/stall handling, model policy validation, and artifact validation coverage."
+        "details": "31 helper-script tests passed, including complete-and-paused, complete-but-active, missing completed alert, and completed notification failure coverage."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase6-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
+        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase7-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
         "status": "passed",
         "details": "Inspection, validation, retarget planner, progress signature, and operator alert scripts compiled."
       },
@@ -32,33 +32,33 @@
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
         "status": "passed_with_warning",
-        "details": "Validation reported no errors, no model mismatch, progress tracking present, operator alert validation present, run log valid, and only the expected worktree_dirty warning before Phase 6 bookkeeping was committed."
+        "details": "Validation reported no errors, model policy match, completion flow fields present, run log valid, and only the expected worktree_dirty warning before Phase 7 bookkeeping was committed."
       },
       {
         "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed_with_warning",
-        "details": "Inspection reported required/configured model fields, progress_detected true, next_run_count 10, next_stalled_run_count 0, run_log_valid true, and only the expected worktree_dirty warning before Phase 6 bookkeeping was committed."
+        "details": "Inspection reported completion alert/pause fields, gpt-5.5/xhigh configuration, no model mismatch, no stale roadmap path, and only the expected worktree_dirty warning before commit."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 6 - Alert Files And Optional Notification Sinks' --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 7 - Completion Pause And Alert Flow' --json",
         "status": "passed",
-        "details": "Phase 7 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
+        "details": "Phase 8 falls back to policy defaults, the saved automation already matches gpt-5.5/xhigh, and no automation update is needed."
       },
       {
-        "command": "rg -n \"Roadmap:|Phase:|Status:|Reason:|Required model:|Configured model:|Last verification:|Last review:|Next human action:|Notification failure\" skill/roadmap-delivery-skill/scripts/write_operator_alert.py skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md skill/roadmap-delivery-skill/references/troubleshooting.md",
+        "command": "rg -n \"Completion Hard Stop|Completion Pause And Alert Flow|Completed State Missing Completed Alert|completion_alert_present|completion_pause_required|completed_state_missing_completed_alert\" skill/roadmap-delivery-skill/references/finalization-and-promotion.md skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md skill/roadmap-delivery-skill/references/troubleshooting.md skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py tests/test_helper_scripts.py",
         "status": "passed",
-        "details": "Manual alert template inspection found the required operator context markers in the helper and references."
+        "details": "Manual inspection found completion hard-stop docs, troubleshooting entries, inspection fields, validator error codes, and required fixture assertions."
       }
     ],
-    "completed_at": "2026-05-21T16:31:00Z"
+    "completed_at": "2026-05-21T17:33:11Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-6-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-7-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T16:31:00Z",
-    "summary": "Phase 6 delivered durable local operator alert files, optional notification sink boundaries, fallback recording, validator checks, and fixture coverage."
+    "completed_at": "2026-05-21T17:32:30Z",
+    "summary": "Phase 7 delivered completion hard-stop guidance, completed-alert validation, pause-required inspection fields, and required completion fixture coverage."
   },
-  "last_delivered_phase": "Phase 6 - Alert Files And Optional Notification Sinks",
+  "last_delivered_phase": "Phase 7 - Completion Pause And Alert Flow",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -137,11 +137,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 10,
+  "run_count": 11,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:8f939443994796eb55605e3e791c5b19a03f97408fcf27383b90d6da45665c2f",
-  "last_progress_at": "2026-05-21T16:31:30Z",
+  "last_progress_signature": "sha256:3627df03e8ea4930153156b77c52ac88621af4e2e5392186298cdcdc31733264",
+  "last_progress_at": "2026-05-21T17:33:11Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -153,5 +153,17 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T16:44:55Z"
   },
-  "updated_at": "2026-05-21T16:44:55Z"
+  "updated_at": "2026-05-21T17:33:11Z",
+  "last_phase_retarget": {
+    "completed_at": "2026-05-21T17:33:11Z",
+    "delivered_phase": "Phase 7 - Completion Pause And Alert Flow",
+    "next_phase": "Phase 8 - Automation Setup Integration",
+    "required_model": "gpt-5.5",
+    "required_reasoning_effort": "xhigh",
+    "configured_automation_model": "gpt-5.5",
+    "configured_automation_reasoning_effort": "xhigh",
+    "source": "defaults",
+    "update_required": false,
+    "readback": "ACTIVE, local, gpt-5.5, xhigh"
+  }
 }

@@ -28,6 +28,13 @@ ACTIVE_STATUSES = {
     "fixing",
     "blocked",
 }
+COMPLETED_STATUSES = {
+    "complete",
+    "completed",
+    "delivered",
+    "completed-pending-pause",
+    "all-phases-complete",
+}
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 DEEP_REVIEW_CANDIDATES = (
     "deep_review_prompt.md",
@@ -257,6 +264,66 @@ def warn_lifecycle_filename_drift(
             "roadmap_lifecycle_filename_mismatch",
             f"Active roadmap or Phase 1+ roadmap still uses a not_started_ lifecycle filename: {roadmap_path}",
         )
+
+
+def is_complete_state(state: Optional[Dict[str, Any]]) -> bool:
+    if not state:
+        return False
+    state_status = normalized(state.get("status"))
+    current_phase = normalized(state.get("current_phase"))
+    return (
+        bool(state.get("all_phases_complete"))
+        or state_status in COMPLETED_STATUSES
+        or current_phase in {"complete", "completed", "all-phases-complete"}
+    )
+
+
+def inspect_completion_alert(
+    repo_root: Path,
+    state: Optional[Dict[str, Any]],
+    warnings: List[Dict[str, str]],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "completion_alert_present": False,
+        "completion_alert_kind": None,
+        "completion_alert_file": None,
+    }
+    if not state or not is_complete_state(state):
+        return result
+
+    last_alert = state.get("last_operator_alert")
+    if not isinstance(last_alert, dict):
+        add_warning(
+            warnings,
+            "completed_state_missing_completed_alert",
+            "Completed state does not record a completed operator alert.",
+        )
+        return result
+
+    kind = last_alert.get("kind")
+    result["completion_alert_kind"] = kind
+    file_value = last_alert.get("file")
+    if isinstance(file_value, str) and file_value.strip():
+        alert_path = resolve_repo_path(repo_root, file_value)
+        result["completion_alert_file"] = str(alert_path) if alert_path else None
+    else:
+        alert_path = None
+
+    if kind != "completed":
+        add_warning(
+            warnings,
+            "completed_state_missing_completed_alert",
+            f"Completed state records alert kind {kind!r}, not 'completed'.",
+        )
+    elif alert_path and alert_path.exists() and alert_path.is_file():
+        result["completion_alert_present"] = True
+    else:
+        add_warning(
+            warnings,
+            "completed_state_missing_completed_alert",
+            "Completed state records a completed alert, but the alert file is missing.",
+        )
+    return result
 
 
 def has_blocked_remediation_guard(prompt: str) -> bool:
@@ -501,9 +568,10 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     blocked_remediation_required = normalized(state_status) == "blocked"
     if automation_prompt and not blocked_remediation_guard:
         add_warning(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.")
-    all_phases_complete = str(current_phase).lower() in {"complete", "completed", "all_phases_complete"} if current_phase is not None else False
-    if str(state_status).lower() in {"complete", "completed", "all_phases_complete"}:
-        all_phases_complete = True
+    all_phases_complete = is_complete_state(state)
+    completion_alert = inspect_completion_alert(repo_root, state, warnings)
+    completion_pause_required = all_phases_complete and str(automation_status).upper() == "ACTIVE"
+    automation_should_be_paused = all_phases_complete and str(automation_status).upper() != "PAUSED"
     if all_phases_complete and str(automation_status).upper() == "ACTIVE":
         add_warning(
             warnings,
@@ -558,6 +626,11 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "run_log_valid": not bool(progress_report.get("run_log_errors")) if progress_report else None,
         "model_policy": model_policy,
         "all_phases_complete": all_phases_complete,
+        "completion_alert_present": completion_alert["completion_alert_present"],
+        "completion_alert_kind": completion_alert["completion_alert_kind"],
+        "completion_alert_file": completion_alert["completion_alert_file"],
+        "completion_pause_required": completion_pause_required,
+        "automation_should_be_paused": automation_should_be_paused,
         "current_branch": current_branch,
         "matching_branches": matching_branches,
         "worktree_dirty": worktree_dirty,
@@ -618,6 +691,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             "run_log_entries",
             "run_log_valid",
             "all_phases_complete",
+            "completion_alert_present",
+            "completion_pause_required",
+            "automation_should_be_paused",
             "current_branch",
             "worktree_dirty",
             "deep_review_prompt_exists",

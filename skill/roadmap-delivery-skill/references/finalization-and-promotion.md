@@ -12,6 +12,7 @@ Before finalization:
 - latest review verdict is `delivered`
 - required final verification passed
 - delivery log contains the final verification evidence
+- completed alert file has been written or is the next required action
 - no unresolved blocker remains
 - automation status has been reviewed
 - dirty worktree is explained
@@ -52,6 +53,27 @@ A final deep review should ask for:
 Store the prompt or review artifact under the roadmap automation directory if
 the roadmap calls for it.
 
+## Completion Hard Stop
+
+When all roadmap phases are complete, treat completion as a stop state before
+any further delivery extraction:
+
+1. Confirm final verification passed.
+2. Confirm the latest review verdict is `delivered`.
+3. Confirm a deep-review prompt or final review artifact is recorded.
+4. Confirm publication or final branch push is approved before attempting it.
+5. Set `all_phases_complete` or an equivalent completed status in state.
+6. Write a `completed` operator alert before any optional notification sink.
+7. Pause the automation when the pause surface is approved, then read back
+   status.
+8. If pause approval or tooling is unavailable, record
+   `completed_pending_pause`, keep the hard-stop guard active, and ask the
+   operator to pause the automation.
+
+Completed state must not start another phase. A later run that sees completed
+state should only verify the pause/alert evidence or ask for the missing pause
+action.
+
 ## Final Branch
 
 Use a clearly named local branch, for example:
@@ -91,10 +113,13 @@ Do not publish directly to `main`.
 When the roadmap is complete or blocked on a human decision:
 
 1. Read back the saved automation config.
-2. Confirm whether the user wants it paused.
-3. If approved, pause the automation through the available app/tooling.
-4. Read back status.
-5. Record the result in delivery state and log.
+2. Write the required local operator alert for the terminal state.
+3. Confirm whether the user wants it paused when pause approval is not already
+   part of the workflow.
+4. If approved, pause the automation through the available app/tooling.
+5. Read back status.
+6. Record the alert file, pause result, and any notification failure in
+   delivery state and log.
 
 If status-only update is rejected by the app, record the rejection and give the
 operator the exact safe next step.
@@ -118,15 +143,19 @@ When all roadmap phases are complete, or when delivery is blocked on a human
 decision, pause handling must be addressed before the final response.
 
 - Read back the saved automation status.
-- If complete and active, ask for approval to pause or use the approved app
-  pause flow.
+- If complete, write or confirm the `completed` alert file before optional
+  external notification.
+- If complete and active, ask for approval to pause or use the approved pause
+  flow. Do not continue delivery work while waiting.
 - If blocked by product decision, credentials, verification environment, or max
   review iterations, recommend pause and record the reason.
 - If the operator declines or approval is unavailable, record that the
-  automation remains active and should not start new delivery work.
+  automation remains active, set or preserve a completed-pending-pause marker,
+  and make the next human pause action explicit.
 
 Do not claim operational closeout is complete until the pause decision and
-readback result are recorded.
+readback result are recorded. If the automation is still active, the hard-stop
+guard is the safety backstop, not a substitute for pause completion.
 
 ## Activation Is Not Promotion
 

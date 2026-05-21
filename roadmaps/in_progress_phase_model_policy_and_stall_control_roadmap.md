@@ -1,10 +1,10 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 7 - Completion Pause And Alert Flow
-Last completed phase: Phase 6 - Alert Files And Optional Notification Sinks
+Current phase: Phase 8 - Automation Setup Integration
+Last completed phase: Phase 7 - Completion Pause And Alert Flow
 Last updated: 2026-05-21
-Next action: Start Phase 7 and add completion pause plus completion alert flow.
+Next action: Start Phase 8 and integrate phase model policy into automation setup.
 Blocked by: None
 
 ## Purpose
