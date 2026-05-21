@@ -3,7 +3,7 @@
 This workspace contains the strategy, phased roadmap, and local automation
 artifacts for building the `autonomous-roadmap-delivery` Codex skill.
 
-GitHub repository: `<repository-remote-url>`
+GitHub repository: `git@github.com:dzianissokalau/autonomous-roadmap-delivery.git`
 
 ## Current Roadmap
 
@@ -33,6 +33,39 @@ The roadmap is complete locally. The pushed branch contains the roadmap
 evidence plus a source snapshot of the installed skill package so external
 reviewers can inspect the delivered skill without access to the local
 `~/.codex/skills` directory.
+
+## Install The Codex Skill
+
+The installable skill lives at:
+
+```text
+skill/autonomous-roadmap-delivery/
+```
+
+Install it with Codex's skill installer:
+
+```bash
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+  --repo dzianissokalau/autonomous-roadmap-delivery \
+  --path skill/autonomous-roadmap-delivery
+```
+
+This installs to:
+
+```text
+${CODEX_HOME:-$HOME/.codex}/skills/autonomous-roadmap-delivery
+```
+
+Restart Codex after installation so the skill is picked up.
+
+Manual fallback:
+
+```bash
+git clone git@github.com:dzianissokalau/autonomous-roadmap-delivery.git /tmp/autonomous-roadmap-delivery
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R /tmp/autonomous-roadmap-delivery/skill/autonomous-roadmap-delivery \
+  "${CODEX_HOME:-$HOME/.codex}/skills/"
+```
 
 To run the repository-local checks:
 
