@@ -82,3 +82,13 @@ No findings. Phase 3 makes the start-run model gate explicit in the phase loop
 and model-policy reference, documents manual CLI/profile relaunch patterns and
 Codex app automation readback expectations, and updates artifact validation to
 error when a required configured model or reasoning effort cannot be proven.
+
+## Phase 4 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 4 adds the end-run retargeting gate to the phase loop,
+documents finalization retarget behavior, expands retarget failure
+troubleshooting, and adds a read-only retarget plan helper. Dry-run checks
+covered next phase policy lookup, default fallback, finalization lookup, and
+the retarget-failed path.

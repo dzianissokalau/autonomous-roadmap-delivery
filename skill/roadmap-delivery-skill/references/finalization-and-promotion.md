@@ -22,6 +22,21 @@ Run the roadmap's final checks plus targeted smoke checks for changed helper
 scripts and references. Do not rely on phase-level evidence alone if later
 bookkeeping or repair changed shared workflow behavior.
 
+## Finalization Model Policy
+
+Before entering finalization, resolve the `finalization` entry in
+`phase_model_policy.json` when the roadmap has a model policy. If the entry is
+missing, use policy defaults and record that fallback in the delivery log.
+
+If the saved automation config already matches the finalization model and
+reasoning effort, record the readback and continue the finalization checklist.
+If it does not match, retarget only with explicit approval, read back the saved
+config, and stop so finalization starts in a fresh run with the right model.
+
+If retargeting or readback fails, do not mark the roadmap complete. Keep or set
+state to `blocked`, write or request a `retarget-failed` alert, and preserve
+the last delivered phase evidence for the next operator action.
+
 ## Deep Review Prompt
 
 A final deep review should ask for:

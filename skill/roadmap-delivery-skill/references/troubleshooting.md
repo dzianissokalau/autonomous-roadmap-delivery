@@ -76,9 +76,28 @@ Current automation model mismatch:
 
 Retarget update failure:
 
-- Keep or set state blocked.
-- Write or request a `retarget-failed` alert.
-- Do not start the next phase.
+- Record the delivered phase, next phase, required model/reasoning,
+  configured model/reasoning, attempted update surface, and readback result.
+- Keep or set state blocked with `blocked_reason` explaining the failed
+  retarget.
+- Write or request a `retarget-failed` alert before relying on any optional
+  notification sink.
+- Do not advance to, or start delivery for, the next phase.
+- If the update failed because approval was unavailable, classify it as
+  `permission-gated` or `external-decision` rather than retrying automatically.
+- If the update was approved but readback still mismatches, treat it as an
+  automation-config blocker and require a fresh readback before resuming.
+
+To diagnose without mutating files, run:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py \
+  --repo-root <repo-root> \
+  --roadmap-slug <roadmap-slug> \
+  --automation-id <automation-id> \
+  --delivered-phase "Phase N - Name" \
+  --json
+```
 
 Repeated non-progress:
 

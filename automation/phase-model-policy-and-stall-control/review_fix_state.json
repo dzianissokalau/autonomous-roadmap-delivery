@@ -1,19 +1,19 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 4 - End-Run Retargeting Gate",
+  "current_phase": "Phase 5 - Progress Signature And Stall Counter",
   "status": "idle",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "latest_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-3-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-4-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T15:30:12Z"
+    "completed_at": "2026-05-21T16:08:00Z"
   },
   "unresolved_findings": [],
   "latest_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
     "summary": "Resolved repeated Phase 1 workspace mismatch by changing the automation execution environment from worktree to local and adding Blocker Remediation Mode to the run guide."
   },
-  "updated_at": "2026-05-21T15:30:12Z"
+  "updated_at": "2026-05-21T16:08:00Z"
 }

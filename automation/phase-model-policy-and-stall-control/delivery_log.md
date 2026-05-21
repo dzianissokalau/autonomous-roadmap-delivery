@@ -511,3 +511,82 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-3`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-4` and start Phase 4 -
   End-Run Retargeting Gate.
+
+## Phase 4 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-4`
+
+### Scope
+
+- Add the end-run retargeting gate after a delivered phase review.
+- Require next-phase model/reasoning resolution before state advancement.
+- Document finalization retargeting and retarget failure behavior.
+- Add a read-only retarget plan helper for dry-run verification.
+
+### Changes
+
+- `phase-loop.md` now resolves the next numbered phase or `finalization`
+  pseudo-phase after a delivered review, computes the next required model and
+  reasoning effort, requires automation config readback, and blocks failed
+  update/readback paths.
+- `finalization-and-promotion.md` now checks finalization model policy before
+  finalization work and blocks completion on failed retarget/readback.
+- `troubleshooting.md` now records required retarget-failure evidence and
+  routes failures to blocked state plus a `retarget-failed` alert.
+- Added `plan_automation_retarget.py`, a read-only helper that produces JSON or
+  operator-readable retarget plans.
+- Advanced the roadmap header and delivery state to Phase 5 after a delivered
+  review verdict. The Phase 4 to Phase 5 retarget plan resolved to policy
+  defaults and the saved automation already matched `gpt-5.5`/`xhigh`, so no
+  automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 16 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase4-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 0 - Policy Contract' --json`:
+  passed; next phase policy was found at `phases.1`.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate' --json`:
+  passed; Phase 5 falls back to policy defaults.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 10 - Migration, Release, And Documentation' --json`:
+  passed; finalization policy was found at `phases.finalization`.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate' --simulate-update-failure 'simulated readback mismatch' --json`:
+  passed; output includes blocked state, `retarget-failed`, and stop-before-next-phase failure path.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate'`:
+  passed; output is an operator-readable retarget plan.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-4-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- No committed unit test was added for `plan_automation_retarget.py`; Phase 4
+  required fixture or dry-run checks, and the dry-runs cover the required
+  cases.
+- The Phase 4 branch already contained a pre-existing unrelated local commit
+  adding other roadmap files. Phase 4 did not modify those files.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-5` and start Phase 5 -
+  Progress Signature And Stall Counter.

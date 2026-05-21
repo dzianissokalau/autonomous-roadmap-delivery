@@ -1,11 +1,11 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 4 - End-Run Retargeting Gate
-Last completed phase: Phase 3 - Start-Run Model Gate
+Current phase: Phase 5 - Progress Signature And Stall Counter
+Last completed phase: Phase 4 - End-Run Retargeting Gate
 Last updated: 2026-05-21
-Next action: Start Phase 4 and add the end-run retargeting gate after a
-delivered phase review.
+Next action: Start Phase 5 and add durable progress signature and stalled-run
+counter handling.
 Blocked by: None
 
 ## Purpose

@@ -92,6 +92,43 @@ For Codex app automations, the saved config must read back with matching
 fields, stop immediately after readback; do not continue delivery in the same
 run.
 
+## End-Run Retargeting Gate
+
+After a delivered review verdict and before advancing state to the next phase:
+
+1. Resolve the next numbered phase from the roadmap. If no numbered phase
+   remains, resolve the `finalization` pseudo-phase.
+2. Read `phase_model_policy.json` and compute the next required model and
+   reasoning effort. Use the next phase override when present; otherwise use
+   policy defaults.
+3. Update `delivery_state.json` with the next phase, next required
+   model/reasoning fields, and the configured automation values observed by
+   readback.
+4. If the current automation config already matches the next required
+   model/reasoning, record that no retarget was needed and keep the automation
+   active.
+5. If the config does not match, update it only when the operator already
+   approved that automation surface. Read the saved config back after the
+   update.
+6. If readback matches, record the retarget result and stop. The next run
+   starts the next phase.
+7. If the update or readback fails, set or keep the state blocked, write or
+   request a `retarget-failed` alert, and do not start the next phase.
+
+Use the read-only helper when a deterministic plan is useful:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py \
+  --repo-root <repo-root> \
+  --roadmap-slug <roadmap-slug> \
+  --automation-id <automation-id> \
+  --delivered-phase "Phase N - Name" \
+  --json
+```
+
+The helper does not mutate state or automation config. It is evidence for the
+review gate, not a substitute for an approved update and readback.
+
 ## Extract The Phase Contract
 
 From the current phase only, extract:
@@ -250,6 +287,8 @@ Do not advance to the next phase until all are true:
 - phase acceptance criteria are satisfied
 - required verification passed after the final fix, if any
 - a fresh review verdict is `delivered`
+- next model/reasoning requirements are resolved and either already match the
+  saved automation config or have an approved retarget readback
 - roadmap header/status is updated
 - delivery log is updated
 - delivery state is updated
