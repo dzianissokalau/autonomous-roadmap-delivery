@@ -161,12 +161,15 @@ Do not edit unrelated automation fields to sneak in a status change.
 
 Symptoms:
 
+- roadmap header is active, or current phase is Phase 1+, while the file still
+  starts with `not_started_`
 - roadmap moved from draft/in-progress to delivered filename
 - state still points to old path
 - automation prompt still references old path
 
-Repair only after confirming the intended current roadmap file. Update state,
-guide, log, and automation prompt references together, then rerun validation or
+Repair only after confirming the intended current roadmap file and lifecycle
+state. Update the roadmap filename, state, guide, log, reviews, run-log
+bookkeeping, and automation prompt references together, then rerun validation or
 status inspection. If app automation edits require approval, stop and ask.
 
 ## Completed State But Automation Still ACTIVE

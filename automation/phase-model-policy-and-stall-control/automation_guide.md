@@ -1,7 +1,7 @@
 # Phase Model Policy And Stall Control Automation Guide
 
 Status: Active
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Roadmap slug: `phase-model-policy-and-stall-control`
 State file: `automation/phase-model-policy-and-stall-control/delivery_state.json`
 Delivery log: `automation/phase-model-policy-and-stall-control/delivery_log.md`
@@ -36,7 +36,7 @@ Execution environment: local
 ## Next Run Prompt
 
 Run the next safe step for
-`roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md` using
+`roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md` using
 the phase-gated workflow in `automation/`.
 
 Read these first:

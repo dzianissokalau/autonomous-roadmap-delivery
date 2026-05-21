@@ -20,7 +20,17 @@ DEFAULT_AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
 AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(DEFAULT_AUTOMATIONS_DIR))).expanduser()
 VALID_REVIEW_VERDICTS = {"delivered", "needs-fix", "blocked"}
 COMPLETED_STATUSES = {"complete", "completed", "delivered", "completed_pending_pause", "all_phases_complete"}
-ACTIVE_STATUSES = {"in progress", "active", "not_started", "delivering", "verifying", "reviewing", "fixing", "blocked"}
+ACTIVE_STATUSES = {
+    "in progress",
+    "in-progress",
+    "active",
+    "not-started",
+    "delivering",
+    "verifying",
+    "reviewing",
+    "fixing",
+    "blocked",
+}
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 KNOWN_NOTIFICATION_MODES = {"alert_file", "github_issue", "none", "slack", "email", "codex_thread", "webhook"}
 VALID_ALERT_KINDS = {"stalled", "completed", "blocked", "retarget-failed"}
@@ -651,14 +661,25 @@ def validate_lifecycle_filename(roadmap_path: Optional[Path], header: Dict[str, 
         return
     name = roadmap_path.name
     header_status = normalized(header.get("status"))
+    header_phase_number = phase_number(header.get("current phase"))
+    started_phase = header_phase_number is not None and int(header_phase_number) >= 1
+    header_active = header_status in ACTIVE_STATUSES
+    has_not_started_prefix = name.startswith("not_started_")
     has_delivered_prefix = name.startswith("delivered_")
     has_in_progress_prefix = name.startswith("in_progress_")
 
-    if complete and has_in_progress_prefix:
+    if has_not_started_prefix and (header_active or started_phase):
+        add(
+            errors,
+            "roadmap_lifecycle_filename_mismatch",
+            "Active roadmap or Phase 1+ roadmap still uses a not_started_ lifecycle filename.",
+            roadmap_path,
+        )
+    elif complete and has_in_progress_prefix:
         add(errors, "roadmap_lifecycle_filename_mismatch", "Completed roadmap still uses an in_progress filename.", roadmap_path)
     elif complete and not has_delivered_prefix:
         add(warnings, "roadmap_lifecycle_filename_unconfirmed", "Completed roadmap does not use the delivered_ lifecycle filename convention.", roadmap_path)
-    elif header_status in ACTIVE_STATUSES and has_delivered_prefix:
+    elif header_active and has_delivered_prefix:
         add(errors, "roadmap_lifecycle_filename_mismatch", "Active roadmap status uses a delivered_ filename.", roadmap_path)
 
 

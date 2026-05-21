@@ -1,7 +1,7 @@
 # Phase Model Policy And Stall Control Delivery Log
 
 Status: Active
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 State file: `automation/phase-model-policy-and-stall-control/delivery_state.json`
 Review directory: `automation/phase-model-policy-and-stall-control/reviews`
 Policy file: `automation/phase-model-policy-and-stall-control/phase_model_policy.json`
@@ -43,7 +43,7 @@ Automation: `phase-model-policy-and-stall-control`
 - Saved model: `gpt-5.5`
 - Saved reasoning effort: `xhigh`
 - Saved prompt references
-  `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+  `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 - Saved prompt references
   `automation/phase-model-policy-and-stall-control/automation_guide.md`
 - Saved prompt forbids pushing, merging, `main` promotion, unrelated edits, and
@@ -79,7 +79,7 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-0`
 
 - `Manual review: check the roadmap for contradictions with existing skill guarantees`: passed
 - `Manual review: confirm the policy can represent low-cost docs, high-reasoning implementation, finalization, and disabled notifications for tests`: passed
-- `LC_ALL=C rg -n '[^ -~]' roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md automation/phase-model-policy-and-stall-control`: passed
+- `LC_ALL=C rg -n '[^ -~]' roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md automation/phase-model-policy-and-stall-control`: passed
 - `git diff --check`: passed
 
 ### Review
@@ -735,3 +735,54 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-6`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-7` and start Phase 7 -
   Completion Pause And Alert Flow.
+
+## Lifecycle Repair - 2026-05-21
+
+Status: repaired
+
+### Scope
+
+- Repair lifecycle filename drift for the active Phase 7 roadmap.
+- Add executable validator and inspection coverage so the same drift cannot
+  pass silently again.
+
+### Changes
+
+- Renamed the roadmap from the stale `not_started_` lifecycle filename to
+  `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`.
+- Updated durable references in state, guide, delivery log, review files,
+  review-fix bookkeeping, run bookkeeping, and README.
+- Updated the saved Codex automation prompt and read it back as `ACTIVE`,
+  `local`, `gpt-5.5`, `xhigh`, with the new `in_progress_` roadmap path.
+- Updated `validate_delivery_artifacts.py` to emit
+  `roadmap_lifecycle_filename_mismatch` when an active roadmap or Phase 1+
+  roadmap still uses a `not_started_` lifecycle filename.
+- Updated `inspect_delivery_state.py` to warn on the same lifecycle mismatch
+  during status inspection.
+- Added fixture coverage for active and Phase 1+ `not_started_` filenames.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 27 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-lifecycle-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected pre-commit `worktree_dirty` warning.
+- `rg -n <stale exact not_started_ roadmap path> . /Users/dzianissokalau/.codex/automations/phase-model-policy-and-stall-control/automation.toml`:
+  passed with no matches.
+- `git diff --check`: passed.
+- `diff -qr skill/roadmap-delivery-skill /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill`:
+  passed after syncing the installed skill.
+- `ROADMAP_DELIVERY_SKILL_ROOT=/Users/dzianissokalau/.codex/skills/roadmap-delivery-skill python3 -m unittest discover -s tests -v`:
+  passed, 27 tests against the installed skill copy.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill`:
+  passed, installed skill is valid.
+
+### Next Action
+
+- Continue Phase 7 from
+  `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`.

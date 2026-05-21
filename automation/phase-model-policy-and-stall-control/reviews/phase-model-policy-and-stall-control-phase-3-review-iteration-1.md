@@ -1,6 +1,6 @@
 # Phase Model Policy And Stall Control Phase 3 Review Iteration 1
 
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Phase: Phase 3 - Start-Run Model Gate
 Reviewed at: 2026-05-21T15:30:12Z
 Reviewer context: same Codex context as implementation.

@@ -30,8 +30,10 @@ AUTOMATION_DIR=automation/<roadmap-slug>
 ```
 
 Record the exact path in the roadmap header, state JSON, delivery log, and
-automation prompt. If the roadmap filename changes during a lifecycle rename,
-stop and repair every durable reference before doing delivery work.
+automation prompt. If the roadmap becomes active or advances to Phase 1+, it
+must not keep a `not_started_` filename. If the roadmap filename changes during
+a lifecycle rename, stop and repair every durable reference before doing
+delivery work.
 
 ## Artifact Layout
 

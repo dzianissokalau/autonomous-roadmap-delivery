@@ -20,7 +20,7 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
 ## Planned Roadmaps
 
-- `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`:
+- `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`:
   model-aware automation retargeting, stalled-run pause behavior, and operator
   alerts.
 - `roadmaps/not_started_framework_core_and_release_readiness_roadmap.md`:

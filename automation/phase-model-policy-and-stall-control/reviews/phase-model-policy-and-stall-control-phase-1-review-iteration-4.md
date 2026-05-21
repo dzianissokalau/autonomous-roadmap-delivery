@@ -1,6 +1,6 @@
 # Phase Model Policy And Stall Control Phase 1 Review Iteration 4
 
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Phase: Phase 1 - Skill Routing And Reference Docs
 Reviewed at: 2026-05-21T15:02:58Z
 Reviewer context: same Codex context as implementation.

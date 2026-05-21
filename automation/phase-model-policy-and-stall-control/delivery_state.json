@@ -1,5 +1,5 @@
 {
-  "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
+  "roadmap": "roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
   "current_phase": "Phase 7 - Completion Pause And Alert Flow",
   "branch": "codex/phase-model-policy-and-stall-control-phase-7",
@@ -69,6 +69,67 @@
     "artifact_validation": "passed_with_worktree_dirty_warning",
     "requires_next_run_reconciliation": true
   },
+  "last_lifecycle_repair": {
+    "completed_at": "2026-05-21T16:44:55Z",
+    "previous_lifecycle_prefix": "not_started_",
+    "new_roadmap": "roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md",
+    "reason": "The roadmap header is active at Phase 7, so the not_started_ lifecycle filename was stale.",
+    "repair": "Renamed the roadmap to the in_progress_ lifecycle filename and updated state, guide, logs, reviews, README, run bookkeeping, validator coverage, and the saved automation prompt.",
+    "automation_readback": "ACTIVE, local, gpt-5.5, xhigh, prompt references the in_progress roadmap path",
+    "validator_coverage": "validate_delivery_artifacts.py now errors when an active or Phase 1+ roadmap still uses a not_started_ lifecycle filename",
+    "verification": [
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "27 helper-script tests passed, including active and Phase 1+ not_started_ lifecycle filename regression coverage."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-lifecycle-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py",
+        "status": "passed",
+        "details": "Inspection, validation, retarget planner, progress signature, and operator alert scripts compiled."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Skill is valid."
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
+        "status": "passed_with_warning",
+        "details": "Validation reported no errors, model policy match, active automation prompt on the in_progress_ roadmap path, run log valid, and only the expected worktree_dirty warning before commit."
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "status": "passed_with_warning",
+        "details": "Inspection reported the in_progress_ roadmap path, matching Phase 7 branch, gpt-5.5/xhigh configuration, no lifecycle mismatch, and only the expected worktree_dirty warning before commit."
+      },
+      {
+        "command": "rg -n <stale exact not_started_ roadmap path> . /Users/dzianissokalau/.codex/automations/phase-model-policy-and-stall-control/automation.toml",
+        "status": "passed",
+        "details": "No exact old roadmap path references remain in the repository or saved automation config."
+      },
+      {
+        "command": "git diff --check",
+        "status": "passed",
+        "details": "No whitespace errors were found."
+      },
+      {
+        "command": "diff -qr skill/roadmap-delivery-skill /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "The installed Codex skill matches the repository skill snapshot after sync."
+      },
+      {
+        "command": "ROADMAP_DELIVERY_SKILL_ROOT=/Users/dzianissokalau/.codex/skills/roadmap-delivery-skill python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "27 helper-script tests passed against the installed skill copy."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Installed skill is valid."
+      }
+    ]
+  },
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
@@ -90,7 +151,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "created_or_updated_at": "2026-05-21T14:59:17Z"
+    "created_or_updated_at": "2026-05-21T16:44:55Z"
   },
-  "updated_at": "2026-05-21T16:31:30Z"
+  "updated_at": "2026-05-21T16:44:55Z"
 }

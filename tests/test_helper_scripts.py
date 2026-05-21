@@ -33,7 +33,8 @@ class DeliveryFixture:
         review_verdict="delivered",
         omit_review_dir=False,
         dirty_worktree=False,
-        prompt_path="roadmaps/eval_fixture_roadmap.md",
+        roadmap_filename="eval_fixture_roadmap.md",
+        prompt_path=None,
         hard_stop_guard=True,
         blocked_remediation_guard=True,
         state_layout="roadmaps",
@@ -58,6 +59,9 @@ class DeliveryFixture:
         self.slug = slug
         self.slug_dir = slug.replace("-", "_")
         self.automation_id = f"{slug}-delivery"
+        self.roadmap_filename = roadmap_filename
+        if prompt_path is None:
+            prompt_path = f"roadmaps/{roadmap_filename}"
         self.repo_root.mkdir(parents=True)
         self.home.mkdir(parents=True)
 
@@ -114,7 +118,7 @@ class DeliveryFixture:
         state_last_progress_at,
         run_log_text,
     ):
-        roadmap_path = self.repo_root / "roadmaps" / "eval_fixture_roadmap.md"
+        roadmap_path = self.repo_root / "roadmaps" / self.roadmap_filename
         if state_layout == "root":
             state_dir = self.repo_root / "automation" / self.slug_dir
             review_prefix = f"automation/{self.slug_dir}/reviews"
@@ -150,7 +154,7 @@ class DeliveryFixture:
             encoding="utf-8",
         )
         state = {
-            "roadmap": "roadmaps/eval_fixture_roadmap.md",
+            "roadmap": f"roadmaps/{self.roadmap_filename}",
             "roadmap_slug": self.slug,
             "current_phase": current_phase,
             "branch": f"codex/{self.slug}-phase-1",
@@ -586,6 +590,36 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("stale_automation_roadmap_path", self.warning_codes(inspect))
             self.assertIn("stale_automation_roadmap_path", self.warning_codes(validate))
             self.assertEqual(validate["errors"], [])
+
+    def test_active_not_started_lifecycle_filename_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="not_started_eval_fixture_roadmap.md",
+                current_phase="Phase 0 - Fixture",
+                roadmap_status="Active",
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertIn("roadmap_lifecycle_filename_mismatch", self.warning_codes(inspect))
+            self.assertIn("roadmap_lifecycle_filename_mismatch", self.error_codes(validate))
+
+    def test_phase_one_not_started_lifecycle_filename_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="not_started_eval_fixture_roadmap.md",
+                current_phase="Phase 1 - Fixture",
+                roadmap_status="Not Started",
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertIn("roadmap_lifecycle_filename_mismatch", self.warning_codes(inspect))
+            self.assertIn("roadmap_lifecycle_filename_mismatch", self.error_codes(validate))
 
     def test_missing_automation_config_is_warning_for_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:

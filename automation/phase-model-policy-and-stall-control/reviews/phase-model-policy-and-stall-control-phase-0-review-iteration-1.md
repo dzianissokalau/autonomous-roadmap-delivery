@@ -1,6 +1,6 @@
 # Phase Model Policy And Stall Control Phase 0 Review Iteration 1
 
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Phase: Phase 0 - Policy Contract
 Reviewed at: 2026-05-21T13:22:19Z
 Reviewer context: same Codex context as delivery; no separate sub-agent was

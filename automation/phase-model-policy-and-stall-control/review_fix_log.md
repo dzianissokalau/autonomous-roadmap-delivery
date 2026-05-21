@@ -1,7 +1,7 @@
 # Phase Model Policy And Stall Control Review/Fix Log
 
 Status: Idle
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Review directory: `automation/phase-model-policy-and-stall-control/reviews`
 
 ## Phase 0 - 2026-05-21 - Review Iteration 1
@@ -110,3 +110,12 @@ No findings. Phase 6 adds deterministic local operator alert files, records
 alert/fallback state, validates recorded alert files, documents optional
 notification sink boundaries, and adds fixture coverage for alert generation,
 notification failure fallback, and missing alert detection.
+
+## Lifecycle Repair - 2026-05-21
+
+Verdict: delivered
+
+No findings. Repaired the stale active-roadmap lifecycle filename by renaming
+the Phase 7 roadmap to the `in_progress_` path, updating durable references and
+saved automation prompt, and adding validator plus inspection coverage for
+active or Phase 1+ roadmaps that still use `not_started_`.

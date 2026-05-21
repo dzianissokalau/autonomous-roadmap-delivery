@@ -1,6 +1,6 @@
 # Phase Model Policy And Stall Control Phase 4 Review Iteration 1
 
-Roadmap: `roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md`
+Roadmap: `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`
 Phase: Phase 4 - End-Run Retargeting Gate
 Reviewed at: 2026-05-21T16:08:00Z
 Reviewer context: same Codex context as implementation.

@@ -17,6 +17,17 @@ from compute_progress_signature import ProgressSignatureError, build_run_result
 
 
 AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
+ACTIVE_STATUSES = {
+    "in progress",
+    "in-progress",
+    "active",
+    "not-started",
+    "delivering",
+    "verifying",
+    "reviewing",
+    "fixing",
+    "blocked",
+}
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 DEEP_REVIEW_CANDIDATES = (
     "deep_review_prompt.md",
@@ -228,6 +239,24 @@ def phase_number(value: Any) -> Optional[str]:
 
 def normalized(value: Any) -> str:
     return str(value or "").strip().lower().replace("_", "-")
+
+
+def warn_lifecycle_filename_drift(
+    roadmap_path: Optional[Path],
+    state_status: Any,
+    current_phase: Any,
+    warnings: List[Dict[str, str]],
+) -> None:
+    if not roadmap_path or not roadmap_path.name.startswith("not_started_"):
+        return
+    phase = phase_number(current_phase)
+    phase_started = phase is not None and int(phase) >= 1
+    if normalized(state_status) in ACTIVE_STATUSES or phase_started:
+        add_warning(
+            warnings,
+            "roadmap_lifecycle_filename_mismatch",
+            f"Active roadmap or Phase 1+ roadmap still uses a not_started_ lifecycle filename: {roadmap_path}",
+        )
 
 
 def has_blocked_remediation_guard(prompt: str) -> bool:
@@ -454,6 +483,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     current_phase = state.get("current_phase") if state else None
     last_delivered_phase = state.get("last_delivered_phase") if state else None
     blocked_reason = state.get("blocked_reason") if state else None
+    warn_lifecycle_filename_drift(roadmap_path, state_status, current_phase, warnings)
     state_dir = state_file.parent if state_file else None
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy = inspect_model_policy(policy_path, state, automation_data, warnings)

@@ -217,7 +217,7 @@ and stop conditions before implementation.
 ### Owned Files
 
 ```text
-roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md
+roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md
 ```
 
 ### Implementation Steps
@@ -860,7 +860,7 @@ model-policy/stall-control update cleanly.
 README.md
 skill/roadmap-delivery-skill/SKILL.md
 skill/roadmap-delivery-skill/references/*.md
-roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md
+roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md
 ```
 
 ### Implementation Steps
