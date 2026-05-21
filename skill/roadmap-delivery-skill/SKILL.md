@@ -10,9 +10,10 @@ Use this skill for file-backed, phase-gated roadmap delivery workflows. Keep wor
 ## First Move
 
 1. Identify the exact roadmap path or automation id before acting.
-2. Read the roadmap, delivery state, delivery log, review files, automation config, and `git status`.
+2. Read the roadmap, delivery state, delivery log, review files, phase model policy when present, automation config, and `git status`.
 3. Reconcile lifecycle rename drift, stale roadmap paths, branch names, and completed or blocked hard-stop states.
-4. Stop and report the mismatch when roadmap, state, log, review files, verification output, automation config, branch, or worktree evidence disagree.
+4. If state is `blocked`, route through blocked-run remediation before attempting normal phase delivery.
+5. Stop and report the mismatch only when roadmap, state, log, review files, verification output, automation config, branch, or worktree evidence disagree and the blocker is not safely repairable in the current run.
 
 ## Route The Task
 
@@ -22,10 +23,12 @@ Use this skill for file-backed, phase-gated roadmap delivery workflows. Keep wor
 - Inspect status, branches, state, or logs: read `references/state-log-and-branches.md`. Once Phase 4 exists, use `scripts/inspect_delivery_state.py` for status questions.
 - Finalize, promote, or close out delivered work: read `references/finalization-and-promotion.md`.
 - Repair bad state, stale paths, blocked runs, or lifecycle drift: read `references/troubleshooting.md`.
+- Use phase model policy, stalled-run handling, or model-aware automation: read `references/model-policy-and-stall-control.md`.
 
 ## Hard Rules
 
 - Work exactly one roadmap phase at a time.
+- When state is `blocked`, try blocked-run remediation before retrying normal phase advancement.
 - Run required verification before claiming delivery.
 - Require a fresh review verdict before phase advancement.
 - Preserve unrelated worktree changes; never revert user work without explicit instruction.

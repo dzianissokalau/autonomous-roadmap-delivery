@@ -3,6 +3,92 @@
 Use this reference when roadmap, state, log, automation config, branch, or
 verification evidence disagree.
 
+## Blocked Run Remediation
+
+A blocked run should not loop forever by trying the same phase advancement
+again. On the next run, handle `status: blocked` as a remediation gate:
+
+1. Read the latest `blocked_reason`, failed verification, review findings, and
+   automation readback.
+2. Classify the blocker as:
+   - `local-repairable`
+   - `automation-config`
+   - `permission-gated`
+   - `external-decision`
+   - `destructive-risk`
+3. Repair `local-repairable` blockers when they are current-phase bookkeeping,
+   stale paths, missing generated artifacts, branch drift, or malformed
+   state/log entries.
+4. Repair `automation-config` blockers only when the user already authorized
+   that automation surface in this workflow.
+5. Rerun validation/readback after repair.
+6. If repair passes, record `last_blocker_repair`, clear `blocked_reason`,
+   reset stalled counters when progress is real, and resume the current phase.
+7. If repair needs credentials, a product decision, destructive git, broad
+   publication, or unapproved automation changes, keep state blocked and ask for
+   the missing action.
+
+Do not write another blocked review for the same issue until this remediation
+classification has been attempted.
+
+## Automation Worktree Missing Local Phase Artifacts
+
+Symptoms:
+
+- scheduled runs start in `.codex/worktrees/...` at a detached or old commit
+- the saved repository checkout has the phase branch and artifacts
+- the active run cannot check out the phase branch because it is already used
+  by the saved checkout
+
+Repair options:
+
+- switch the automation to local execution when the phase branch is intentionally
+  local and unpublished
+- push/publish the required branch only when the operator explicitly approves
+  publication
+- create a separate worktree branch only when branch ownership is clear
+
+After repair, read back automation config, rerun artifact validation, and record
+the repair before phase delivery resumes.
+
+## Model Policy Problems
+
+Missing policy file:
+
+- If the roadmap requires model policy, record a blocker and do not deliver.
+- If the roadmap is legacy or policy-optional, continue legacy behavior and
+  record that no policy was present.
+
+Invalid policy file:
+
+- Record the parse or schema error.
+- Do not infer model requirements from malformed JSON.
+- Repair only when the current phase owns policy setup or the operator approves
+  the repair.
+
+Current automation model mismatch:
+
+- Do not start phase implementation.
+- Record required and configured model/reasoning.
+- Retarget the automation only when that surface is already approved.
+- Read back the saved config and stop so the next run starts on the correct
+  model.
+
+Retarget update failure:
+
+- Keep or set state blocked.
+- Write or request a `retarget-failed` alert.
+- Do not start the next phase.
+
+Repeated non-progress:
+
+- Compute or inspect the durable progress signature.
+- If the signature is unchanged, increment `stalled_run_count`.
+- At `max_stalled_runs`, keep state blocked, pause or request pause, and write
+  a stalled alert.
+- Before counting another stall, run Blocked Run Remediation for any explicit
+  blocker.
+
 ## Automation Saved ACTIVE Despite Requested PAUSED
 
 Read back the saved automation config. If it is active and the setup contract
@@ -218,6 +304,8 @@ The troubleshooting surface must cover these known modes:
   `automation/<slug>`.
 - artifact validator reports blocking errors.
 - activation requested while validation errors remain.
+- blocked run repeats without remediation classification.
+- automation worktree is missing local-only phase artifacts.
 
 ## Repository Layout Mismatch
 

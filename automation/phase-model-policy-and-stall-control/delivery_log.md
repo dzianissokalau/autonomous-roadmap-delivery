@@ -9,7 +9,7 @@ Codex automation: `phase-model-policy-and-stall-control`
 Cadence: hourly
 Model: `gpt-5.5`
 Reasoning effort: `xhigh`
-Execution environment: worktree
+Execution environment: local
 
 ## Operating Policy
 
@@ -101,3 +101,273 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-0`
 ### Next Action
 
 - Start Phase 1 - Skill Routing And Reference Docs.
+
+## Phase 1 - 2026-05-21 - Delivery Pass 1
+
+Status: blocked
+Branch: `codex/phase-model-policy-and-stall-control-phase-1`
+
+### Scope
+
+- Reconcile the current run before starting Phase 1.
+- Do not change Phase 1 owned files unless roadmap, state, log, review files,
+  phase model policy, branch, worktree, and saved automation configuration
+  agree.
+
+### Changes
+
+- No Phase 1 implementation files were changed.
+- Recorded a blocker because this run executed in detached worktree
+  `/Users/dzianissokalau/.codex/worktrees/bc97/roadmap-delivery-automation`
+  at `79081f2`, where the requested
+  `automation/phase-model-policy-and-stall-control/` artifacts are absent.
+- The saved automation configuration points to
+  `/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation`,
+  where `codex/phase-model-policy-and-stall-control-phase-1` is checked out at
+  `6476fe0` and the automation artifacts exist.
+
+### Tests And Verification
+
+- `Reconcile requested run cwd, saved automation cwd, branch, roadmap, state, log, review files, and phase model policy before delivery`: failed
+- `python3 -m unittest discover -s tests -v`: not run
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`: not run
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-1.md`
+- Verdict: blocked
+
+### Finding Disposition
+
+- [P1] Active run worktree does not match saved automation cwd or phase branch:
+  blocked
+
+### Residual Risks
+
+- Phase 1 has not started. The next run should execute from, or be based on,
+  `codex/phase-model-policy-and-stall-control-phase-1` with the automation
+  artifacts present.
+
+### Next Action
+
+- Fix the automation worktree/source mismatch, then rerun Phase 1.
+
+## Phase 1 - 2026-05-21 - Delivery Pass 2
+
+Status: blocked
+Branch: `codex/phase-model-policy-and-stall-control-phase-1`
+
+### Scope
+
+- Reconcile the current run before starting Phase 1.
+- Preserve the existing blocked Phase 1 artifacts and do not change Phase 1
+  owned implementation files while the run workspace still disagrees with the
+  saved automation configuration.
+
+### Changes
+
+- No Phase 1 implementation files were changed.
+- Confirmed the active run again started in a detached worktree at `79081f2`:
+  `/Users/dzianissokalau/.codex/worktrees/8e81/roadmap-delivery-automation`.
+- Confirmed the required
+  `automation/phase-model-policy-and-stall-control/` artifacts are absent in
+  that active detached worktree.
+- Confirmed the saved automation config is active, uses `gpt-5.5` with
+  `xhigh` reasoning, and points to
+  `/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation`.
+- Confirmed the saved worktree has
+  `codex/phase-model-policy-and-stall-control-phase-1` checked out at
+  `6476fe0`; `git switch codex/phase-model-policy-and-stall-control-phase-1`
+  cannot run in the detached worktree because that branch is already used by
+  the saved worktree.
+
+### Tests And Verification
+
+- `python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`: passed with no errors and one `worktree_dirty` warning for the recorded blocker changes
+- `python3 -m unittest discover -s tests -v`: not run
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`: not run
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-2.md`
+- Verdict: blocked
+
+### Finding Disposition
+
+- [P1] Active run worktree still does not match saved automation cwd or phase
+  branch: blocked
+
+### Residual Risks
+
+- Phase 1 has still not started. The next run needs the automation execution
+  source to produce, or run from, a worktree containing
+  `codex/phase-model-policy-and-stall-control-phase-1` and the phase automation
+  artifacts.
+- This is the second blocked Phase 1 reconciliation pass; the current
+  `stalled_run_count` is `1` of `3`.
+
+### Next Action
+
+- Fix the automation worktree/source mismatch before rerunning Phase 1.
+
+## Blocker Repair - 2026-05-21
+
+Status: repaired
+Branch: `codex/phase-model-policy-and-stall-control-phase-1`
+
+### Scope
+
+- Resolve the repeated Phase 1 blocked loop before trying to advance Phase 1.
+- Preserve the two blocked review attempts as evidence.
+- Add explicit Blocker Remediation Mode so a blocked run fixes a resolvable
+  blocker before retrying phase delivery.
+
+### Changes
+
+- Changed the Codex automation execution environment from `worktree` to
+  `local`, because the worktree runner repeatedly started from detached
+  `79081f2` without the Phase 0 automation artifacts.
+- Updated the automation guide to require Blocker Remediation Mode when
+  `delivery_state.json` has `status: blocked`.
+- Cleared the active blocker in state after recording a `last_blocker_repair`
+  entry.
+- Reset `stalled_run_count` to `0` because the repeated no-progress loop now
+  has a concrete repair.
+
+### Tests And Verification
+
+- Saved automation readback: passed. Config is `ACTIVE`, `local`, `gpt-5.5`,
+  and `xhigh`.
+- `python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected `worktree_dirty` warning for this repair diff.
+
+### Review
+
+- Review file: not applicable; this is blocker remediation, not a Phase 1
+  delivery verdict.
+- Verdict: not applicable
+
+### Finding Disposition
+
+- [P1] Active run worktree does not contain phase automation artifacts: fixed
+  by using local execution for this unpushed phase branch.
+
+### Residual Risks
+
+- Local execution is the right fit while this delivery branch remains local.
+  If the branch is pushed later, worktree execution can be reconsidered.
+- Phase 1 implementation has not started yet.
+
+### Next Action
+
+- Rerun artifact validation, then start Phase 1 from the repaired local
+  execution configuration.
+
+## Phase 1 - 2026-05-21 - Workspace Repair
+
+Status: repaired
+Branch: `codex/phase-model-policy-and-stall-control-phase-1`
+
+### Scope
+
+- Repair the automation execution source mismatch that blocked Phase 1 before
+  implementation.
+- Do not change Phase 1 owned implementation files.
+
+### Changes
+
+- Changed the saved automation config from `execution_environment = "worktree"`
+  to `execution_environment = "local"` so future runs execute in
+  `/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation`.
+- Updated automation guide, delivery state, and review/fix state readback to
+  match the saved local execution environment.
+- Cleared the unresolved workspace-mismatch finding because the saved
+  automation now points at the worktree where `codex/phase-model-policy-and-stall-control-phase-1` is checked out.
+
+### Tests And Verification
+
+- `Update saved automation execution_environment from worktree to local`: passed
+- `python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`: passed
+- `git diff --check`: passed
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-3.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- [P1] Active run worktree did not match saved automation cwd or phase branch:
+  fixed
+
+### Residual Risks
+
+- Phase 1 implementation has not started; the next automation run should begin
+  Phase 1 delivery from the configured local worktree.
+- Local execution means future automation runs may operate in the dirty project
+  checkout instead of an isolated detached worktree.
+
+### Next Action
+
+- Rerun Phase 1 delivery from the repaired automation configuration.
+
+## Phase 1 - 2026-05-21 - Delivery Pass 3
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-1`
+
+### Scope
+
+- Add model-policy routing and reference docs.
+- Add start-run guidance for `phase_model_policy.json`.
+- Add setup/status/troubleshooting guidance for required/configured model and
+  stall state.
+- Fix the reported blocked-run loop by documenting Blocked Remediation Mode.
+
+### Changes
+
+- Updated `skill/roadmap-delivery-skill/SKILL.md` to route model policy and
+  blocked runs explicitly.
+- Updated `phase-loop.md` with Blocked Remediation Gate and Model Policy Gate.
+- Updated `setup-automation.md` with policy artifacts, state fields, prompt
+  requirements, and model-policy setup behavior.
+- Updated `state-log-and-branches.md` with model/stall fields and blocker
+  repair semantics.
+- Updated `troubleshooting.md` with blocked-run remediation, local-artifact
+  worktree repair, and model-policy problem handling.
+- Added `model-policy-and-stall-control.md`.
+- Updated this roadmap's Phase 1 contract to include blocked-run remediation.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 12 tests.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-4.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- [P1] Blocked run repeats without remediation: fixed.
+- [P1] Automation worktree missing local-only phase artifacts: fixed for this
+  automation by switching to local execution; documented as a troubleshooting
+  mode.
+
+### Residual Risks
+
+- Phase 2 still needs deterministic validator support for policy files and
+  model/stall state fields.
+- The installed global skill package has not been updated from this repository
+  snapshot in this turn.
+
+### Next Action
+
+- Start Phase 2 - Policy And State Validation.

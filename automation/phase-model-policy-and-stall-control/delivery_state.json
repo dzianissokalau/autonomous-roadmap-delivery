@@ -1,45 +1,59 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 1 - Skill Routing And Reference Docs",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-1",
-  "branch_reason": "Phase 0 was delivered on codex/phase-model-policy-and-stall-control-phase-0; the next run should continue from the Phase 1 branch.",
+  "current_phase": "Phase 2 - Policy And State Validation",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-2",
+  "branch_reason": "Phase 1 was delivered on codex/phase-model-policy-and-stall-control-phase-1; the next run should continue from the Phase 2 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
     "commands": [
       {
-        "command": "Manual review: check the roadmap for contradictions with existing skill guarantees",
+        "command": "Update saved automation execution_environment from worktree to local",
         "status": "passed",
-        "details": "The roadmap states that skills cannot switch an already-running model and keeps model control in the automation or runner."
+        "details": "Saved automation now runs in the configured project checkout instead of spawning detached worktrees."
       },
       {
-        "command": "Manual review: confirm the policy can represent low-cost docs, high-reasoning implementation, finalization, and disabled notifications for tests",
+        "command": "python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed",
-        "details": "The recommended policy includes per-phase model overrides, a finalization pseudo-phase, and notification mode none for tests and dry runs."
-      },
-      {
-        "command": "LC_ALL=C rg -n '[^ -~]' roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md automation/phase-model-policy-and-stall-control",
-        "status": "passed",
-        "details": "No non-ASCII characters were found in the roadmap or automation artifacts."
+        "details": "Artifact validator reported no errors; dirty-worktree warnings are expected from recorded repair artifacts."
       },
       {
         "command": "git diff --check",
         "status": "passed",
         "details": "No whitespace errors were found."
+      },
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "12 helper-script tests passed."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Skill is valid."
       }
     ],
-    "completed_at": "2026-05-21T13:22:19Z"
+    "completed_at": "2026-05-21T15:02:58Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-0-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-4.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T13:22:19Z",
-    "summary": "Phase 0 policy contract is explicit, internally consistent, and ready for Phase 1 implementation."
+    "completed_at": "2026-05-21T15:02:58Z",
+    "summary": "Phase 1 delivered model-policy routing, blocked remediation behavior, setup/status guidance, and troubleshooting docs."
   },
-  "last_delivered_phase": "Phase 0 - Policy Contract",
+  "last_delivered_phase": "Phase 1 - Skill Routing And Reference Docs",
   "blocked_reason": null,
+  "last_blocker_repair": {
+    "completed_at": "2026-05-21T14:56:46Z",
+    "previous_status": "blocked",
+    "previous_blocked_reason": "The active run cwd was a detached Codex worktree at 79081f2 without automation/phase-model-policy-and-stall-control artifacts, while the saved repository checkout was on codex/phase-model-policy-and-stall-control-phase-1 at 6476fe0.",
+    "repair": "Changed the Codex automation execution environment from worktree to local and added Blocker Remediation Mode to the automation guide and prompt.",
+    "automation_readback": "ACTIVE, local, gpt-5.5, xhigh",
+    "artifact_validation": "passed_with_worktree_dirty_warning",
+    "requires_next_run_reconciliation": true
+  },
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
@@ -47,11 +61,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 1,
+  "run_count": 5,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "manual:phase-0-delivered:2026-05-21T13:22:19Z",
-  "last_progress_at": "2026-05-21T13:22:19Z",
+  "last_progress_signature": "delivered:phase-1:2026-05-21T15:02:58Z",
+  "last_progress_at": "2026-05-21T15:02:58Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -59,9 +73,9 @@
     "rrule": "FREQ=HOURLY;INTERVAL=1",
     "model": "gpt-5.5",
     "reasoning_effort": "xhigh",
-    "execution_environment": "worktree",
+    "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "created_or_updated_at": "2026-05-21T13:22:19Z"
+    "created_or_updated_at": "2026-05-21T14:59:17Z"
   },
-  "updated_at": "2026-05-21T13:22:19Z"
+  "updated_at": "2026-05-21T15:02:58Z"
 }

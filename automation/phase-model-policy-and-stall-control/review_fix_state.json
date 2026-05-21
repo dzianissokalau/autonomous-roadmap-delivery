@@ -1,15 +1,19 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 1 - Skill Routing And Reference Docs",
+  "current_phase": "Phase 2 - Policy And State Validation",
   "status": "idle",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "latest_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-0-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-4.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T13:22:19Z"
+    "completed_at": "2026-05-21T15:02:58Z"
   },
   "unresolved_findings": [],
-  "updated_at": "2026-05-21T13:22:19Z"
+  "latest_repair": {
+    "completed_at": "2026-05-21T14:56:46Z",
+    "summary": "Resolved repeated Phase 1 workspace mismatch by changing the automation execution environment from worktree to local and adding Blocker Remediation Mode to the run guide."
+  },
+  "updated_at": "2026-05-21T15:02:58Z"
 }

@@ -11,7 +11,7 @@ Codex automation: `phase-model-policy-and-stall-control`
 Cadence: hourly
 Model: `gpt-5.5`
 Reasoning effort: `xhigh`
-Execution environment: worktree
+Execution environment: local
 
 ## Operating Policy
 
@@ -26,6 +26,8 @@ Execution environment: worktree
   phase before claiming delivery.
 - Require a fresh review verdict of `delivered` before advancing state.
 - Stop after 3 review/fix iterations if the phase remains unresolved.
+- If state is `blocked`, enter Blocker Remediation Mode before attempting
+  normal phase delivery.
 - Do not push, promote to `main`, merge, delete branches, or run destructive
   commands without explicit human approval.
 - Keep this automation configured as `gpt-5.5` with `xhigh` reasoning unless a
@@ -50,6 +52,25 @@ Operate on exactly one current phase at a time. Reconcile roadmap, state, log,
 review files, model policy, git branch, working tree, and saved automation
 configuration before editing. If they disagree, record the blocker in state,
 log, and review, then stop.
+
+If `delivery_state.json` has `status: blocked`, do not try to advance the
+phase first. Enter Blocker Remediation Mode:
+
+1. Classify the blocker as local-repairable, automation-config repairable,
+   permission-gated, external-decision, or destructive-risk.
+2. If the blocker is local-repairable or automation-config repairable and the
+   operator has already authorized the needed surface, fix the blocker first.
+3. Rerun reconciliation and artifact validation.
+4. If the blocker is resolved, clear `blocked_reason`, reset stalled counters
+   as appropriate, record a repair entry in state/log, and only then start or
+   resume the current phase.
+5. If the blocker requires credentials, a product decision, destructive git, or
+   unapproved publication/promotion, keep state blocked and ask for the missing
+   human action.
+
+A previous blocked review does not by itself block delivery when state contains
+a later successful blocker repair, `blocked_reason` is null, and reconciliation
+passes.
 
 Hard stop before delivery if `all_phases_complete` is true, state is
 `completed`, or state is `completed_pending_pause`. In that case, confirm the

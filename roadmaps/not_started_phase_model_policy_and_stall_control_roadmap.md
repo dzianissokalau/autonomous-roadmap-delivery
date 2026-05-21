@@ -1,10 +1,11 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 1 - Skill Routing And Reference Docs
-Last completed phase: Phase 0 - Policy Contract
+Current phase: Phase 2 - Policy And State Validation
+Last completed phase: Phase 1 - Skill Routing And Reference Docs
 Last updated: 2026-05-21
-Next action: Start Phase 1 and add model-policy routing and reference docs.
+Next action: Start Phase 2 and extend validation for model policy, state fields,
+and automation configuration.
 Blocked by: None
 
 ## Purpose
@@ -317,6 +318,11 @@ skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md
    - current automation model mismatch
    - retarget update failure
    - repeated non-progress
+   - blocked runs that repeat without remediation
+   - automation worktrees missing local-only phase artifacts
+7. Add Blocked Remediation Mode so a blocked run classifies and repairs
+   local or already-authorized automation blockers before retrying phase
+   advancement.
 
 ### Acceptance Criteria
 
@@ -325,6 +331,8 @@ skill/roadmap-delivery-skill/references/model-policy-and-stall-control.md
 - Existing setup, phase-loop, and status workflows mention model policy only
   where relevant.
 - Missing or invalid policy has clear behavior.
+- Blocked runs have clear repair behavior and do not endlessly retry the same
+  failed advancement path.
 
 ### Required Verification
 

@@ -20,6 +20,17 @@ Recommended fields:
   "last_review": null,
   "last_delivered_phase": null,
   "blocked_reason": null,
+  "last_blocker_repair": null,
+  "required_model": null,
+  "required_reasoning_effort": null,
+  "configured_automation_model": null,
+  "configured_automation_reasoning_effort": null,
+  "run_count": 0,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": null,
+  "last_progress_at": null,
+  "last_operator_alert": null,
   "updated_at": null
 }
 ```
@@ -32,7 +43,15 @@ Recommended fields:
 - `reviewing`: delivery is awaiting review
 - `fixing`: review found in-scope fixes
 - `delivered`: current phase passed the gate
-- `blocked`: work cannot continue without an external change or decision
+- `blocked`: work cannot continue until a blocker is repaired or a human action
+  is supplied
+
+When a blocked run becomes repairable, record the repair in
+`last_blocker_repair`, clear `blocked_reason` only after validation/readback
+passes, and return the current phase to `not_started`, `delivering`, or
+`fixing` as appropriate. A previous blocked review is historical evidence; it
+does not prevent delivery when a later repair is recorded and reconciliation
+passes.
 
 ## Delivery Log Schema
 
@@ -96,6 +115,21 @@ cat $CODEX_HOME/automations/<automation-id>/automation.toml
 
 Do not edit app automation config during status inspection.
 
+## Model Policy Status
+
+When `phase_model_policy.json` exists, include these facts in status reports:
+
+- current phase required model and reasoning effort
+- configured automation or runner model and reasoning effort, when available
+- whether required and configured values match
+- `run_count`, `stalled_run_count`, `max_stalled_runs`, and
+  `last_progress_signature`
+- latest operator alert path, if one exists
+
+If configured values cannot be read, say that explicitly. Do not infer that the
+active Codex session is on the required model merely because the policy asks
+for it.
+
 ## Mismatch Warnings
 
 Warn or block when:
@@ -105,6 +139,8 @@ Warn or block when:
 - roadmap current phase differs from state current phase
 - state branch differs from current branch
 - latest review verdict differs from state
+- state is blocked but the next run is trying to advance before classifying and
+  repairing the blocker
 - state says complete but automation remains active
 - multiple lifecycle roadmap files could match the same slug
 - dirty worktree includes current phase owned files with unexplained edits
@@ -161,7 +197,9 @@ Use this checklist before publishing or relying on an updated installed skill:
   `state-log-and-branches.md` for reconciliation/status drift,
   `troubleshooting.md` for repair paths, `phase-loop.md` for delivery gates,
   `review-and-fix.md` for reviewer behavior, and
-  `finalization-and-promotion.md` for closeout or promotion.
+  `finalization-and-promotion.md` for closeout or promotion. Use
+  `model-policy-and-stall-control.md` for model policy, progress signatures,
+  stalled-run thresholds, and alert behavior.
 - Keep platform work such as dashboards, telemetry, attestations, multi-repo
   APIs, and automatic promotion outside the installed skill until explicitly
   approved as separate platform work.

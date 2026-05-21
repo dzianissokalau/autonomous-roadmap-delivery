@@ -44,6 +44,9 @@ automation/<roadmap-slug>/
   delivery_log.md
   review_fix_state.json
   review_fix_log.md
+  phase_model_policy.json
+  automation_run_log.jsonl
+  alerts/
   reviews/
 ```
 
@@ -67,6 +70,16 @@ Start with this shape and fill in concrete values:
   "last_review": null,
   "last_delivered_phase": null,
   "blocked_reason": null,
+  "required_model": null,
+  "required_reasoning_effort": null,
+  "configured_automation_model": null,
+  "configured_automation_reasoning_effort": null,
+  "run_count": 0,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": null,
+  "last_progress_at": null,
+  "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "push_to_github": false,
   "updated_at": null
@@ -112,10 +125,19 @@ Read these first:
 - `automation/codex_phase_gated_delivery_automation_template.md`
 - `automation/<roadmap-slug>/delivery_state.json`
 - `automation/<roadmap-slug>/delivery_log.md`
+- `automation/<roadmap-slug>/review_fix_state.json` when present
+- `automation/<roadmap-slug>/phase_model_policy.json` when present
 
 Operate on exactly one current phase at a time. Reconcile roadmap, state, log,
 review files, git branch, and working tree before editing. If they disagree,
 record the blocker in state/log/review and stop.
+
+If state is `blocked`, enter Blocked Remediation Mode before normal delivery:
+classify the blocker, repair local or already-authorized automation-config
+blockers, rerun validation, clear `blocked_reason` only when the repair is
+verified, and then resume the current phase. If the blocker needs credentials,
+approval, a product decision, or destructive git, keep state blocked and ask for
+the missing human action.
 
 For the current phase only:
 - extract objective, owned files, implementation steps, acceptance criteria,
@@ -123,6 +145,8 @@ For the current phase only:
 - create or reuse `codex/<roadmap-slug>-phase-<n>` when implementation work is
   required
 - preserve unrelated user changes
+- read `phase_model_policy.json` when present and verify the configured model
+  and reasoning match the current phase policy before implementation
 - make only phase-scoped changes
 - run required verification and targeted checks
 - update `automation/<roadmap-slug>/delivery_log.md` and
@@ -199,12 +223,19 @@ automation/<roadmap-slug>/
   delivery_log.md
   review_fix_state.json
   review_fix_log.md
+  phase_model_policy.json
+  automation_run_log.jsonl
+  alerts/
   reviews/
 ```
 
 The initial state must point at the current roadmap path, start on the first
 phase, set `status` to `not_started`, set `review_iterations` to `0`, set
 `max_review_iterations`, and leave `blocked_reason` null.
+
+When model policy is enabled, create `phase_model_policy.json` with defaults,
+per-phase overrides if known, `max_stalled_runs`, and a notification fallback.
+Mirror the current required/configured model and reasoning fields in state.
 
 The initial delivery log must record the roadmap path, state file, review
 directory, operating policy, branch naming model, and publication guard. The
@@ -226,10 +257,11 @@ model=<approved model>
 reasoning_effort=high or xhigh
 ```
 
-The prompt must include the current `ROADMAP_PATH`, the four required files to
-read first, one-phase-at-a-time delivery rules, review/fix iteration limits,
-the no-push/no-main-promotion guard, and installed-skill permission handling
-when relevant.
+The prompt must include the current `ROADMAP_PATH`, the required files to read
+first, one-phase-at-a-time delivery rules, review/fix iteration limits,
+Blocked Remediation Mode, phase-model-policy validation when present, the
+no-push/no-main-promotion guard, and installed-skill permission handling when
+relevant.
 
 Do not activate the automation as part of setup unless the operator explicitly
 asks for activation after validation.

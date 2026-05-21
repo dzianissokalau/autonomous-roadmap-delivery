@@ -10,6 +10,7 @@ Before editing, read:
 - `automation/<slug>/delivery_state.json`
 - `automation/<slug>/delivery_log.md`
 - `automation/<slug>/review_fix_state.json` when present
+- `automation/<slug>/phase_model_policy.json` when present
 - latest review files under `automation/<slug>/reviews/`
 - saved automation config when available
 - `git branch --show-current`
@@ -18,6 +19,47 @@ Before editing, read:
 Stop if the current phase, roadmap path, branch, status, review verdicts,
 verification evidence, or automation config disagree. Record the mismatch in
 state/log/review instead of guessing.
+
+## Blocked Remediation Gate
+
+If `delivery_state.json` has `status: blocked`, do not immediately retry
+normal phase delivery and do not blindly write another blocked review.
+
+First classify the blocker:
+
+- `local-repairable`: stale paths, missing generated bookkeeping, branch drift,
+  dirty current-phase files, or malformed state/log entries that the current
+  roadmap or operator already allows repairing.
+- `automation-config`: saved automation prompt, cwd, status, execution
+  environment, model, or reasoning configuration needs a permitted update.
+- `permission-gated`: sandbox escalation, network, credentials, or filesystem
+  access is required.
+- `external-decision`: product, policy, or scope decision is missing.
+- `destructive-risk`: repair would require reset, force push, branch deletion,
+  or overwriting user work.
+
+For `local-repairable` or already-authorized `automation-config` blockers,
+repair the blocker first, rerun reconciliation and artifact validation, record
+the repair in state/log, clear `blocked_reason`, reset stalled counters when
+progress is real, and only then resume the current phase.
+
+For `permission-gated`, `external-decision`, or `destructive-risk` blockers,
+keep state blocked, record the missing human action, and stop. Do not count a
+successful blocker repair as a delivered phase.
+
+## Model Policy Gate
+
+When `phase_model_policy.json` exists:
+
+1. Resolve the current phase's required model and reasoning effort.
+2. Read the configured automation or runner model when available.
+3. Compare required versus configured values before implementation.
+4. If they match, continue.
+5. If they mismatch, do not edit phase-owned files. Record the mismatch in
+   state/log and retarget only when that automation surface is already
+   approved. After retargeting, stop so the next run starts on the right model.
+6. If the configured model cannot be proven and the roadmap is model-strict,
+   stop for operator confirmation rather than guessing.
 
 ## Extract The Phase Contract
 
