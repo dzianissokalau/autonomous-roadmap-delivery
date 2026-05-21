@@ -9,11 +9,12 @@ actually support it.
 
 - GitHub repository: https://github.com/<owner>/autonomous-roadmap-delivery
   (replace `<owner>` with the owner from the branch URL provided for review)
-- Local repository root:
-  `$ROADMAP_REPO_ROOT`
 - Review branch: `codex/autonomous-roadmap-delivery-skill-phase-10`
-- Review the branch HEAD for that branch. Do not assume `main` contains
-  these changes until a push, PR, and merge have explicitly happened.
+- Review the branch HEAD for that branch. The branch was sanitized and
+  history-cleaned after initial publication, so do not review old local hashes
+  or cached pre-sanitization commits.
+- Expected branch shape: the review branch is based on `main` and contains the
+  completed roadmap delivery artifacts plus the repository skill snapshot.
 - Roadmap:
   `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
 - Delivery state:
@@ -25,21 +26,41 @@ actually support it.
   and `automation/autonomous-roadmap-delivery-skill/review_fix_log.md`
 - Review artifacts:
   `automation/autonomous-roadmap-delivery-skill/reviews/`
+- Repository skill snapshot for GitHub-only review:
+  `skill/autonomous-roadmap-delivery/`
 
-The live installed skill files are at:
+The live installed skill files are outside this repository at:
 
 ```text
 $CODEX_HOME/skills/autonomous-roadmap-delivery/
 ```
 
-The GitHub branch also includes a source snapshot for external review at:
+Use the repository snapshot for GitHub-only review. If local access is
+available, compare the snapshot with the live installed skill before
+publication or installation decisions.
 
-```text
-skill/autonomous-roadmap-delivery/
-```
+## Sanitization Context
 
-Use the repository snapshot for GitHub-only review and compare it with the live
-installed skill directory before publication if local access is available.
+The branch was pushed once before privacy review, then sanitized and
+history-cleaned. The current review target should not expose concrete local
+home paths, local workspace paths, temp-directory paths, pilot repository
+names, pilot roadmap slugs, repository-owner strings, or fixture email values.
+
+Intentional placeholders include:
+
+- `$CODEX_HOME`
+- `$ROADMAP_REPO_ROOT`
+- `$PILOT_REPO_ROOT`
+- `$TMPDIR`
+- `<owner>`
+- `<repository-remote-url>`
+- `<pilot-roadmap-slug>`
+- `<pilot-automation-id>`
+- `automation.invalid`
+
+These placeholders are not failures by themselves. Treat them as failures only
+if they make the committed instructions impossible to run after substitution,
+or if concrete local/personal values still appear elsewhere in the branch.
 
 ## What Was Supposed To Be Delivered
 
@@ -70,7 +91,13 @@ The installed skill router is:
 $CODEX_HOME/skills/autonomous-roadmap-delivery/SKILL.md
 ```
 
-It should remain lean and route each task to a reference file:
+In this branch, review the source snapshot at:
+
+```text
+skill/autonomous-roadmap-delivery/SKILL.md
+```
+
+The router should remain lean and route each task to a reference file:
 
 - setup new automation:
   `references/setup-automation.md`
@@ -95,8 +122,9 @@ The helper scripts should be deterministic and read-only:
   warnings require explanation, and `--strict` should fail on warnings.
 
 The skill should preserve unrelated user changes, avoid broad staging, avoid
-force-pushes, and stop when roadmap, state, log, review files, verification
-evidence, automation config, branch, or worktree evidence disagree.
+force-pushes unless explicitly approved by a human for publication cleanup, and
+stop when roadmap, state, log, review files, verification evidence, automation
+config, branch, or worktree evidence disagree.
 
 ## Delivered Roadmap Summary
 
@@ -118,22 +146,34 @@ verification evidence:
 - Phase 10 added operational maintenance guidance, repository layout mismatch
   handling, and support for both `roadmaps/automation/<slug>/...` and
   `automation/<slug>/...` state layouts in status inspection.
+- Post-delivery publication hygiene added the repository skill snapshot,
+  sanitized review artifacts, and rewrote the review branch so reachable branch
+  history contains only sanitized artifacts.
 
 ## What Needs To Be Tested
+
+Set local placeholders before running commands from a clone:
+
+```bash
+export ROADMAP_REPO_ROOT="$(pwd)"
+export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+export TMPDIR="${TMPDIR:-/tmp}"
+```
 
 Run or inspect evidence for these checks:
 
 ```bash
-cd $ROADMAP_REPO_ROOT
+cd "$ROADMAP_REPO_ROOT"
 git status --short --branch
+git log --oneline --decorate origin/main..HEAD
 python3 -m json.tool automation/autonomous-roadmap-delivery-skill/delivery_state.json
 python3 -m json.tool automation/autonomous-roadmap-delivery-skill/review_fix_state.json
 git diff --check
-PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-test-pycache python3 -m unittest discover -s tests -v
-PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-compile-pycache python3 -m py_compile skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
-PYTHONPATH=$TMPDIR/autonomous-roadmap-delivery-pyyaml PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-skill-pycache python3 $CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py skill/autonomous-roadmap-delivery
-PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-inspect-pycache python3 skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root $ROADMAP_REPO_ROOT --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
-PYTHONPYCACHEPREFIX=$TMPDIR/autonomous-roadmap-review-validate-pycache python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root $ROADMAP_REPO_ROOT --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
+PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-test-pycache" python3 -m unittest discover -s tests -v
+PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-compile-pycache" python3 -m py_compile skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py
+PYTHONPATH="$TMPDIR/autonomous-roadmap-delivery-pyyaml" PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-skill-pycache" python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" skill/autonomous-roadmap-delivery
+PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-inspect-pycache" python3 skill/autonomous-roadmap-delivery/scripts/inspect_delivery_state.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
+PYTHONPYCACHEPREFIX="$TMPDIR/autonomous-roadmap-review-validate-pycache" python3 skill/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root "$ROADMAP_REPO_ROOT" --roadmap-slug autonomous-roadmap-delivery-skill --automation-id autonomous-roadmap-delivery-skill --json
 ```
 
 Also inspect these behavior-specific questions:
@@ -141,8 +181,8 @@ Also inspect these behavior-specific questions:
 - Does `SKILL.md` route every supported intent to the correct reference?
 - Do references tell Codex to stop on mismatched roadmap/state/log/review
   surfaces?
-- Do references avoid broad `git add .`, force-push, automatic promotion to
-  `main`, or hidden GitHub publication?
+- Do references avoid broad `git add .`, unapproved force-push, automatic
+  promotion to `main`, or hidden GitHub publication?
 - Does `inspect_delivery_state.py` support both automation artifact layouts and
   report ambiguity as warnings?
 - Does `validate_delivery_artifacts.py` catch missing state, invalid JSON,
@@ -153,13 +193,32 @@ Also inspect these behavior-specific questions:
   without copying secrets or mutating live roadmap artifacts?
 - Do eval prompts under `evals/` measure behavior without leaking expected
   answers?
+- Does the branch avoid concrete local/personal identifiers while preserving
+  enough placeholder context for external review?
+
+## Privacy And Branch-History Checks
+
+Verify the current review branch, not old cached commits:
+
+- the branch contains no concrete local home-directory values from the delivery
+  machine
+- the branch contains no concrete local roadmap workspace path
+- the branch contains no concrete temp-directory path from the delivery machine
+- the branch contains no concrete pilot repository name or pilot roadmap slug
+- the branch contains no fixture email address that looks like a real address
+- the branch contains no obvious private-key, API-key, GitHub-token, AWS-key,
+  password, secret, or token assignment material
+- the branch history reachable from the review branch does not include the
+  pre-sanitization commits
+
+If a scanner reports placeholder values such as `$CODEX_HOME` or
+`<pilot-roadmap-slug>`, that is expected. If it reports concrete local values,
+treat that as a blocking finding.
 
 ## Known Residual Risks To Judge
 
 Treat these as explicit review questions, not automatic failures:
 
-- The roadmap workspace may be dirty if this prompt was edited after the local
-  commit; verify whether the review branch includes the latest prompt change.
 - The saved Codex automation currently reads back as `PAUSED`, but its prompt
   may still lack an explicit `all_phases_complete` or
   `completed_pending_pause` hard-stop guard.
@@ -168,8 +227,12 @@ Treat these as explicit review questions, not automatic failures:
   lifecycle filename.
 - The GitHub branch includes a repository skill snapshot; if local access is
   available, compare it with the installed skill directory before publication.
-- No push, PR, merge, or promotion to `main` should be assumed from local
-  delivery.
+- A review-branch push has happened, but no PR, merge, promotion to `main`, or
+  app automation config change should be assumed.
+- Previously pushed unsanitized commits should no longer be reachable from the
+  branch. Exact old SHA URLs or external caches may still exist outside the
+  repository branch; that is a hosting/cache concern, not current branch
+  content.
 
 ## Review Output Required
 
@@ -177,10 +240,11 @@ Return:
 
 - findings first, ordered by severity, with file/line references when possible
 - missing tests or verification gaps
-- residual risks that remain after local completion
+- privacy/sanitization findings, including whether placeholders are coherent
+- residual risks that remain after branch publication cleanup
 - whether the GitHub branch is ready for human review or PR publication
 - whether the repository skill snapshot matches the installed skill behavior
-  and tests
+  and tests, or whether local access was unavailable
 - verdict: `ready-for-human-review`, `needs-fix`, or `blocked`
 
 Do not push, promote, merge, edit app automation config, or alter automation
