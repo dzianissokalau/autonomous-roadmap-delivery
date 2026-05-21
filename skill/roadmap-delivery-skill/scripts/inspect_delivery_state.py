@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
+ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 DEEP_REVIEW_CANDIDATES = (
     "deep_review_prompt.md",
     "deep_review_prompt.txt",
@@ -218,6 +219,85 @@ def extract_roadmap_references(prompt: str, repo_root: Path) -> List[str]:
     return refs
 
 
+def phase_number(value: Any) -> Optional[str]:
+    match = re.search(r"\bPhase\s+(\d+)\b", str(value or ""), re.IGNORECASE)
+    return match.group(1) if match else None
+
+
+def normalized(value: Any) -> str:
+    return str(value or "").strip().lower().replace("_", "-")
+
+
+def has_blocked_remediation_guard(prompt: str) -> bool:
+    lowered = prompt.lower()
+    blocked_marker = "status: blocked" in lowered or "status is `blocked`" in lowered or "status is blocked" in lowered
+    remediation_marker = "blocked remediation" in lowered or "blocker remediation" in lowered
+    repair_marker = "repair" in lowered and "advance" in lowered
+    return blocked_marker and remediation_marker and repair_marker
+
+
+def inspect_model_policy(
+    policy_path: Optional[Path],
+    state: Optional[Dict[str, Any]],
+    automation_data: Dict[str, Any],
+    warnings: List[Dict[str, str]],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "policy_path": str(policy_path) if policy_path else None,
+        "present": False,
+        "required_model": None,
+        "required_reasoning_effort": None,
+        "configured_model": automation_data.get("model") if automation_data else None,
+        "configured_reasoning_effort": automation_data.get("reasoning_effort") if automation_data else None,
+        "model_mismatch": False,
+        "reasoning_mismatch": False,
+    }
+    if not policy_path or not policy_path.exists() or not state:
+        return result
+    result["present"] = True
+    try:
+        with policy_path.open("r", encoding="utf-8") as fh:
+            policy = json.load(fh)
+    except json.JSONDecodeError as exc:
+        add_warning(warnings, "invalid_model_policy_json", f"Policy file is invalid JSON: {policy_path}: {exc}")
+        return result
+    except OSError as exc:
+        add_warning(warnings, "model_policy_unreadable", f"Cannot read policy file: {policy_path}: {exc}")
+        return result
+    if not isinstance(policy, dict):
+        add_warning(warnings, "invalid_model_policy_shape", f"Policy file root is not an object: {policy_path}")
+        return result
+    defaults = policy.get("defaults") if isinstance(policy.get("defaults"), dict) else {}
+    phases = policy.get("phases") if isinstance(policy.get("phases"), dict) else {}
+    phase_key = phase_number(state.get("current_phase"))
+    if not phase_key and normalized(state.get("current_phase")) in {"complete", "completed", "finalization"}:
+        phase_key = "finalization"
+    phase_policy = phases.get(phase_key, {}) if phase_key else {}
+    if not isinstance(phase_policy, dict):
+        phase_policy = {}
+    required_model = phase_policy.get("model") or defaults.get("model")
+    required_reasoning = phase_policy.get("reasoning_effort") or defaults.get("reasoning_effort")
+    configured_model = automation_data.get("model") or state.get("configured_automation_model")
+    configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")
+    result.update(
+        {
+            "required_model": required_model,
+            "required_reasoning_effort": required_reasoning,
+            "configured_model": configured_model,
+            "configured_reasoning_effort": configured_reasoning,
+            "model_mismatch": bool(required_model and configured_model and str(required_model) != str(configured_model)),
+            "reasoning_mismatch": bool(required_reasoning and configured_reasoning and str(required_reasoning) != str(configured_reasoning)),
+        }
+    )
+    if required_reasoning and str(required_reasoning) not in ALLOWED_REASONING_EFFORTS:
+        add_warning(warnings, "invalid_required_reasoning_effort", f"Required reasoning effort {required_reasoning!r} is not known.")
+    if result["model_mismatch"]:
+        add_warning(warnings, "automation_model_mismatch", f"Required model {required_model!r} differs from configured model {configured_model!r}.")
+    if result["reasoning_mismatch"]:
+        add_warning(warnings, "automation_reasoning_mismatch", f"Required reasoning {required_reasoning!r} differs from configured reasoning {configured_reasoning!r}.")
+    return result
+
+
 def lifecycle_matches(repo_root: Path, forms: Dict[str, Optional[str]]) -> List[str]:
     roadmaps_dir = repo_root / "roadmaps"
     if not roadmaps_dir.is_dir():
@@ -263,6 +343,8 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     automation_prompt = ""
     automation_toml = None
     automation_roadmap_references: List[str] = []
+    automation_data: Dict[str, Any] = {}
+    blocked_remediation_guard = False
     if automation_id:
         automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
         if not automation_toml.exists():
@@ -271,6 +353,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
             automation_data = parse_minimal_toml(automation_toml)
             automation_status = automation_data.get("status")
             automation_prompt = str(automation_data.get("prompt") or "")
+            blocked_remediation_guard = has_blocked_remediation_guard(automation_prompt)
             automation_roadmap_references = extract_roadmap_references(automation_prompt, repo_root)
             if args.roadmap_slug and forms["dash"] and forms["dir"]:
                 if forms["dash"] not in automation_prompt and forms["dir"] not in automation_prompt and forms["dash"] not in automation_id and forms["dir"] not in automation_id:
@@ -369,6 +452,12 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     current_phase = state.get("current_phase") if state else None
     last_delivered_phase = state.get("last_delivered_phase") if state else None
     blocked_reason = state.get("blocked_reason") if state else None
+    state_dir = state_file.parent if state_file else None
+    policy_path = state_dir / "phase_model_policy.json" if state_dir else None
+    model_policy = inspect_model_policy(policy_path, state, automation_data, warnings)
+    blocked_remediation_required = normalized(state_status) == "blocked"
+    if automation_prompt and not blocked_remediation_guard:
+        add_warning(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.")
     all_phases_complete = str(current_phase).lower() in {"complete", "completed", "all_phases_complete"} if current_phase is not None else False
     if str(state_status).lower() in {"complete", "completed", "all_phases_complete"}:
         all_phases_complete = True
@@ -401,6 +490,18 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "current_phase": current_phase,
         "last_delivered_phase": last_delivered_phase,
         "blocked_reason": blocked_reason,
+        "last_blocker_repair": state.get("last_blocker_repair") if state else None,
+        "blocked_remediation_required": blocked_remediation_required,
+        "blocked_remediation_guard": blocked_remediation_guard,
+        "required_model": model_policy.get("required_model"),
+        "required_reasoning_effort": model_policy.get("required_reasoning_effort"),
+        "configured_automation_model": model_policy.get("configured_model"),
+        "configured_automation_reasoning_effort": model_policy.get("configured_reasoning_effort"),
+        "model_mismatch": model_policy.get("model_mismatch"),
+        "reasoning_mismatch": model_policy.get("reasoning_mismatch"),
+        "stalled_run_count": state.get("stalled_run_count") if state else None,
+        "max_stalled_runs": state.get("max_stalled_runs") if state else None,
+        "model_policy": model_policy,
         "all_phases_complete": all_phases_complete,
         "current_branch": current_branch,
         "matching_branches": matching_branches,
@@ -439,6 +540,16 @@ def main(argv: Optional[List[str]] = None) -> int:
             "current_phase",
             "last_delivered_phase",
             "blocked_reason",
+            "blocked_remediation_required",
+            "blocked_remediation_guard",
+            "required_model",
+            "required_reasoning_effort",
+            "configured_automation_model",
+            "configured_automation_reasoning_effort",
+            "model_mismatch",
+            "reasoning_mismatch",
+            "stalled_run_count",
+            "max_stalled_runs",
             "all_phases_complete",
             "current_branch",
             "worktree_dirty",

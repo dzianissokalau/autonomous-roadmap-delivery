@@ -33,8 +33,15 @@ class DeliveryFixture:
         dirty_worktree=False,
         prompt_path="roadmaps/eval_fixture_roadmap.md",
         hard_stop_guard=True,
+        blocked_remediation_guard=True,
         state_layout="roadmaps",
         write_automation_config=True,
+        write_model_policy=False,
+        policy_text=None,
+        policy_model="gpt-5.5",
+        policy_reasoning="xhigh",
+        automation_model="gpt-5.5",
+        automation_reasoning="xhigh",
     ):
         self.tmpdir = Path(tmpdir)
         self.repo_root = self.tmpdir / "repo"
@@ -52,12 +59,19 @@ class DeliveryFixture:
             review_verdict=review_verdict,
             omit_review_dir=omit_review_dir,
             state_layout=state_layout,
+            write_model_policy=write_model_policy,
+            policy_text=policy_text,
+            policy_model=policy_model,
+            policy_reasoning=policy_reasoning,
         )
         if write_automation_config:
             self._write_automation_config(
                 automation_status=automation_status,
                 prompt_path=prompt_path,
                 hard_stop_guard=hard_stop_guard,
+                blocked_remediation_guard=blocked_remediation_guard,
+                automation_model=automation_model,
+                automation_reasoning=automation_reasoning,
             )
         self._init_git()
         if dirty_worktree:
@@ -72,6 +86,10 @@ class DeliveryFixture:
         review_verdict,
         omit_review_dir,
         state_layout,
+        write_model_policy,
+        policy_text,
+        policy_model,
+        policy_reasoning,
     ):
         roadmap_path = self.repo_root / "roadmaps" / "eval_fixture_roadmap.md"
         if state_layout == "root":
@@ -122,10 +140,35 @@ class DeliveryFixture:
             },
             "last_delivered_phase": None,
             "blocked_reason": None,
+            "last_blocker_repair": None,
+            "required_model": policy_model if write_model_policy else None,
+            "required_reasoning_effort": policy_reasoning if write_model_policy else None,
+            "configured_automation_model": policy_model if write_model_policy else None,
+            "configured_automation_reasoning_effort": policy_reasoning if write_model_policy else None,
+            "run_count": 1 if write_model_policy else 0,
+            "stalled_run_count": 0,
+            "max_stalled_runs": 3,
+            "last_progress_signature": "fixture" if write_model_policy else None,
+            "last_progress_at": "2026-05-21T00:00:00Z" if write_model_policy else None,
+            "last_operator_alert": None,
             "updated_at": "2026-05-21T00:00:00Z",
         }
         (state_dir / "delivery_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
         (state_dir / "delivery_log.md").write_text("# Fixture Delivery Log\n", encoding="utf-8")
+        if write_model_policy:
+            if policy_text is None:
+                policy = {
+                    "schema_version": 1,
+                    "max_stalled_runs": 3,
+                    "notification": {"mode": "alert_file", "fallback": "alert_file"},
+                    "defaults": {"model": policy_model, "reasoning_effort": policy_reasoning},
+                    "phases": {
+                        "1": {"model": policy_model, "reasoning_effort": policy_reasoning},
+                        "finalization": {"model": policy_model, "reasoning_effort": policy_reasoning},
+                    },
+                }
+                policy_text = json.dumps(policy, indent=2)
+            (state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
         if not omit_review_dir:
             (review_dir / f"{self.slug}-phase-1-review-iteration-1.md").write_text(
                 "\n".join(
@@ -143,19 +186,33 @@ class DeliveryFixture:
                 encoding="utf-8",
             )
 
-    def _write_automation_config(self, *, automation_status, prompt_path, hard_stop_guard):
+    def _write_automation_config(
+        self,
+        *,
+        automation_status,
+        prompt_path,
+        hard_stop_guard,
+        blocked_remediation_guard,
+        automation_model,
+        automation_reasoning,
+    ):
         automation_dir = self.home / ".codex" / "automations" / self.automation_id
         automation_dir.mkdir(parents=True)
         guard = ""
         if hard_stop_guard:
             guard = " If state is completed_pending_pause or all_phases_complete, do not start a new phase."
-        prompt = f"Run the next safe step for `{prompt_path}`.{guard}"
+        blocked_guard = ""
+        if blocked_remediation_guard:
+            blocked_guard = " If status is blocked, enter Blocked Remediation Mode, repair local blockers before advance, and only then resume."
+        prompt = f"Run the next safe step for `{prompt_path}`.{guard}{blocked_guard}"
         (automation_dir / "automation.toml").write_text(
             "\n".join(
                 [
                     'id = "' + self.automation_id + '"',
                     f'prompt = {json.dumps(prompt)}',
                     f'status = "{automation_status}"',
+                    f'model = "{automation_model}"',
+                    f'reasoning_effort = "{automation_reasoning}"',
                     'cwds = ["' + str(self.repo_root) + '"]',
                     "",
                 ]
@@ -261,6 +318,7 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(inspect["warnings"], [])
             self.assertEqual(validate["errors"], [])
             self.assertEqual(validate["warnings"], [])
+            self.assertTrue(validate["blocked_remediation_guard"])
 
     def test_root_automation_layout_is_supported_by_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -375,6 +433,66 @@ class HelperScriptTests(unittest.TestCase):
 
             self.assertEqual(strict.returncode, 1, strict.stdout)
             self.assertEqual(allowed.returncode, 0, allowed.stderr or allowed.stdout)
+
+    def test_model_policy_match_reports_model_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True)
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertEqual(validate["errors"], [])
+            self.assertEqual(validate["warnings"], [])
+            self.assertEqual(validate["model_policy"]["required_model"], "gpt-5.5")
+            self.assertEqual(validate["model_policy"]["configured_model"], "gpt-5.5")
+            self.assertFalse(validate["model_policy"]["model_mismatch"])
+            self.assertEqual(inspect["required_model"], "gpt-5.5")
+            self.assertEqual(inspect["configured_automation_model"], "gpt-5.5")
+            self.assertFalse(inspect["model_mismatch"])
+            self.assertEqual(inspect["stalled_run_count"], 0)
+
+    def test_model_policy_mismatch_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                policy_model="gpt-5.5",
+                automation_model="gpt-5.4",
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("automation_model_mismatch", self.error_codes(validate))
+            self.assertTrue(validate["model_policy"]["model_mismatch"])
+
+    def test_invalid_model_policy_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                policy_text='{"schema_version": 1, "max_stalled_runs": 0, "notification": {"mode": "mystery"}, "defaults": {"model": "gpt-5.5", "reasoning_effort": "giant"}, "phases": {}}',
+            )
+
+            validate = self.run_validate(fixture)
+
+            codes = self.error_codes(validate)
+            self.assertIn("invalid_max_stalled_runs", codes)
+            self.assertIn("invalid_notification_mode", codes)
+            self.assertIn("invalid_default_reasoning_effort", codes)
+
+    def test_blocked_active_without_remediation_guard_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                state_status="blocked",
+                review_verdict="blocked",
+                blocked_remediation_guard=False,
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("blocked_state_active_without_remediation_guard", self.error_codes(validate))
+            self.assertIn("automation_prompt_missing_blocked_remediation_guard", self.warning_codes(validate))
 
 
 if __name__ == "__main__":

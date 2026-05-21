@@ -347,6 +347,12 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-1`
 - `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
   passed, skill is valid.
 - `git diff --check`: passed.
+- `rsync -a --delete skill/roadmap-delivery-skill/ /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/`:
+  passed with operator-approved escalation.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill`:
+  passed, installed skill is valid.
+- `diff -qr skill/roadmap-delivery-skill /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill`:
+  passed.
 
 ### Review
 
@@ -371,3 +377,72 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-1`
 ### Next Action
 
 - Start Phase 2 - Policy And State Validation.
+
+## Phase 2 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-2`
+
+### Scope
+
+- Make model policy and blocked-remediation behavior enforceable by the
+  framework, not only by per-automation guidance.
+- Extend validation and inspection scripts for policy files, model/reasoning
+  mismatches, stall counters, and blocked-remediation prompt guards.
+- Update the shared automation template so new automations inherit Blocked
+  Remediation Mode.
+
+### Changes
+
+- `validate_delivery_artifacts.py` now validates `phase_model_policy.json`,
+  required policy fields, notification modes, reasoning effort values,
+  model/reasoning mismatches, policy state counters, and active blocked
+  automations without Blocked Remediation Mode.
+- `inspect_delivery_state.py` now reports required/configured model and
+  reasoning, mismatch booleans, stalled counters, blocker repair state, and
+  blocked-remediation prompt guard status.
+- `tests/test_helper_scripts.py` now covers valid policy, invalid policy,
+  model mismatch, and active blocked automation without remediation guard.
+- `automation/codex_phase_gated_delivery_automation_template.md` now describes
+  `blocked` as a remediation state and includes Blocked Remediation Mode in the
+  reusable delivery prompt.
+- The roadmap Phase 2 contract now explicitly includes blocked-remediation
+  prompt validation and the shared template update.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 16 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase2-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected `worktree_dirty` warning before bookkeeping
+  commit.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed and reported `blocked_remediation_guard: true`, `model_mismatch:
+  false`, and `stalled_run_count: 0`.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-2-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- [P1] Framework only fixed the current automation: fixed by updating the
+  reusable template, validators, inspection output, and tests.
+
+### Residual Risks
+
+- Existing automations that still explicitly name the old
+  `autonomous-roadmap-delivery` skill should be retargeted to
+  `roadmap-delivery-skill` when they are next maintained.
+- Phase 3 will make the start-run model gate stricter in the phase-loop docs
+  and runtime prompts.
+
+### Next Action
+
+- Start Phase 3 - Start-Run Model Gate.

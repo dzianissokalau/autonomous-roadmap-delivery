@@ -17,6 +17,7 @@ verify the result
 review the delivered diff or artifacts in a fresh context
 route review findings back for fixes
 repeat until clean or blocked
+repair resolvable blockers before retrying delivery
 advance only after a clean phase gate
 ```
 
@@ -30,6 +31,7 @@ STATE_FILE=automation/<roadmap_slug>/delivery_state.json
 DELIVERY_LOG=automation/<roadmap_slug>/delivery_log.md
 REVIEW_DIR=automation/<roadmap_slug>/reviews
 MAX_REVIEW_ITERATIONS=3
+MAX_STALLED_RUNS=3
 CADENCE=manual until the roadmap is review-clean
 ```
 
@@ -84,6 +86,12 @@ Suggested state:
   "last_verification": null,
   "last_review": null,
   "blocked_reason": null,
+  "last_blocker_repair": null,
+  "run_count": 0,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": null,
+  "last_progress_at": null,
   "updated_at": null
 }
 ```
@@ -99,6 +107,10 @@ fixing
 delivered
 blocked
 ```
+
+`blocked` is a remediation state, not a retry loop. The next run must classify
+and repair local or already-authorized automation blockers before attempting
+normal phase advancement again.
 
 ## Delivery Log
 
@@ -154,6 +166,21 @@ Before editing:
 - Identify non-goals.
 - Identify implementation slices.
 - Identify required tests and verification commands.
+- If DELIVERY_STATE has `status: blocked`, enter Blocked Remediation Mode
+  before normal phase delivery.
+
+Blocked Remediation Mode:
+- classify the blocker as local-repairable, automation-config,
+  permission-gated, external-decision, or destructive-risk
+- repair local-repairable blockers and already-authorized automation-config
+  blockers before retrying phase delivery
+- rerun reconciliation and validation after repair
+- clear `blocked_reason` only after the repair is verified
+- keep state blocked and ask for the missing human action when credentials,
+  product decisions, destructive git, publication, promotion, or unapproved
+  automation edits are required
+- do not write another blocked review for the same issue until remediation has
+  been attempted
 
 During delivery:
 - Keep changes scoped to this phase.
@@ -171,6 +198,8 @@ At the end:
 - Report verification results.
 - Report known risks.
 - Do not claim the phase is delivered until a fresh review verdict is delivered.
+- If the phase is blocked, state the blocker classification and whether it is
+  repairable by the next run.
 ```
 
 ## Reviewer Prompt
@@ -220,4 +249,5 @@ Stop and ask the human operator when:
 - implementation requires broad refactoring outside the current phase
 - review/fix loop reaches the maximum iteration count
 - roadmap, state, log, and automation guide disagree
-
+- blocked remediation requires credentials, a product decision, destructive
+  git, publication, promotion, or unapproved automation config changes

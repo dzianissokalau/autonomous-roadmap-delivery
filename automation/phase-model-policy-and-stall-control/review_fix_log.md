@@ -63,3 +63,13 @@ No findings. Phase 1 delivered model-policy routing, Blocked Remediation Mode,
 setup/status guidance, a model-policy/stall-control reference, and
 troubleshooting coverage for repeated blocked runs and local-artifact worktree
 mismatches.
+
+## Phase 2 - 2026-05-21 - Review Iteration 1
+
+Verdict: delivered
+
+No findings. Phase 2 makes the framework enforce the behavior: validators now
+catch active blocked automations without Blocked Remediation Mode, inspect
+output reports model/stall/remediation fields, tests cover policy and blocked
+guard paths, and the shared automation template includes remediation-first
+behavior for future automations.

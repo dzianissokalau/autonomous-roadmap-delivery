@@ -1,23 +1,38 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 2 - Policy And State Validation",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-2",
-  "branch_reason": "Phase 1 was delivered on codex/phase-model-policy-and-stall-control-phase-1; the next run should continue from the Phase 2 branch.",
+  "current_phase": "Phase 3 - Start-Run Model Gate",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-3",
+  "branch_reason": "Phase 2 was delivered on codex/phase-model-policy-and-stall-control-phase-2; the next run should continue from the Phase 3 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
     "commands": [
       {
-        "command": "Update saved automation execution_environment from worktree to local",
+        "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Saved automation now runs in the configured project checkout instead of spawning detached worktrees."
+        "details": "16 helper-script tests passed, including policy match/mismatch and blocked-remediation guard coverage."
       },
       {
-        "command": "python3 /Users/dzianissokalau/.codex/skills/autonomous-roadmap-delivery/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase2-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
         "status": "passed",
-        "details": "Artifact validator reported no errors; dirty-worktree warnings are expected from recorded repair artifacts."
+        "details": "Both helper scripts compiled."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Skill is valid."
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "status": "passed_with_warning",
+        "details": "Validation reported no errors and the expected worktree_dirty warning before Phase 2 bookkeeping was committed."
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "status": "passed",
+        "details": "Inspection reported required/configured model fields, no model mismatch, blocked remediation guard true, and stalled_run_count 0."
       },
       {
         "command": "git diff --check",
@@ -25,25 +40,30 @@
         "details": "No whitespace errors were found."
       },
       {
-        "command": "python3 -m unittest discover -s tests -v",
+        "command": "rsync -a --delete skill/roadmap-delivery-skill/ /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/",
         "status": "passed",
-        "details": "12 helper-script tests passed."
+        "details": "Installed skill package was synced from the repository snapshot after operator-approved escalation."
       },
       {
-        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill",
         "status": "passed",
-        "details": "Skill is valid."
+        "details": "Installed skill is valid."
+      },
+      {
+        "command": "diff -qr skill/roadmap-delivery-skill /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Installed skill package matches the repository snapshot."
       }
     ],
-    "completed_at": "2026-05-21T15:02:58Z"
+    "completed_at": "2026-05-21T15:11:23Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-1-review-iteration-4.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-2-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T15:02:58Z",
-    "summary": "Phase 1 delivered model-policy routing, blocked remediation behavior, setup/status guidance, and troubleshooting docs."
+    "completed_at": "2026-05-21T15:11:23Z",
+    "summary": "Phase 2 delivered model-policy validation, model/reasoning inspection fields, blocked-remediation prompt validation, tests, and shared automation template updates."
   },
-  "last_delivered_phase": "Phase 1 - Skill Routing And Reference Docs",
+  "last_delivered_phase": "Phase 2 - Policy And State Validation",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -61,11 +81,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 5,
+  "run_count": 6,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "delivered:phase-1:2026-05-21T15:02:58Z",
-  "last_progress_at": "2026-05-21T15:02:58Z",
+  "last_progress_signature": "delivered:phase-2:2026-05-21T15:11:23Z",
+  "last_progress_at": "2026-05-21T15:11:23Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -77,5 +97,5 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T14:59:17Z"
   },
-  "updated_at": "2026-05-21T15:02:58Z"
+  "updated_at": "2026-05-21T15:11:23Z"
 }

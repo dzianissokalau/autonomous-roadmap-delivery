@@ -1,11 +1,11 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 2 - Policy And State Validation
-Last completed phase: Phase 1 - Skill Routing And Reference Docs
+Current phase: Phase 3 - Start-Run Model Gate
+Last completed phase: Phase 2 - Policy And State Validation
 Last updated: 2026-05-21
-Next action: Start Phase 2 and extend validation for model policy, state fields,
-and automation configuration.
+Next action: Start Phase 3 and make the documented phase loop stop before
+implementation on a known model-policy mismatch.
 Blocked by: None
 
 ## Purpose
@@ -365,6 +365,7 @@ inconsistent automation configuration are caught before delivery starts.
 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py
 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py
 tests/test_helper_scripts.py
+automation/codex_phase_gated_delivery_automation_template.md
 ```
 
 ### Implementation Steps
@@ -388,6 +389,10 @@ tests/test_helper_scripts.py
    - configured model
    - model mismatch
    - stalled run count
+7. Add blocked-remediation prompt validation so active blocked automations
+   cannot keep retrying the same failed advancement path.
+8. Update the shared automation template so new automations inherit Blocked
+   Remediation Mode by default.
 
 ### Acceptance Criteria
 
@@ -397,6 +402,8 @@ tests/test_helper_scripts.py
 - Validation errors or blocks when the current phase has a required model and
   automation config mismatches it.
 - Status inspection reports model policy and stall counters.
+- Active blocked automations without Blocked Remediation Mode fail validation.
+- New automation templates describe blocked remediation as a framework rule.
 
 ### Required Verification
 
@@ -408,6 +415,8 @@ tests/test_helper_scripts.py
   - current phase policy match
   - current phase policy mismatch
   - invalid notification mode
+  - active blocked automation without blocked-remediation prompt guard
+  - model policy match and mismatch
 
 Run:
 

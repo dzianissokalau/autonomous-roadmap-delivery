@@ -19,6 +19,20 @@ AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(
 VALID_REVIEW_VERDICTS = {"delivered", "needs-fix", "blocked"}
 COMPLETED_STATUSES = {"complete", "completed", "delivered", "completed_pending_pause", "all_phases_complete"}
 ACTIVE_STATUSES = {"in progress", "active", "not_started", "delivering", "verifying", "reviewing", "fixing", "blocked"}
+ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
+KNOWN_NOTIFICATION_MODES = {"alert_file", "github_issue", "none", "slack", "email", "codex_thread", "webhook"}
+POLICY_STATE_FIELDS = (
+    "required_model",
+    "required_reasoning_effort",
+    "configured_automation_model",
+    "configured_automation_reasoning_effort",
+    "run_count",
+    "stalled_run_count",
+    "max_stalled_runs",
+    "last_progress_signature",
+    "last_progress_at",
+    "last_operator_alert",
+)
 DEEP_REVIEW_CANDIDATES = (
     "deep_review_prompt",
     "deep_review_prompt_path",
@@ -252,6 +266,14 @@ def has_hard_stop_guard(prompt: str) -> bool:
     return complete_marker and stop_marker
 
 
+def has_blocked_remediation_guard(prompt: str) -> bool:
+    lowered = prompt.lower()
+    blocked_marker = "status: blocked" in lowered or "status is `blocked`" in lowered or "status is blocked" in lowered
+    remediation_marker = "blocked remediation" in lowered or "blocker remediation" in lowered
+    repair_marker = "repair" in lowered and "advance" in lowered
+    return blocked_marker and remediation_marker and repair_marker
+
+
 def extract_roadmap_references(prompt: str, repo_root: Path) -> List[Path]:
     refs: List[Path] = []
     patterns = (
@@ -334,6 +356,130 @@ def phase_number(value: Any) -> Optional[str]:
     return match.group(1) if match else None
 
 
+def load_policy(policy_path: Path, errors: List[Finding]) -> Optional[Dict[str, Any]]:
+    try:
+        with policy_path.open("r", encoding="utf-8") as fh:
+            policy = json.load(fh)
+    except json.JSONDecodeError as exc:
+        add(errors, "invalid_model_policy_json", f"Policy file is invalid JSON: {exc}", policy_path)
+        return None
+    except OSError as exc:
+        add(errors, "model_policy_unreadable", f"Cannot read policy file: {exc}", policy_path)
+        return None
+    if not isinstance(policy, dict):
+        add(errors, "invalid_model_policy_shape", "Policy file root is not a JSON object.", policy_path)
+        return None
+    return policy
+
+
+def validate_reasoning(value: Any, code: str, errors: List[Finding], policy_path: Path) -> None:
+    if str(value or "") not in ALLOWED_REASONING_EFFORTS:
+        add(errors, code, f"Reasoning effort {value!r} is not one of {sorted(ALLOWED_REASONING_EFFORTS)}.", policy_path)
+
+
+def validate_model_policy(
+    policy_path: Path,
+    state: Dict[str, Any],
+    automation_data: Dict[str, Any],
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "policy_path": str(policy_path),
+        "required_model": None,
+        "required_reasoning_effort": None,
+        "configured_model": automation_data.get("model"),
+        "configured_reasoning_effort": automation_data.get("reasoning_effort"),
+        "model_mismatch": False,
+        "reasoning_mismatch": False,
+    }
+    if not policy_path.exists():
+        return result
+
+    policy = load_policy(policy_path, errors)
+    if policy is None:
+        return result
+
+    if policy.get("schema_version") != 1:
+        add(errors, "unsupported_model_policy_schema", "Policy schema_version must be 1.", policy_path)
+
+    max_stalled = policy.get("max_stalled_runs")
+    if not isinstance(max_stalled, int) or isinstance(max_stalled, bool) or max_stalled < 1:
+        add(errors, "invalid_max_stalled_runs", "max_stalled_runs must be a positive integer.", policy_path)
+
+    notification = policy.get("notification")
+    if not isinstance(notification, dict):
+        add(errors, "invalid_notification_policy", "notification must be an object.", policy_path)
+    else:
+        for key in ("mode", "fallback"):
+            value = notification.get(key)
+            if value is not None and value not in KNOWN_NOTIFICATION_MODES:
+                add(errors, "invalid_notification_mode", f"notification.{key} {value!r} is not known.", policy_path)
+
+    defaults = policy.get("defaults")
+    if not isinstance(defaults, dict):
+        add(errors, "missing_model_policy_defaults", "defaults must be an object.", policy_path)
+        defaults = {}
+    default_model = defaults.get("model")
+    default_reasoning = defaults.get("reasoning_effort")
+    if not isinstance(default_model, str) or not default_model.strip():
+        add(errors, "missing_default_model", "defaults.model must be a non-empty string.", policy_path)
+    if default_reasoning is None:
+        add(errors, "missing_default_reasoning_effort", "defaults.reasoning_effort is required.", policy_path)
+    else:
+        validate_reasoning(default_reasoning, "invalid_default_reasoning_effort", errors, policy_path)
+
+    phases = policy.get("phases")
+    if not isinstance(phases, dict):
+        add(errors, "invalid_phase_policy_map", "phases must be an object.", policy_path)
+        phases = {}
+    for phase_key, phase_policy in phases.items():
+        if not isinstance(phase_policy, dict):
+            add(errors, "invalid_phase_policy_entry", f"phases.{phase_key} must be an object.", policy_path)
+            continue
+        phase_model = phase_policy.get("model")
+        phase_reasoning = phase_policy.get("reasoning_effort")
+        if phase_model is not None and (not isinstance(phase_model, str) or not phase_model.strip()):
+            add(errors, "invalid_phase_model", f"phases.{phase_key}.model must be a non-empty string.", policy_path)
+        if phase_reasoning is not None:
+            validate_reasoning(phase_reasoning, "invalid_phase_reasoning_effort", errors, policy_path)
+
+    phase_key = phase_number(state.get("current_phase"))
+    if not phase_key and normalized(state.get("current_phase")) in {"complete", "completed", "finalization"}:
+        phase_key = "finalization"
+    phase_policy = phases.get(phase_key, {}) if phase_key else {}
+    if not isinstance(phase_policy, dict):
+        phase_policy = {}
+    required_model = phase_policy.get("model") or default_model
+    required_reasoning = phase_policy.get("reasoning_effort") or default_reasoning
+    result["required_model"] = required_model
+    result["required_reasoning_effort"] = required_reasoning
+
+    configured_model = automation_data.get("model") or state.get("configured_automation_model")
+    configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")
+    result["configured_model"] = configured_model
+    result["configured_reasoning_effort"] = configured_reasoning
+    if required_model and configured_model and str(required_model) != str(configured_model):
+        result["model_mismatch"] = True
+        add(errors, "automation_model_mismatch", f"Required model {required_model!r} differs from configured model {configured_model!r}.", policy_path)
+    if required_reasoning and configured_reasoning and str(required_reasoning) != str(configured_reasoning):
+        result["reasoning_mismatch"] = True
+        add(errors, "automation_reasoning_mismatch", f"Required reasoning {required_reasoning!r} differs from configured reasoning {configured_reasoning!r}.", policy_path)
+
+    for field in POLICY_STATE_FIELDS:
+        if field not in state:
+            add(warnings, "missing_policy_state_field", f"State is missing model/stall field {field!r}.")
+    for field in ("run_count", "stalled_run_count"):
+        value = state.get(field)
+        if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
+            add(errors, "invalid_policy_state_counter", f"State field {field!r} must be a non-negative integer.")
+    state_max = state.get("max_stalled_runs")
+    if state_max is not None and (not isinstance(state_max, int) or isinstance(state_max, bool) or state_max < 1):
+        add(errors, "invalid_policy_state_counter", "State field 'max_stalled_runs' must be a positive integer.")
+
+    return result
+
+
 def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
     branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
     proc = run_git(repo_root, ["branch", "--show-current"])
@@ -392,6 +538,8 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     automation_status: Optional[str] = None
     automation_prompt = ""
     hard_stop_guard = False
+    blocked_remediation_guard = False
+    automation_data: Dict[str, Any] = {}
     if automation_id:
         automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
         if automation_toml.exists():
@@ -403,6 +551,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
             automation_status = str(automation_data.get("status") or "")
             automation_prompt = str(automation_data.get("prompt") or "")
             hard_stop_guard = has_hard_stop_guard(automation_prompt)
+            blocked_remediation_guard = has_blocked_remediation_guard(automation_prompt)
         else:
             add(warnings, "missing_automation_config", "Automation config does not exist.", automation_toml)
     else:
@@ -475,6 +624,15 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
 
     if automation_prompt and not hard_stop_guard:
         add(warnings, "automation_prompt_missing_hard_stop_guard", "Automation prompt does not include an all_phases_complete/completed_pending_pause hard-stop guard.", automation_toml)
+    if automation_prompt and not blocked_remediation_guard:
+        add(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.", automation_toml)
+    if normalized(state.get("status")) == "blocked" and str(automation_status).upper() == "ACTIVE" and not blocked_remediation_guard:
+        add(errors, "blocked_state_active_without_remediation_guard", "State is blocked and automation is ACTIVE without Blocked Remediation Mode.", automation_toml)
+
+    policy_path = state_dir / "phase_model_policy.json" if state_dir else None
+    model_policy: Dict[str, Any] = {}
+    if policy_path is not None:
+        model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings)
 
     deep_review_prompt = find_deep_review_prompt(state_dir, state)
     if complete and deep_review_prompt is None:
@@ -515,6 +673,8 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "automation_toml": path_for_report(automation_toml),
         "automation_roadmap_references": [str(path) for path in automation_refs],
         "hard_stop_guard": hard_stop_guard,
+        "blocked_remediation_guard": blocked_remediation_guard,
+        "model_policy": model_policy or None,
         "repo_root": str(repo_root),
         "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
         "state_file": path_for_report(state_file),
