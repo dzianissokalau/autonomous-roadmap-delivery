@@ -590,3 +590,72 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-4`
 - Stop here. The next automation run should create or reuse
   `codex/phase-model-policy-and-stall-control-phase-5` and start Phase 5 -
   Progress Signature And Stall Counter.
+
+## Phase 5 - 2026-05-21 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/phase-model-policy-and-stall-control-phase-5`
+
+### Scope
+
+- Add durable progress signature and stalled-run counter handling.
+- Keep implementation scoped to the helper scripts, status/reference docs, and
+  helper-script tests owned by Phase 5.
+- Preserve Phase 6 alert generation and automation pausing as future work.
+
+### Changes
+
+- Added `compute_progress_signature.py` to compute a SHA-256 signature from
+  durable phase surfaces and optionally record end-of-run state plus
+  `automation_run_log.jsonl`.
+- Updated `inspect_delivery_state.py` to report progress signatures, next run
+  count, next stalled count, threshold status, and run-log validity.
+- Updated `validate_delivery_artifacts.py` to validate progress tracking,
+  policy/default stalled thresholds, and corrupt JSONL run logs.
+- Documented progress signature fields, end-of-run updates, stalled blocking,
+  and the Phase 6 alert boundary in `state-log-and-branches.md`.
+- Added fixture coverage for first run, progress detected, no progress
+  detected, threshold reached, custom threshold, and corrupt run log.
+- Advanced the roadmap header and delivery state to Phase 6 after a delivered
+  review verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 22 tests.
+- `PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase5-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py`:
+  passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected `worktree_dirty` warning before Phase 5
+  bookkeeping was committed.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with only the expected `worktree_dirty` warning before Phase 5
+  bookkeeping was committed.
+- `python3 skill/roadmap-delivery-skill/scripts/compute_progress_signature.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --json`:
+  passed and reported progress would be detected, next run count `9`, stalled
+  count `0`, and no threshold alert required.
+
+### Review
+
+- Review file:
+  `automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-5-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Phase 6 still owns alert file generation and optional notification sinks.
+- The installed global skill package was not synced in this phase; the
+  repository skill snapshot is updated.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/phase-model-policy-and-stall-control-phase-6` and start Phase 6 -
+  Alert Files And Optional Notification Sinks.

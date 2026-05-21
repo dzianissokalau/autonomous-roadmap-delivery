@@ -130,6 +130,67 @@ If configured values cannot be read, say that explicitly. Do not infer that the
 active Codex session is on the required model merely because the policy asks
 for it.
 
+## Progress Signature And Stall Status
+
+Progress detection uses durable state, not narration. Compute the signature
+from:
+
+- `current_phase`
+- `status`
+- `last_delivered_phase`
+- `review_iterations`
+- `last_verification`
+- `last_review`
+- current git `HEAD`
+- delivery log size and SHA-256
+- `blocked_reason`
+
+Use `scripts/compute_progress_signature.py` to compute the current signature.
+By default it is read-only. With `--record-run`, it updates
+`delivery_state.json` and appends one JSON object to
+`automation_run_log.jsonl`.
+
+The end-of-run update must:
+
+- increment `run_count`
+- compare the new signature to `last_progress_signature`
+- reset `stalled_run_count` to `0` when progress changed
+- increment `stalled_run_count` when no durable progress changed
+- read `max_stalled_runs` from `phase_model_policy.json`, defaulting to `3`
+- update `last_progress_signature`
+- update `last_progress_at` only when progress changed
+
+When `stalled_run_count >= max_stalled_runs`, the run is stalled. Mark state
+`blocked`, preserve the stalled reason in `blocked_reason`, and set the local
+run-log entry's `phase_6_alert_required` field to `true`. Phase 6 owns the
+alert-file and optional notification sink behavior; Phase 5 does not pause
+automations or decide external notification sinks.
+
+`automation_run_log.jsonl` is append-only. Each non-empty line must be a JSON
+object with the recorded timestamp, phase, status, progress signature,
+previous signature, run count, stalled count, threshold, and threshold result.
+Validation treats corrupt JSONL as an error because the run history can no
+longer be trusted.
+
+Status inspection should report the stored count values and the next computed
+run result:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <slug> \
+  --automation-id <automation-id>
+```
+
+To record an end-of-run update:
+
+```bash
+python3 skill/roadmap-delivery-skill/scripts/compute_progress_signature.py \
+  --repo-root /path/to/repo \
+  --roadmap-slug <slug> \
+  --record-run
+```
+
 ## Mismatch Warnings
 
 Warn or block when:

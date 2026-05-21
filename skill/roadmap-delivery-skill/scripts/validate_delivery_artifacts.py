@@ -13,6 +13,8 @@ import subprocess
 import sys
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from compute_progress_signature import ProgressSignatureError, build_run_result
+
 
 DEFAULT_AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
 AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(DEFAULT_AUTOMATIONS_DIR))).expanduser()
@@ -504,6 +506,46 @@ def validate_model_policy(
     return result
 
 
+def validate_progress_tracking(
+    repo_root: Path,
+    state_file: Path,
+    state: Dict[str, Any],
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Optional[Dict[str, Any]]:
+    try:
+        progress = build_run_result(repo_root, state_file, state)
+    except ProgressSignatureError as exc:
+        add(errors, "progress_signature_failed", str(exc), state_file)
+        return None
+
+    for item in progress.get("run_log_errors", []):
+        path = Path(str(item.get("path"))) if item.get("path") else state_file.parent / "automation_run_log.jsonl"
+        line = item.get("line")
+        suffix = f" line {line}" if line is not None else ""
+        add(errors, "invalid_run_log_jsonl", f"{path}{suffix}: {item.get('message')}", path)
+
+    state_max = state.get("max_stalled_runs")
+    policy_max = progress.get("max_stalled_runs")
+    if state_max is not None and policy_max and state_max != policy_max:
+        add(
+            warnings,
+            "state_policy_stall_threshold_mismatch",
+            f"State max_stalled_runs {state_max!r} differs from policy/default threshold {policy_max!r}.",
+            state_file,
+        )
+
+    if progress.get("threshold_reached") and normalized(state.get("status")) != "blocked":
+        add(
+            warnings,
+            "stalled_threshold_pending",
+            "Next recorded no-progress run would reach the stalled threshold and should block before further delivery.",
+            state_file,
+        )
+
+    return progress
+
+
 def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
     branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
     proc = run_git(repo_root, ["branch", "--show-current"])
@@ -657,6 +699,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     model_policy: Dict[str, Any] = {}
     if policy_path is not None:
         model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings)
+    progress_tracking = validate_progress_tracking(repo_root, state_file, state, errors, warnings) if state_file else None
 
     deep_review_prompt = find_deep_review_prompt(state_dir, state)
     if complete and deep_review_prompt is None:
@@ -699,6 +742,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "hard_stop_guard": hard_stop_guard,
         "blocked_remediation_guard": blocked_remediation_guard,
         "model_policy": model_policy or None,
+        "progress_tracking": progress_tracking,
         "repo_root": str(repo_root),
         "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
         "state_file": path_for_report(state_file),

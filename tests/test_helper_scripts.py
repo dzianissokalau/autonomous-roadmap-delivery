@@ -16,6 +16,7 @@ SKILL_ROOT = Path(
 ).expanduser()
 INSPECT_SCRIPT = SKILL_ROOT / "scripts" / "inspect_delivery_state.py"
 VALIDATE_SCRIPT = SKILL_ROOT / "scripts" / "validate_delivery_artifacts.py"
+COMPUTE_SCRIPT = SKILL_ROOT / "scripts" / "compute_progress_signature.py"
 
 
 class DeliveryFixture:
@@ -42,6 +43,13 @@ class DeliveryFixture:
         policy_reasoning="xhigh",
         automation_model="gpt-5.5",
         automation_reasoning="xhigh",
+        policy_max_stalled_runs=3,
+        state_run_count=0,
+        state_stalled_run_count=0,
+        state_max_stalled_runs=3,
+        state_last_progress_signature=None,
+        state_last_progress_at=None,
+        run_log_text=None,
     ):
         self.tmpdir = Path(tmpdir)
         self.repo_root = self.tmpdir / "repo"
@@ -63,6 +71,13 @@ class DeliveryFixture:
             policy_text=policy_text,
             policy_model=policy_model,
             policy_reasoning=policy_reasoning,
+            policy_max_stalled_runs=policy_max_stalled_runs,
+            state_run_count=state_run_count,
+            state_stalled_run_count=state_stalled_run_count,
+            state_max_stalled_runs=state_max_stalled_runs,
+            state_last_progress_signature=state_last_progress_signature,
+            state_last_progress_at=state_last_progress_at,
+            run_log_text=run_log_text,
         )
         if write_automation_config:
             self._write_automation_config(
@@ -90,6 +105,13 @@ class DeliveryFixture:
         policy_text,
         policy_model,
         policy_reasoning,
+        policy_max_stalled_runs,
+        state_run_count,
+        state_stalled_run_count,
+        state_max_stalled_runs,
+        state_last_progress_signature,
+        state_last_progress_at,
+        run_log_text,
     ):
         roadmap_path = self.repo_root / "roadmaps" / "eval_fixture_roadmap.md"
         if state_layout == "root":
@@ -145,11 +167,11 @@ class DeliveryFixture:
             "required_reasoning_effort": policy_reasoning if write_model_policy else None,
             "configured_automation_model": policy_model if write_model_policy else None,
             "configured_automation_reasoning_effort": policy_reasoning if write_model_policy else None,
-            "run_count": 1 if write_model_policy else 0,
-            "stalled_run_count": 0,
-            "max_stalled_runs": 3,
-            "last_progress_signature": "fixture" if write_model_policy else None,
-            "last_progress_at": "2026-05-21T00:00:00Z" if write_model_policy else None,
+            "run_count": state_run_count,
+            "stalled_run_count": state_stalled_run_count,
+            "max_stalled_runs": state_max_stalled_runs,
+            "last_progress_signature": state_last_progress_signature,
+            "last_progress_at": state_last_progress_at,
             "last_operator_alert": None,
             "updated_at": "2026-05-21T00:00:00Z",
         }
@@ -159,7 +181,7 @@ class DeliveryFixture:
             if policy_text is None:
                 policy = {
                     "schema_version": 1,
-                    "max_stalled_runs": 3,
+                    "max_stalled_runs": policy_max_stalled_runs,
                     "notification": {"mode": "alert_file", "fallback": "alert_file"},
                     "defaults": {"model": policy_model, "reasoning_effort": policy_reasoning},
                     "phases": {
@@ -185,6 +207,8 @@ class DeliveryFixture:
                 ),
                 encoding="utf-8",
             )
+        if run_log_text is not None:
+            (state_dir / "automation_run_log.jsonl").write_text(run_log_text, encoding="utf-8")
 
     def _write_automation_config(
         self,
@@ -300,11 +324,129 @@ class HelperScriptTests(unittest.TestCase):
     def run_inspect(self, fixture):
         return self.run_json(INSPECT_SCRIPT, fixture)
 
+    def run_progress(self, fixture, *extra_args, allowed_returncodes=(0,)):
+        proc = subprocess.run(
+            [
+                "python3",
+                str(COMPUTE_SCRIPT),
+                "--repo-root",
+                str(fixture.repo_root),
+                "--roadmap-slug",
+                fixture.slug,
+                "--json",
+                *extra_args,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=fixture.env(),
+            check=False,
+        )
+        self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
+        return json.loads(proc.stdout)
+
+    def set_last_progress_signature_to_current(self, fixture):
+        progress = self.run_progress(fixture)
+        state_path = fixture.state_dir / "delivery_state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state["last_progress_signature"] = progress["progress_signature"]
+        state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        return progress["progress_signature"]
+
     def warning_codes(self, report):
         return {item["code"] for item in report.get("warnings", [])}
 
     def error_codes(self, report):
         return {item["code"] for item in report.get("errors", [])}
+
+    def test_progress_signature_first_run_records_state_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True)
+
+            progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:00:00Z")
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            run_log = (fixture.state_dir / "automation_run_log.jsonl").read_text(encoding="utf-8").splitlines()
+
+            self.assertTrue(progress["progress_detected"])
+            self.assertEqual(progress["run_count"], 1)
+            self.assertEqual(progress["stalled_run_count"], 0)
+            self.assertEqual(state["last_progress_signature"], progress["progress_signature"])
+            self.assertEqual(state["last_progress_at"], "2026-05-21T12:00:00Z")
+            self.assertEqual(len(run_log), 1)
+            self.assertTrue(json.loads(run_log[0])["progress_detected"])
+
+    def test_progress_detected_resets_stall_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                state_run_count=4,
+                state_stalled_run_count=2,
+                state_last_progress_signature="sha256:previous",
+            )
+
+            progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:01:00Z")
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+
+            self.assertTrue(progress["progress_detected"])
+            self.assertEqual(progress["run_count"], 5)
+            self.assertEqual(progress["stalled_run_count"], 0)
+            self.assertEqual(state["stalled_run_count"], 0)
+
+    def test_no_progress_increments_stall_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, state_run_count=2)
+            self.set_last_progress_signature_to_current(fixture)
+
+            progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:02:00Z")
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+
+            self.assertFalse(progress["progress_detected"])
+            self.assertEqual(progress["run_count"], 3)
+            self.assertEqual(progress["stalled_run_count"], 1)
+            self.assertEqual(state["status"], "not_started")
+
+    def test_stall_threshold_marks_state_blocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, state_run_count=5, state_stalled_run_count=2)
+            self.set_last_progress_signature_to_current(fixture)
+
+            progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:03:00Z")
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+
+            self.assertFalse(progress["progress_detected"])
+            self.assertTrue(progress["threshold_reached"])
+            self.assertEqual(progress["stalled_run_count"], 3)
+            self.assertEqual(state["status"], "blocked")
+            self.assertIn("Stalled after 3 consecutive runs", state["blocked_reason"])
+
+    def test_custom_policy_stall_threshold_is_used(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                policy_max_stalled_runs=2,
+                state_max_stalled_runs=3,
+                state_run_count=5,
+                state_stalled_run_count=1,
+            )
+            self.set_last_progress_signature_to_current(fixture)
+
+            progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:04:00Z")
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(progress["max_stalled_runs"], 2)
+            self.assertEqual(progress["max_stalled_runs_source"], "phase_model_policy")
+            self.assertTrue(progress["threshold_reached"])
+            self.assertEqual(state["max_stalled_runs"], 2)
+
+    def test_corrupt_run_log_is_validation_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, run_log_text="{not json\n")
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("invalid_run_log_jsonl", self.error_codes(validate))
 
     def test_clean_in_progress_fixture_passes_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:

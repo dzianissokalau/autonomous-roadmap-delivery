@@ -13,6 +13,8 @@ import subprocess
 import sys
 from typing import Any, Dict, Iterable, List, Optional
 
+from compute_progress_signature import ProgressSignatureError, build_run_result
+
 
 AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
@@ -455,6 +457,17 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     state_dir = state_file.parent if state_file else None
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy = inspect_model_policy(policy_path, state, automation_data, warnings)
+    progress_report: Dict[str, Any] = {}
+    if state_file is not None and state is not None:
+        try:
+            progress_report = build_run_result(repo_root, state_file, state)
+        except ProgressSignatureError as exc:
+            add_warning(warnings, "progress_signature_failed", str(exc))
+        else:
+            for item in progress_report.get("run_log_errors", []):
+                line = item.get("line")
+                suffix = f" line {line}" if line is not None else ""
+                add_warning(warnings, "invalid_run_log_jsonl", f"{item.get('path')}{suffix}: {item.get('message')}")
     blocked_remediation_required = normalized(state_status) == "blocked"
     if automation_prompt and not blocked_remediation_guard:
         add_warning(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.")
@@ -499,8 +512,20 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "configured_automation_reasoning_effort": model_policy.get("configured_reasoning_effort"),
         "model_mismatch": model_policy.get("model_mismatch"),
         "reasoning_mismatch": model_policy.get("reasoning_mismatch"),
+        "run_count": state.get("run_count") if state else None,
+        "next_run_count": progress_report.get("run_count"),
         "stalled_run_count": state.get("stalled_run_count") if state else None,
+        "next_stalled_run_count": progress_report.get("stalled_run_count"),
         "max_stalled_runs": state.get("max_stalled_runs") if state else None,
+        "policy_max_stalled_runs": progress_report.get("max_stalled_runs"),
+        "progress_signature": progress_report.get("progress_signature"),
+        "previous_progress_signature": progress_report.get("previous_progress_signature"),
+        "progress_detected": progress_report.get("progress_detected"),
+        "stall_threshold_reached": progress_report.get("threshold_reached"),
+        "phase_6_alert_required": progress_report.get("phase_6_alert_required"),
+        "run_log_path": progress_report.get("run_log_path"),
+        "run_log_entries": progress_report.get("run_log_entries"),
+        "run_log_valid": not bool(progress_report.get("run_log_errors")) if progress_report else None,
         "model_policy": model_policy,
         "all_phases_complete": all_phases_complete,
         "current_branch": current_branch,
@@ -548,8 +573,20 @@ def main(argv: Optional[List[str]] = None) -> int:
             "configured_automation_reasoning_effort",
             "model_mismatch",
             "reasoning_mismatch",
+            "run_count",
+            "next_run_count",
             "stalled_run_count",
+            "next_stalled_run_count",
             "max_stalled_runs",
+            "policy_max_stalled_runs",
+            "progress_signature",
+            "previous_progress_signature",
+            "progress_detected",
+            "stall_threshold_reached",
+            "phase_6_alert_required",
+            "run_log_path",
+            "run_log_entries",
+            "run_log_valid",
             "all_phases_complete",
             "current_branch",
             "worktree_dirty",

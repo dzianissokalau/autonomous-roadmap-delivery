@@ -1,11 +1,11 @@
 # Phase Model Policy And Stall Control Roadmap
 
 Status: Active
-Current phase: Phase 5 - Progress Signature And Stall Counter
-Last completed phase: Phase 4 - End-Run Retargeting Gate
+Current phase: Phase 6 - Alert Files And Optional Notification Sinks
+Last completed phase: Phase 5 - Progress Signature And Stall Counter
 Last updated: 2026-05-21
-Next action: Start Phase 5 and add durable progress signature and stalled-run
-counter handling.
+Next action: Start Phase 6 and add durable operator alert files with optional
+notification sink boundaries.
 Blocked by: None
 
 ## Purpose

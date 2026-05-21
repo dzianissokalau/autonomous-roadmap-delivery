@@ -1,9 +1,9 @@
 {
   "roadmap": "roadmaps/not_started_phase_model_policy_and_stall_control_roadmap.md",
   "roadmap_slug": "phase-model-policy-and-stall-control",
-  "current_phase": "Phase 5 - Progress Signature And Stall Counter",
-  "branch": "codex/phase-model-policy-and-stall-control-phase-5",
-  "branch_reason": "Phase 4 was delivered on codex/phase-model-policy-and-stall-control-phase-4; the next run should continue from the Phase 5 branch.",
+  "current_phase": "Phase 6 - Alert Files And Optional Notification Sinks",
+  "branch": "codex/phase-model-policy-and-stall-control-phase-6",
+  "branch_reason": "Phase 5 was delivered on codex/phase-model-policy-and-stall-control-phase-5; the next run should continue from the Phase 6 branch.",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
@@ -12,12 +12,12 @@
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "16 helper-script tests passed, including policy match/mismatch, blocked-remediation guard coverage, and current helper-script fixture coverage."
+        "details": "22 helper-script tests passed, including first run, progress detected, no progress detected, threshold reached, custom threshold, and corrupt run log coverage."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase4-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py",
+        "command": "PYTHONPYCACHEPREFIX=/private/tmp/roadmap-delivery-phase5-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py",
         "status": "passed",
-        "details": "Inspection, validation, and retarget planner scripts compiled."
+        "details": "Inspection, validation, retarget planner, and progress signature scripts compiled."
       },
       {
         "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
@@ -25,55 +25,35 @@
         "details": "Skill is valid."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
-        "status": "passed_with_warning",
-        "details": "Validation reported no errors, no model mismatch, model/reasoning source automation_config, and only the expected worktree_dirty warning before Phase 4 bookkeeping was committed."
-      },
-      {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
-        "status": "passed_with_warning",
-        "details": "Inspection reported required/configured model fields, no model mismatch, blocked remediation guard true, stalled_run_count 0, and only the expected worktree_dirty warning before Phase 4 bookkeeping was committed."
-      },
-      {
         "command": "git diff --check",
         "status": "passed",
         "details": "No whitespace errors were found."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 0 - Policy Contract' --json",
-        "status": "passed",
-        "details": "Dry-run resolved Phase 1 from phases.1 policy with gpt-5.5/xhigh and no automation update needed."
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --json",
+        "status": "passed_with_warning",
+        "details": "Validation reported no errors, no model mismatch, progress tracking present, run log valid, and only the expected worktree_dirty warning before Phase 5 bookkeeping was committed."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate' --json",
-        "status": "passed",
-        "details": "Dry-run resolved Phase 5 from policy defaults with gpt-5.5/xhigh and no automation update needed."
+        "command": "python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "status": "passed_with_warning",
+        "details": "Inspection reported required/configured model fields, progress_detected true, next_run_count 9, next_stalled_run_count 0, run_log_valid true, and only the expected worktree_dirty warning before Phase 5 bookkeeping was committed."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 10 - Migration, Release, And Documentation' --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/compute_progress_signature.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --json",
         "status": "passed",
-        "details": "Dry-run resolved finalization from phases.finalization policy with gpt-5.5/xhigh."
-      },
-      {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate' --simulate-update-failure 'simulated readback mismatch' --json",
-        "status": "passed",
-        "details": "Dry-run exposed the retarget failure path: blocked state, retarget-failed alert, and stop before next phase delivery."
-      },
-      {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --delivered-phase 'Phase 4 - End-Run Retargeting Gate'",
-        "status": "passed",
-        "details": "Operator-readable plan reported Phase 5, target gpt-5.5/xhigh from defaults, configured automation gpt-5.5/xhigh, and retarget status not_needed."
+        "details": "Progress signature dry-run reported progress would be detected, next run count 9, stalled count 0, and no threshold alert required."
       }
     ],
-    "completed_at": "2026-05-21T16:08:00Z"
+    "completed_at": "2026-05-21T16:20:00Z"
   },
   "last_review": {
-    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-4-review-iteration-1.md",
+    "file": "automation/phase-model-policy-and-stall-control/reviews/phase-model-policy-and-stall-control-phase-5-review-iteration-1.md",
     "verdict": "delivered",
-    "completed_at": "2026-05-21T16:08:00Z",
-    "summary": "Phase 4 delivered the end-run retargeting gate, finalization retarget guidance, retarget failure troubleshooting, and a read-only retarget plan helper."
+    "completed_at": "2026-05-21T16:20:00Z",
+    "summary": "Phase 5 delivered durable progress signatures, stalled-run counter handling, JSONL run log validation, status reporting, and required fixture coverage."
   },
-  "last_delivered_phase": "Phase 4 - End-Run Retargeting Gate",
+  "last_delivered_phase": "Phase 5 - Progress Signature And Stall Counter",
   "blocked_reason": null,
   "last_blocker_repair": {
     "completed_at": "2026-05-21T14:56:46Z",
@@ -91,11 +71,11 @@
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "run_count": 8,
+  "run_count": 9,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "delivered:phase-4:2026-05-21T16:08:00Z",
-  "last_progress_at": "2026-05-21T16:08:00Z",
+  "last_progress_signature": "sha256:c3aeb7f2d8962e7e6525f587edbdca46c727850669c3baff70341e918c7cf01d",
+  "last_progress_at": "2026-05-21T16:20:00Z",
   "last_operator_alert": null,
   "automation": {
     "id": "phase-model-policy-and-stall-control",
@@ -107,5 +87,5 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T14:59:17Z"
   },
-  "updated_at": "2026-05-21T16:08:00Z"
+  "updated_at": "2026-05-21T16:20:00Z"
 }
