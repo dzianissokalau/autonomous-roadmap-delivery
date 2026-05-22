@@ -20,11 +20,10 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
 ## Model-Aware Automation Update
 
-- `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md`:
+- `roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md`:
   model-aware automation retargeting, stalled-run pause behavior, and local
-  operator alerts. The implementation phases are delivered through Phase 10;
-  finalization, publication, promotion, and automation pause remain separate
-  operator-approved actions.
+  operator alerts. The roadmap is delivered and the automation pause has been
+  confirmed.
 
 Model-aware roadmap delivery uses a repository-local policy file:
 

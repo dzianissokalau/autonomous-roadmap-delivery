@@ -1115,3 +1115,39 @@ Branch: `codex/phase-model-policy-and-stall-control-phase-10`
   `automation/phase-model-policy-and-stall-control/alerts/2026-05-21T20-40-58Z-completed.md`.
 - No phase work, push, merge, promotion, branch deletion, destructive command,
   or installed-skill synchronization was performed during pause confirmation.
+
+## External Deep Review Fix - 2026-05-22T09:15:28Z
+
+Status: fixed
+Branch: `codex/phase-model-policy-and-stall-control-finalization`
+Review artifact: `/Users/dzianissokalau/Downloads/deep_review_report_1.md`
+
+### Findings Addressed
+
+- Fixed the live README roadmap pointer from the removed
+  `roadmaps/in_progress_phase_model_policy_and_stall_control_roadmap.md` path
+  to `roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md`.
+- Added direct `retarget-failed` alert generation coverage.
+- Added retarget mismatch and simulated failure-path coverage.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_helper_scripts.HelperScriptTests.test_retarget_failed_alert_generation_records_state_and_log tests.test_helper_scripts.HelperScriptTests.test_retarget_plan_mismatch_requires_update_and_can_report_failure_path -v`:
+  passed.
+- `python3 -m unittest discover -s tests -v`: passed, 39 tests.
+- `PYTHONPYCACHEPREFIX=${TMPDIR:-/private/tmp}/roadmap-delivery-review-fix-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py skill/roadmap-delivery-skill/scripts/compute_progress_signature.py skill/roadmap-delivery-skill/scripts/write_operator_alert.py`:
+  passed.
+- `git diff --check`: passed.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed, skill is valid.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --strict --allow-warning worktree_dirty --allow-warning automation_prompt_current_roadmap_missing --allow-warning stale_automation_roadmap_path --json`:
+  passed with expected warnings for the dirty worktree and the paused saved
+  automation prompt still referencing the old in-progress roadmap path.
+- `python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with expected stale prompt/worktree warnings.
+
+### Residual Risks
+
+- The paused saved automation prompt still references the old in-progress
+  roadmap path. This remains inert while the automation is paused; reactivation
+  would require regenerating the saved prompt from the repository guide.

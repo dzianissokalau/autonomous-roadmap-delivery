@@ -609,6 +609,37 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("Notification failure: missing GitHub token", delivery_log)
             self.assertEqual(validate["errors"], [])
 
+    def test_retarget_failed_alert_generation_records_state_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True, state_status="blocked")
+
+            alert = self.run_alert(
+                fixture,
+                "--kind",
+                "retarget-failed",
+                "--reason",
+                "Automation readback did not match the next phase policy.",
+                "--next-action",
+                "Retarget the automation, read back config, and rerun validation.",
+                "--timestamp",
+                "2026-05-21T12:08:00Z",
+            )
+            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            alert_path = Path(alert["alert_file"])
+            alert_text = alert_path.read_text(encoding="utf-8")
+            delivery_log = (fixture.state_dir / "delivery_log.md").read_text(encoding="utf-8")
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(alert_path.exists())
+            self.assertTrue(alert["alert_file_relative"].endswith("alerts/2026-05-21T12-08-00Z-retarget-failed.md"))
+            self.assertIn("Roadmap Delivery Alert: Retarget Failed", alert_text)
+            self.assertIn("Alert kind: `retarget-failed`", alert_text)
+            self.assertIn("Next human action: Retarget the automation", alert_text)
+            self.assertEqual(state["last_operator_alert"]["kind"], "retarget-failed")
+            self.assertEqual(state["last_operator_alert"]["notification_status"], "local_alert_only")
+            self.assertIn("Operator Alert - 2026-05-21T12:08:00Z - Retarget Failed", delivery_log)
+            self.assertEqual(validate["errors"], [])
+
     def test_validate_errors_when_recorded_alert_file_is_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, write_model_policy=True)
@@ -1074,6 +1105,49 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(plan["target"]["model"], "gpt-5.5")
             self.assertEqual(plan["target"]["reasoning_effort"], "xhigh")
             self.assertEqual(plan["retarget"]["status"], "not_needed")
+
+    def test_retarget_plan_mismatch_requires_update_and_can_report_failure_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                automation_model="gpt-5.4",
+                automation_reasoning="medium",
+            )
+            roadmap_path = fixture.repo_root / "roadmaps" / fixture.roadmap_filename
+            roadmap_path.write_text(
+                roadmap_path.read_text(encoding="utf-8")
+                + "\n## Phase 2 - Next Fixture\n\nNext fixture body.\n",
+                encoding="utf-8",
+            )
+            policy_text = DeliveryFixture.build_model_policy_text(
+                defaults_model="gpt-5.4",
+                defaults_reasoning="medium",
+                phases={
+                    "2": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                    "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                },
+            )
+            (fixture.state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
+
+            plan = self.run_plan(fixture, "--delivered-phase", "Phase 1 - Fixture")
+            failed = self.run_plan(
+                fixture,
+                "--delivered-phase",
+                "Phase 1 - Fixture",
+                "--simulate-update-failure",
+                "readback still reported gpt-5.4/medium",
+            )
+
+            self.assertEqual(plan["retarget"]["status"], "requires_approved_update")
+            self.assertTrue(plan["retarget"]["update_required"])
+            self.assertEqual(plan["automation"]["configured_model"], "gpt-5.4")
+            self.assertEqual(plan["target"]["model"], "gpt-5.5")
+            self.assertEqual(failed["retarget"]["status"], "failed")
+            self.assertTrue(failed["retarget"]["simulated_failure"])
+            self.assertEqual(failed["failure_path"]["state_status"], "blocked")
+            self.assertEqual(failed["failure_path"]["alert_kind"], "retarget-failed")
+            self.assertTrue(failed["failure_path"]["stop_before_next_phase"])
 
     def test_model_policy_replay_prompts_cover_required_scenarios(self):
         prompt_text = (REPO_ROOT / "evals" / "model-policy-prompts.md").read_text(encoding="utf-8")
