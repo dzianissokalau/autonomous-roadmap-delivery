@@ -1151,3 +1151,25 @@ Review artifact: `/Users/dzianissokalau/Downloads/deep_review_report_1.md`
 - The paused saved automation prompt still references the old in-progress
   roadmap path. This remains inert while the automation is paused; reactivation
   would require regenerating the saved prompt from the repository guide.
+
+## Main Promotion - 2026-05-22T09:18:34Z
+
+Status: promoted
+Source branch: `codex/phase-model-policy-and-stall-control-finalization`
+Target branch: `main`
+
+### Promotion Evidence
+
+- `git merge --ff-only codex/phase-model-policy-and-stall-control-finalization`:
+  passed on `main`.
+- The finalization branch had already been pushed to
+  `origin/codex/phase-model-policy-and-stall-control-finalization` at
+  `6ca35e2`.
+- Main promotion was explicitly approved by the operator in this conversation.
+
+### Residual Risks
+
+- Installed skill synchronization remains deferred to an explicit maintenance
+  step.
+- The paused saved automation prompt still references the old in-progress
+  roadmap path; it remains inert while the automation is paused.

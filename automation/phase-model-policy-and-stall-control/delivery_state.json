@@ -171,8 +171,11 @@
     "automation_pause_required": true,
     "automation_pause_status": "confirmed_paused",
     "automation_readback": "PAUSED, local, gpt-5.5, xhigh",
-    "publication_status": "not_published",
-    "promotion_status": "not_promoted",
+    "publication_status": "finalization_branch_published",
+    "promotion_status": "promoted_to_main",
+    "promoted_at": "2026-05-22T09:18:34Z",
+    "promoted_branch": "main",
+    "promotion_source_branch": "codex/phase-model-policy-and-stall-control-finalization",
     "installed_skill_sync_status": "not_synchronized_without_approval"
   },
   "last_external_review_fix": {
@@ -227,7 +230,7 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "created_or_updated_at": "2026-05-21T21:06:45Z"
   },
-  "updated_at": "2026-05-22T09:15:28Z",
+  "updated_at": "2026-05-22T09:18:34Z",
   "last_phase_retarget": {
     "completed_at": "2026-05-21T20:19:30Z",
     "delivered_phase": "Phase 10 - Migration, Release, And Documentation",
