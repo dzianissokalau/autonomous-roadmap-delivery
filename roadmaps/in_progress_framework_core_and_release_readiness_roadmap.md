@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 1 - Canonical Core Layout
+Current phase: Phase 2 - JSON Schemas And Versioned State
 Last updated: 2026-05-24
-Next action: Start Phase 1 on
-`codex/framework-core-and-release-readiness-phase-1`.
+Next action: Start Phase 2 on
+`codex/framework-core-and-release-readiness-phase-2`.
 Blocked by: None
 
 ## Purpose
@@ -300,6 +300,8 @@ git diff --check
 - Stop if preserving the current Codex install path is not possible.
 
 ## Phase 1 - Canonical Core Layout
+
+Delivery status: Delivered 2026-05-24.
 
 ### Objective
 

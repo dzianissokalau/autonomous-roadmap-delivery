@@ -1,49 +1,53 @@
 {
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 1 - Canonical Core Layout",
+  "current_phase": "Phase 2 - JSON Schemas And Versioned State",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 0 - Scope And Migration Contract",
-    "completed_at": "2026-05-24T20:28:12Z",
+    "phase": "Phase 1 - Canonical Core Layout",
+    "completed_at": "2026-05-24T20:52:04Z",
     "status": "passed",
     "checks": [
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed"
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-core-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
+        "status": "passed"
+      },
       {
         "command": "git diff --check",
         "status": "passed"
       },
       {
-        "command": "manual inspection of roadmap against current skill behavior",
+        "command": "git diff --exit-code -- skill/roadmap-delivery-skill",
         "status": "passed"
       },
       {
-        "command": "test -d skill/roadmap-delivery-skill && test -f skill/roadmap-delivery-skill/SKILL.md && test -d skill/roadmap-delivery-skill/scripts",
-        "status": "passed"
-      },
-      {
-        "command": "git diff -- skill/roadmap-delivery-skill automation/codex_phase_gated_delivery_automation_template.md schemas core src adapters dist",
+        "command": "python3 -m unittest tests.test_core_sources -v",
         "status": "passed"
       },
       {
         "command": "validate_delivery_artifacts.py --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
-          "empty_review_dir before review artifact existed",
+          "current_branch_name_mismatch after advancing to Phase 2",
           "worktree_dirty"
         ]
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 0 - Scope And Migration Contract",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-0-review-iteration-1.md",
+    "phase": "Phase 1 - Canonical Core Layout",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-1-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-24T20:27:21Z"
+    "reviewed_at": "2026-05-24T20:52:04Z"
   },
-  "last_delivered_phase": "Phase 0 - Scope And Migration Contract",
+  "last_delivered_phase": "Phase 1 - Canonical Core Layout",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -95,16 +99,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 1,
+  "run_count": 2,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:cafda40534725778ab0e7092f2514526e2c6127984b76094782993f40b12180e",
-  "last_progress_at": "2026-05-24T20:28:12Z",
+  "last_progress_signature": "sha256:abd5bc6b7a67a475001893edcc0e60e1436fa0709ae8b6fd7c07b896db9f9473",
+  "last_progress_at": "2026-05-24T20:58:48Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-24T20:28:12Z"
+  "updated_at": "2026-05-24T20:58:48Z"
 }

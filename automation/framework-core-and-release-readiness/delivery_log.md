@@ -160,3 +160,65 @@ Branch: `codex/framework-core-and-release-readiness-phase-0`
 
 - Start Phase 1 - Canonical Core Layout on
   `codex/framework-core-and-release-readiness-phase-1`.
+
+## Phase 1 - 2026-05-24 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-1`
+
+### Scope
+
+- Delivered Phase 1 only: Canonical Core Layout.
+- Owned files: `core/references/*.md`, `core/templates/*.md`,
+  `core/prompts/*.md`,
+  `automation/codex_phase_gated_delivery_automation_template.md`, and
+  `tests/test_core_sources.py`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added host-neutral canonical workflow references under `core/references/`.
+- Added shared artifact templates under `core/templates/`.
+- Added reusable gate prompt fragments under `core/prompts/`.
+- Linked the Codex-facing automation template to the canonical core sources
+  while preserving the installable skill snapshot.
+- Added tests that require every Codex reference to have a canonical core
+  source or explicit adapter-only reason and check that core references avoid
+  known Codex-specific assumptions.
+- Advanced the roadmap and state to Phase 2 after the delivered review verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 43 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-core-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`:
+  passed.
+- `git diff --check`: passed.
+- `git diff --exit-code -- skill/roadmap-delivery-skill`: passed; no installed
+  Codex package files changed.
+- `python3 -m unittest tests.test_core_sources -v`: passed, 4 tests.
+- `validate_delivery_artifacts.py --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json`:
+  passed with expected warnings for current branch still being Phase 1 after
+  state advanced to Phase 2, plus unrelated dirty worktree files.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-1-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; multi-agent delegation was not used
+  because explicit delegation authorization was not present.
+
+### Residual Risks
+
+- Canonical core content is intentionally concise in Phase 1. Later phases own
+  schema validation, library extraction, CLI stabilization, adapter generation,
+  CI, privacy checks, demos, release, and closeout.
+- Existing setup/activation changes remain in the worktree and are preserved.
+- Artifact validation has no errors. The remaining warnings are expected after
+  phase advancement and because unrelated setup/activation files remain dirty.
+
+### Next Action
+
+- Start Phase 2 - JSON Schemas And Versioned State on
+  `codex/framework-core-and-release-readiness-phase-2`.

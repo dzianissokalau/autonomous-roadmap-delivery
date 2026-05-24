@@ -21,6 +21,22 @@ repair resolvable blockers before retrying delivery
 advance only after a clean phase gate
 ```
 
+## Canonical Core Sources
+
+This template is the Codex-facing automation template. Host-neutral workflow
+sources live under:
+
+```text
+core/references/
+core/templates/
+core/prompts/
+```
+
+Codex skill reference files under `skill/roadmap-delivery-skill/references/`
+must either have a matching canonical source in `core/references/` or an
+explicit adapter-only reason covered by tests. The Codex package remains the
+installable snapshot until adapter generation is introduced by a later phase.
+
 ## Project Defaults
 
 ```text
