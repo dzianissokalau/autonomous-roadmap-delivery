@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 2 - JSON Schemas And Versioned State
+Current phase: Phase 3 - Shared Python Library Extraction
 Last updated: 2026-05-24
-Next action: Start Phase 2 on
-`codex/framework-core-and-release-readiness-phase-2`.
+Next action: Start Phase 3 on
+`codex/framework-core-and-release-readiness-phase-3`.
 Blocked by: None
 
 ## Purpose
@@ -372,6 +372,8 @@ git diff --check
 - Stop if a reference cannot be expressed without Codex-specific assumptions.
 
 ## Phase 2 - JSON Schemas And Versioned State
+
+Delivery status: Delivered 2026-05-24.
 
 ### Objective
 

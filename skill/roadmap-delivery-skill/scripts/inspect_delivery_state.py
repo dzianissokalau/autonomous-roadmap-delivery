@@ -365,6 +365,9 @@ def inspect_model_policy(
     if not isinstance(policy, dict):
         add_warning(warnings, "invalid_model_policy_shape", f"Policy file root is not an object: {policy_path}")
         return result
+    result["schema_version"] = policy.get("schema_version")
+    if policy.get("schema_version") != 1:
+        add_warning(warnings, "unsupported_model_policy_schema", f"Policy schema_version must be 1: {policy_path}")
     defaults = policy.get("defaults") if isinstance(policy.get("defaults"), dict) else {}
     phases = policy.get("phases") if isinstance(policy.get("phases"), dict) else {}
     phase_key = phase_number(state.get("current_phase"))
@@ -548,6 +551,15 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
 
     state_status = state.get("status") if state else None
     current_phase = state.get("current_phase") if state else None
+    state_schema_version = state.get("schema_version") if state else None
+    if state is not None and state_schema_version is None:
+        add_warning(
+            warnings,
+            "legacy_delivery_state_schema_version",
+            "Delivery state has no schema_version; accepted in legacy compatibility mode.",
+        )
+    elif state_schema_version not in (None, 1):
+        add_warning(warnings, "invalid_delivery_state_schema_version", "Delivery state schema_version must be 1.")
     last_delivered_phase = state.get("last_delivered_phase") if state else None
     blocked_reason = state.get("blocked_reason") if state else None
     warn_lifecycle_filename_drift(roadmap_path, state_status, current_phase, warnings)
@@ -598,6 +610,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "roadmap_path": str(roadmap_path) if roadmap_path else None,
         "state_file": str(state_file) if state_file else None,
         "state_status": state_status,
+        "state_schema_version": state_schema_version,
         "current_phase": current_phase,
         "last_delivered_phase": last_delivered_phase,
         "blocked_reason": blocked_reason,
@@ -625,6 +638,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "run_log_entries": progress_report.get("run_log_entries"),
         "run_log_valid": not bool(progress_report.get("run_log_errors")) if progress_report else None,
         "model_policy": model_policy,
+        "model_policy_schema_version": model_policy.get("schema_version"),
         "all_phases_complete": all_phases_complete,
         "completion_alert_present": completion_alert["completion_alert_present"],
         "completion_alert_kind": completion_alert["completion_alert_kind"],
@@ -665,6 +679,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "roadmap_path",
             "state_file",
             "state_status",
+            "state_schema_version",
             "current_phase",
             "last_delivered_phase",
             "blocked_reason",
@@ -690,6 +705,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "run_log_path",
             "run_log_entries",
             "run_log_valid",
+            "model_policy_schema_version",
             "all_phases_complete",
             "completion_alert_present",
             "completion_pause_required",

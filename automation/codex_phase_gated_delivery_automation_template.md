@@ -92,6 +92,7 @@ Suggested state:
 
 ```json
 {
+  "schema_version": 1,
   "roadmap": "ROADMAP_PATH",
   "roadmap_slug": "ROADMAP_SLUG",
   "current_phase": "PHASE_N",

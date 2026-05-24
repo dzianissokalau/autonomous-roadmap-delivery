@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roadmap-delivery.local/schemas/phase_model_policy.schema.json",
+  "title": "Roadmap Delivery Phase Model Policy",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "max_stalled_runs",
+    "notification",
+    "defaults",
+    "phases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "max_stalled_runs": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "notification": {
+      "type": "object",
+      "required": [
+        "mode",
+        "fallback"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "alert_file",
+            "github_issue",
+            "none",
+            "slack",
+            "email",
+            "codex_thread",
+            "webhook"
+          ]
+        },
+        "fallback": {
+          "type": "string",
+          "enum": [
+            "alert_file",
+            "github_issue",
+            "none",
+            "slack",
+            "email",
+            "codex_thread",
+            "webhook"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "defaults": {
+      "type": "object",
+      "required": [
+        "model",
+        "reasoning_effort"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reasoning_effort": {
+          "$ref": "#/$defs/reasoning_effort"
+        }
+      },
+      "additionalProperties": true
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reasoning_effort": {
+            "$ref": "#/$defs/reasoning_effort"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "$defs": {
+    "reasoning_effort": {
+      "type": "string",
+      "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

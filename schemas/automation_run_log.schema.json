@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roadmap-delivery.local/schemas/automation_run_log.schema.json",
+  "title": "Roadmap Delivery Automation Run Log Entry",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "timestamp",
+        "current_phase",
+        "status",
+        "progress_signature",
+        "run_count",
+        "stalled_run_count",
+        "max_stalled_runs",
+        "threshold_reached",
+        "phase_6_alert_required"
+      ],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "minLength": 1
+        },
+        "current_phase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "last_delivered_phase": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "progress_signature": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previous_progress_signature": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "progress_detected": {
+          "type": "boolean"
+        },
+        "run_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stalled_run_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_stalled_runs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "threshold_reached": {
+          "type": "boolean"
+        },
+        "phase_6_alert_required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "required": [
+        "run_id",
+        "completed_at",
+        "phase",
+        "status",
+        "progress"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "completed_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reasoning_effort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "progress": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_phase": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  ]
+}

@@ -77,6 +77,7 @@ class DeliveryFixture:
         state_max_stalled_runs=3,
         state_last_progress_signature=None,
         state_last_progress_at=None,
+        state_schema_version=1,
         run_log_text=None,
         all_phases_complete=False,
         write_deep_review_prompt=False,
@@ -110,6 +111,7 @@ class DeliveryFixture:
             state_max_stalled_runs=state_max_stalled_runs,
             state_last_progress_signature=state_last_progress_signature,
             state_last_progress_at=state_last_progress_at,
+            state_schema_version=state_schema_version,
             run_log_text=run_log_text,
             all_phases_complete=all_phases_complete,
             write_deep_review_prompt=write_deep_review_prompt,
@@ -146,6 +148,7 @@ class DeliveryFixture:
         state_max_stalled_runs,
         state_last_progress_signature,
         state_last_progress_at,
+        state_schema_version,
         run_log_text,
         all_phases_complete,
         write_deep_review_prompt,
@@ -186,6 +189,7 @@ class DeliveryFixture:
             encoding="utf-8",
         )
         state = {
+            "schema_version": state_schema_version,
             "roadmap": f"roadmaps/{self.roadmap_filename}",
             "roadmap_slug": self.slug,
             "current_phase": current_phase,
@@ -213,6 +217,8 @@ class DeliveryFixture:
             "all_phases_complete": all_phases_complete,
             "updated_at": "2026-05-21T00:00:00Z",
         }
+        if state_schema_version is None:
+            state.pop("schema_version")
         (state_dir / "delivery_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
         (state_dir / "delivery_log.md").write_text("# Fixture Delivery Log\n", encoding="utf-8")
         if write_deep_review_prompt:
@@ -234,11 +240,27 @@ class DeliveryFixture:
                     [
                         "# Phase 1 Review - Iteration 1",
                         "",
-                        f"Verdict: {review_verdict}",
+                        "Reviewed at: 2026-05-21T00:00:00Z",
+                        f"Roadmap: `roadmaps/{self.roadmap_filename}`",
+                        f"Phase: {current_phase}",
+                        f"Branch: `codex/{self.slug}-phase-1`",
+                        "Reviewer context: fixture review.",
                         "",
                         "## Findings",
                         "",
                         "- Fixture review.",
+                        "",
+                        "## Verification Evidence",
+                        "",
+                        "- Fixture verification: passed.",
+                        "",
+                        "## Missing Tests Or Checks",
+                        "",
+                        "None.",
+                        "",
+                        "## Verdict",
+                        "",
+                        review_verdict,
                         "",
                     ]
                 ),

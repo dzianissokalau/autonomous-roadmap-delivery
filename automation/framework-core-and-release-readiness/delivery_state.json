@@ -1,53 +1,67 @@
 {
+  "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 2 - JSON Schemas And Versioned State",
+  "current_phase": "Phase 3 - Shared Python Library Extraction",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 1 - Canonical Core Layout",
-    "completed_at": "2026-05-24T20:52:04Z",
+    "phase": "Phase 2 - JSON Schemas And Versioned State",
+    "completed_at": "2026-05-24T21:11:05Z",
     "status": "passed",
     "checks": [
       {
         "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "50 tests passed."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-schema-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
         "status": "passed"
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-core-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
-        "status": "passed"
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
+        "status": "passed_with_expected_warnings",
+        "warnings": [
+          "legacy_delivery_state_schema_version",
+          "legacy_review_artifact_schema",
+          "automation_prompt_current_roadmap_missing",
+          "stale_automation_roadmap_path",
+          "worktree_dirty"
+        ]
+      },
+      {
+        "command": "python3 -m unittest tests.test_schema_validation -v",
+        "status": "passed",
+        "details": "7 tests passed."
+      },
+      {
+        "command": "python3 -m unittest tests.test_helper_scripts -v",
+        "status": "passed",
+        "details": "39 tests passed."
       },
       {
         "command": "git diff --check",
         "status": "passed"
       },
       {
-        "command": "git diff --exit-code -- skill/roadmap-delivery-skill",
-        "status": "passed"
-      },
-      {
-        "command": "python3 -m unittest tests.test_core_sources -v",
-        "status": "passed"
-      },
-      {
-        "command": "validate_delivery_artifacts.py --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
-          "current_branch_name_mismatch after advancing to Phase 2",
           "worktree_dirty"
         ]
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 1 - Canonical Core Layout",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-1-review-iteration-1.md",
+    "phase": "Phase 2 - JSON Schemas And Versioned State",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-2-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-24T20:52:04Z"
+    "reviewed_at": "2026-05-24T21:11:05Z"
   },
-  "last_delivered_phase": "Phase 1 - Canonical Core Layout",
+  "last_delivered_phase": "Phase 2 - JSON Schemas And Versioned State",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -99,16 +113,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 2,
+  "run_count": 3,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:abd5bc6b7a67a475001893edcc0e60e1436fa0709ae8b6fd7c07b896db9f9473",
-  "last_progress_at": "2026-05-24T20:58:48Z",
+  "last_progress_signature": "sha256:a1ed92e26aee25efe964530904beefd1f51ac8bd0d3cdb38455c729c537bfd0e",
+  "last_progress_at": "2026-05-24T21:11:05Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-24T20:58:48Z"
+  "updated_at": "2026-05-24T21:11:05Z"
 }

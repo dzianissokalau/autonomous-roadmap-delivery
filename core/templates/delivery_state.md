@@ -4,6 +4,7 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
 
 ```json
 {
+  "schema_version": 1,
   "roadmap": "roadmaps/<roadmap-file>.md",
   "roadmap_slug": "<roadmap-slug>",
   "current_phase": "Phase N - Name",

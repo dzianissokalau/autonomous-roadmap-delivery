@@ -34,6 +34,12 @@ ACTIVE_STATUSES = {
 ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
 KNOWN_NOTIFICATION_MODES = {"alert_file", "github_issue", "none", "slack", "email", "codex_thread", "webhook"}
 VALID_ALERT_KINDS = {"stalled", "completed", "blocked", "retarget-failed"}
+SCHEMA_FILENAMES = {
+    "delivery_state": "delivery_state.schema.json",
+    "phase_model_policy": "phase_model_policy.schema.json",
+    "review_artifact": "review_artifact.schema.json",
+    "automation_run_log": "automation_run_log.schema.json",
+}
 REQUIRED_ALERT_MARKERS = (
     "Roadmap:",
     "Phase:",
@@ -85,6 +91,232 @@ def add(items: List[Finding], code: str, message: str, path: Optional[Path] = No
     if path is not None:
         item["path"] = str(path)
     items.append(item)
+
+
+def script_repo_root() -> Optional[Path]:
+    path = Path(__file__).resolve()
+    parents = path.parents
+    if len(parents) > 3:
+        return parents[3]
+    return None
+
+
+def schema_dirs(repo_root: Path) -> List[Path]:
+    candidates = [repo_root / "schemas"]
+    local_root = script_repo_root()
+    if local_root is not None:
+        candidates.append(local_root / "schemas")
+    return unique_paths(candidates)
+
+
+def load_schema(
+    repo_root: Path,
+    schema_name: str,
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Tuple[Optional[Dict[str, Any]], Optional[Path]]:
+    filename = SCHEMA_FILENAMES[schema_name]
+    for directory in schema_dirs(repo_root):
+        path = directory / filename
+        if not path.exists():
+            continue
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                schema = json.load(fh)
+        except json.JSONDecodeError as exc:
+            add(errors, f"invalid_{schema_name}_schema_json", f"Schema file is invalid JSON: {exc}", path)
+            return None, path
+        except OSError as exc:
+            add(errors, f"{schema_name}_schema_unreadable", f"Cannot read schema file: {exc}", path)
+            return None, path
+        if not isinstance(schema, dict):
+            add(errors, f"invalid_{schema_name}_schema_shape", "Schema file root is not a JSON object.", path)
+            return None, path
+        return schema, path
+    add(warnings, f"missing_{schema_name}_schema", f"Schema file {filename!r} was not found; using built-in compatibility checks.")
+    return None, None
+
+
+def resolve_schema_ref(schema: Dict[str, Any], root_schema: Dict[str, Any]) -> Dict[str, Any]:
+    ref = schema.get("$ref")
+    if not isinstance(ref, str):
+        return schema
+    if not ref.startswith("#/$defs/"):
+        return schema
+    key = ref.rsplit("/", 1)[-1]
+    defs = root_schema.get("$defs")
+    if isinstance(defs, dict) and isinstance(defs.get(key), dict):
+        return defs[key]
+    return schema
+
+
+def json_type_name(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return type(value).__name__
+
+
+def matches_json_type(value: Any, expected: str) -> bool:
+    if expected == "null":
+        return value is None
+    if expected == "boolean":
+        return isinstance(value, bool)
+    if expected == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if expected == "number":
+        return (isinstance(value, int) or isinstance(value, float)) and not isinstance(value, bool)
+    if expected == "string":
+        return isinstance(value, str)
+    if expected == "array":
+        return isinstance(value, list)
+    if expected == "object":
+        return isinstance(value, dict)
+    return True
+
+
+def validate_json_schema(value: Any, schema: Dict[str, Any], *, root_schema: Optional[Dict[str, Any]] = None, path: str = "$") -> List[str]:
+    root_schema = root_schema or schema
+    schema = resolve_schema_ref(schema, root_schema)
+    messages: List[str] = []
+
+    alternatives = schema.get("oneOf") or schema.get("anyOf")
+    if isinstance(alternatives, list):
+        alt_errors = [
+            validate_json_schema(value, alt, root_schema=root_schema, path=path)
+            for alt in alternatives
+            if isinstance(alt, dict)
+        ]
+        if not any(not errors for errors in alt_errors):
+            messages.append(f"{path}: value does not match any allowed schema")
+        return messages
+
+    if "const" in schema and value != schema["const"]:
+        messages.append(f"{path}: expected constant {schema['const']!r}, got {value!r}")
+        return messages
+
+    if "enum" in schema and value not in schema["enum"]:
+        messages.append(f"{path}: value {value!r} is not one of {schema['enum']!r}")
+        return messages
+
+    expected_type = schema.get("type")
+    if expected_type is not None:
+        expected_types = expected_type if isinstance(expected_type, list) else [expected_type]
+        if not any(isinstance(item, str) and matches_json_type(value, item) for item in expected_types):
+            messages.append(f"{path}: expected type {expected_types!r}, got {json_type_name(value)!r}")
+            return messages
+
+    if isinstance(value, dict):
+        required = schema.get("required")
+        if isinstance(required, list):
+            for key in required:
+                if isinstance(key, str) and key not in value:
+                    messages.append(f"{path}: missing required property {key!r}")
+        properties = schema.get("properties")
+        if isinstance(properties, dict):
+            for key, prop_schema in properties.items():
+                if key in value and isinstance(prop_schema, dict):
+                    messages.extend(validate_json_schema(value[key], prop_schema, root_schema=root_schema, path=f"{path}.{key}"))
+        additional = schema.get("additionalProperties", True)
+        if isinstance(additional, dict):
+            for key, item in value.items():
+                if not isinstance(properties, dict) or key not in properties:
+                    messages.extend(validate_json_schema(item, additional, root_schema=root_schema, path=f"{path}.{key}"))
+        elif additional is False and isinstance(properties, dict):
+            for key in sorted(set(value) - set(properties)):
+                messages.append(f"{path}: unexpected property {key!r}")
+
+    if isinstance(value, list):
+        min_items = schema.get("minItems")
+        if isinstance(min_items, int) and len(value) < min_items:
+            messages.append(f"{path}: expected at least {min_items} items")
+        item_schema = schema.get("items")
+        if isinstance(item_schema, dict):
+            for index, item in enumerate(value):
+                messages.extend(validate_json_schema(item, item_schema, root_schema=root_schema, path=f"{path}[{index}]"))
+
+    if isinstance(value, str):
+        min_length = schema.get("minLength")
+        if isinstance(min_length, int) and len(value) < min_length:
+            messages.append(f"{path}: expected string length at least {min_length}")
+        pattern = schema.get("pattern")
+        if isinstance(pattern, str) and not re.search(pattern, value):
+            messages.append(f"{path}: value {value!r} does not match pattern {pattern!r}")
+
+    if isinstance(value, int) and not isinstance(value, bool):
+        minimum = schema.get("minimum")
+        if isinstance(minimum, int) and value < minimum:
+            messages.append(f"{path}: expected value >= {minimum}")
+
+    return messages
+
+
+def apply_schema_errors(
+    schema_name: str,
+    value: Dict[str, Any],
+    schema: Optional[Dict[str, Any]],
+    path: Path,
+    errors: List[Finding],
+) -> int:
+    if schema is None:
+        return 0
+    messages = validate_json_schema(value, schema)
+    for message in messages:
+        add(errors, f"{schema_name}_schema_error", message, path)
+    return len(messages)
+
+
+def record_schema_messages(
+    schema_name: str,
+    messages: List[str],
+    path: Path,
+    errors: List[Finding],
+    warnings: List[Finding],
+    *,
+    legacy_mode: bool = False,
+    legacy_code: Optional[str] = None,
+) -> int:
+    for message in messages:
+        if legacy_mode:
+            add(warnings, legacy_code or f"legacy_{schema_name}_schema", message, path)
+        else:
+            add(errors, f"{schema_name}_schema_error", message, path)
+    return len(messages)
+
+
+def validate_versioned_state_schema(
+    state: Dict[str, Any],
+    state_file: Path,
+    schema: Optional[Dict[str, Any]],
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    version = state.get("schema_version")
+    report = {"schema_version": version, "mode": "validated" if version == 1 else "compatibility"}
+    if version is None:
+        add(
+            warnings,
+            "legacy_delivery_state_schema_version",
+            "Delivery state has no schema_version; accepted in legacy compatibility mode.",
+            state_file,
+        )
+        return report
+    if version != 1:
+        add(errors, "invalid_delivery_state_schema_version", "Delivery state schema_version must be 1.", state_file)
+        return report
+    report["error_count"] = apply_schema_errors("delivery_state", state, schema, state_file, errors)
+    return report
 
 
 def slug_forms(slug: Optional[str]) -> Dict[str, Optional[str]]:
@@ -348,20 +580,63 @@ def find_deep_review_prompt(state_dir: Optional[Path], state: Dict[str, Any]) ->
     return None
 
 
-def validate_review_verdicts(review_dir: Path, errors: List[Finding], warnings: List[Finding]) -> None:
+def extract_section(text: str, heading_pattern: str) -> Optional[str]:
+    match = re.search(
+        rf"(?ims)^##\s+{heading_pattern}\s*\n(?P<body>.*?)(?=^##\s+|\Z)",
+        text,
+    )
+    if not match:
+        return None
+    return match.group("body").strip() or None
+
+
+def first_metadata_value(text: str, label: str) -> Optional[str]:
+    match = re.search(rf"(?im)^{re.escape(label)}:\s*(.+?)\s*$", text)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    if value.startswith("`") and value.endswith("`") and len(value) >= 2:
+        value = value[1:-1]
+    return value
+
+
+def parse_review_artifact(text: str, verdict: Optional[str]) -> Dict[str, Any]:
+    return {
+        "reviewed_at": first_metadata_value(text, "Reviewed at"),
+        "roadmap": first_metadata_value(text, "Roadmap"),
+        "phase": first_metadata_value(text, "Phase"),
+        "branch": first_metadata_value(text, "Branch"),
+        "reviewer_context": first_metadata_value(text, "Reviewer context"),
+        "findings": extract_section(text, "Findings"),
+        "missing_tests_or_checks": extract_section(text, "Missing Tests(?: Or Checks)?"),
+        "verification_evidence": extract_section(text, "(?:Verification Evidence|Tests And Verification)"),
+        "verdict": verdict,
+    }
+
+
+def validate_review_verdicts(
+    review_dir: Path,
+    errors: List[Finding],
+    warnings: List[Finding],
+    review_schema: Optional[Dict[str, Any]] = None,
+    *,
+    legacy_mode: bool = False,
+) -> Dict[str, Any]:
+    report = {"files_checked": 0, "schema_errors": 0}
     if not review_dir.exists():
         add(errors, "missing_review_dir", "Review directory does not exist.", review_dir)
-        return
+        return report
     if not review_dir.is_dir():
         add(errors, "review_path_not_directory", "Review path is not a directory.", review_dir)
-        return
+        return report
 
     review_files = sorted(review_dir.glob("*.md"))
     if not review_files:
         add(warnings, "empty_review_dir", "Review directory contains no markdown review files.", review_dir)
-        return
+        return report
 
     for path in review_files:
+        report["files_checked"] += 1
         try:
             text = path.read_text(encoding="utf-8")
         except OSError as exc:
@@ -377,6 +652,18 @@ def validate_review_verdicts(review_dir: Path, errors: List[Finding], warnings: 
         for verdict in verdicts:
             if verdict not in VALID_REVIEW_VERDICTS:
                 add(errors, "invalid_review_verdict", f"Review verdict {verdict!r} is not one of {sorted(VALID_REVIEW_VERDICTS)}.", path)
+        artifact = parse_review_artifact(text, verdicts[-1])
+        messages = validate_json_schema(artifact, review_schema) if review_schema is not None else []
+        report["schema_errors"] += record_schema_messages(
+            "review_artifact",
+            messages,
+            path,
+            errors,
+            warnings,
+            legacy_mode=legacy_mode,
+            legacy_code="legacy_review_artifact_schema",
+        )
+    return report
 
 
 def phase_number(value: Any) -> Optional[str]:
@@ -411,6 +698,7 @@ def validate_model_policy(
     automation_data: Dict[str, Any],
     errors: List[Finding],
     warnings: List[Finding],
+    policy_schema: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "policy_path": str(policy_path),
@@ -431,6 +719,7 @@ def validate_model_policy(
     policy = load_policy(policy_path, errors)
     if policy is None:
         return result
+    apply_schema_errors("phase_model_policy", policy, policy_schema, policy_path, errors)
 
     if policy.get("schema_version") != 1:
         add(errors, "unsupported_model_policy_schema", "Policy schema_version must be 1.", policy_path)
@@ -570,6 +859,40 @@ def validate_progress_tracking(
         )
 
     return progress
+
+
+def validate_run_log_schema(
+    state_file: Path,
+    run_log_schema: Optional[Dict[str, Any]],
+    errors: List[Finding],
+) -> Dict[str, Any]:
+    report = {"path": str(state_file.parent / "automation_run_log.jsonl"), "entries_checked": 0, "schema_errors": 0}
+    if run_log_schema is None:
+        return report
+    run_log_path = state_file.parent / "automation_run_log.jsonl"
+    if not run_log_path.exists():
+        return report
+    try:
+        lines = run_log_path.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        add(errors, "automation_run_log_unreadable", f"Cannot read automation run log: {exc}", run_log_path)
+        return report
+
+    for number, line in enumerate(lines, start=1):
+        if not line.strip():
+            continue
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(value, dict):
+            continue
+        report["entries_checked"] += 1
+        messages = validate_json_schema(value, run_log_schema)
+        for message in messages:
+            report["schema_errors"] += 1
+            add(errors, "automation_run_log_schema_error", f"line {number}: {message}", run_log_path)
+    return report
 
 
 def validate_operator_alert(
@@ -742,6 +1065,13 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         add(errors, "repo_root_missing", "--repo-root is not a directory.", repo_root)
         return {"errors": errors, "warnings": warnings, "info": info}
 
+    schemas: Dict[str, Optional[Dict[str, Any]]] = {}
+    schema_paths: Dict[str, Optional[str]] = {}
+    for schema_name in SCHEMA_FILENAMES:
+        schema, schema_path = load_schema(repo_root, schema_name, errors, warnings)
+        schemas[schema_name] = schema
+        schema_paths[schema_name] = str(schema_path) if schema_path else None
+
     forms = slug_forms(roadmap_slug)
     if not automation_id:
         automation_id = find_automation_id(forms, warnings)
@@ -781,10 +1111,19 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
             "automation_toml": path_for_report(automation_toml),
             "repo_root": str(repo_root),
             "state_file": path_for_report(state_file),
+            "schema_validation": {"schema_paths": schema_paths},
             "errors": errors,
             "warnings": warnings,
             "info": info,
         }
+
+    state_schema_report = validate_versioned_state_schema(
+        state,
+        state_file,
+        schemas.get("delivery_state"),
+        errors,
+        warnings,
+    ) if state_file else None
 
     state_slug = state.get("roadmap_slug")
     if state_slug and not roadmap_slug:
@@ -797,8 +1136,15 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     elif not delivery_log.is_file():
         add(errors, "delivery_log_not_file", "Delivery log path is not a file.", delivery_log)
 
+    review_schema_report = None
     if review_dir is not None:
-        validate_review_verdicts(review_dir, errors, warnings)
+        review_schema_report = validate_review_verdicts(
+            review_dir,
+            errors,
+            warnings,
+            schemas.get("review_artifact"),
+            legacy_mode=bool(state_schema_report and state_schema_report.get("mode") == "compatibility"),
+        )
 
     state_roadmap_value = state.get("roadmap")
     roadmap_path = resolve_repo_path(repo_root, str(state_roadmap_value)) if state_roadmap_value else None
@@ -844,8 +1190,9 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy: Dict[str, Any] = {}
     if policy_path is not None:
-        model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings)
+        model_policy = validate_model_policy(policy_path, state, automation_data, errors, warnings, schemas.get("phase_model_policy"))
     progress_tracking = validate_progress_tracking(repo_root, state_file, state, errors, warnings) if state_file else None
+    run_log_schema_report = validate_run_log_schema(state_file, schemas.get("automation_run_log"), errors) if state_file else None
     operator_alert = validate_operator_alert(repo_root, state_dir, state, errors, warnings) if state_dir else None
     completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, errors, warnings)
 
@@ -890,6 +1237,12 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "hard_stop_guard": hard_stop_guard,
         "blocked_remediation_guard": blocked_remediation_guard,
         "model_policy": model_policy or None,
+        "schema_validation": {
+            "schema_paths": schema_paths,
+            "delivery_state": state_schema_report,
+            "review_artifacts": review_schema_report,
+            "automation_run_log": run_log_schema_report,
+        },
         "progress_tracking": progress_tracking,
         "operator_alert": operator_alert,
         "completion_flow": completion_flow,

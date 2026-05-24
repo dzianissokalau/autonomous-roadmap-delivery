@@ -222,3 +222,82 @@ Branch: `codex/framework-core-and-release-readiness-phase-1`
 
 - Start Phase 2 - JSON Schemas And Versioned State on
   `codex/framework-core-and-release-readiness-phase-2`.
+
+## Phase 2 - 2026-05-24 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-2`
+
+### Scope
+
+- Delivered Phase 2 only: JSON Schemas And Versioned State.
+- Owned files: `schemas/*.schema.json`, `tests/test_schema_validation.py`,
+  `tests/test_helper_scripts.py`,
+  `skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`, and
+  `skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py`.
+- Canonical state examples were updated in
+  `core/templates/delivery_state.md` and
+  `automation/codex_phase_gated_delivery_automation_template.md`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added JSON Schemas for delivery state, phase model policy, review artifacts,
+  and automation run log entries.
+- Added dependency-free schema loading and validation to
+  `validate_delivery_artifacts.py`, including schema-versioned state
+  validation, schema-aware review parsing, model-policy schema checks, and
+  line-by-line automation run-log validation.
+- Preserved legacy compatibility: state files without `schema_version` pass
+  with migration warnings, and historical review metadata gaps remain warnings
+  when the state is legacy.
+- Added schema-version reporting to `inspect_delivery_state.py`.
+- Added `schema_version: 1` to canonical delivery-state examples and this
+  roadmap automation's current delivery state.
+- Added schema validation tests for valid versioned artifacts, legacy state,
+  invalid schema versions, state type violations, review metadata, and run-log
+  entries.
+- Advanced the roadmap and state to Phase 3 after the delivered review verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 50 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-schema-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`:
+  passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with expected warnings for legacy state/review artifacts, stale
+  completed-roadmap automation prompt references, and unrelated dirty worktree
+  files.
+- `python3 -m unittest tests.test_schema_validation -v`: passed, 7 tests.
+- `python3 -m unittest tests.test_helper_scripts -v`: passed, 39 tests.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json`:
+  passed with only the expected dirty-worktree warning before final
+  bookkeeping.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-2-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; multi-agent delegation was not used
+  because explicit delegation authorization was not present.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The JSON Schema evaluator is intentionally limited to the keywords required
+  by the Phase 2 schemas. Later library or CLI phases can centralize or replace
+  it if broader schema support is needed.
+- Historical review artifacts without `Reviewed at` metadata pass via
+  legacy-state compatibility warnings rather than migration in this phase.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 3 - Shared Python Library Extraction on
+  `codex/framework-core-and-release-readiness-phase-3`.

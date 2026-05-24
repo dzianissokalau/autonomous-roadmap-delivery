@@ -1,14 +1,14 @@
 {
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 2 - JSON Schemas And Versioned State",
+  "current_phase": "Phase 3 - Shared Python Library Extraction",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "active_review_file": null,
   "last_verdict": "delivered",
-  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-1-review-iteration-1.md",
-  "last_delivered_phase": "Phase 1 - Canonical Core Layout",
+  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-2-review-iteration-1.md",
+  "last_delivered_phase": "Phase 2 - JSON Schemas And Versioned State",
   "blocked_reason": null,
-  "updated_at": "2026-05-24T20:58:03Z"
+  "updated_at": "2026-05-24T21:11:05Z"
 }

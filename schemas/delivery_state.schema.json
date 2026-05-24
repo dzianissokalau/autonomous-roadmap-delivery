@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roadmap-delivery.local/schemas/delivery_state.schema.json",
+  "title": "Roadmap Delivery State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "roadmap",
+    "roadmap_slug",
+    "current_phase",
+    "status",
+    "review_iterations",
+    "max_review_iterations",
+    "blocked_reason",
+    "run_count",
+    "stalled_run_count",
+    "max_stalled_runs",
+    "all_phases_complete",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "roadmap": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\.md$"
+    },
+    "roadmap_slug": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "branch": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "delivering",
+        "verifying",
+        "reviewing",
+        "fixing",
+        "delivered",
+        "blocked",
+        "completed",
+        "completed_pending_pause"
+      ]
+    },
+    "review_iterations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "max_review_iterations": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "last_verification": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "last_review": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "last_delivered_phase": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blocked_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_blocker_repair": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ]
+    },
+    "required_model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "required_reasoning_effort": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        null
+      ]
+    },
+    "configured_automation_model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "configured_automation_reasoning_effort": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        null
+      ]
+    },
+    "configured_automation_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "configured_execution_environment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "automation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "run_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "stalled_run_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "max_stalled_runs": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "last_progress_signature": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_progress_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_operator_alert": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "auto_advance_after_delivered_review": {
+      "type": "boolean"
+    },
+    "commit_delivered_phase_locally": {
+      "type": "boolean"
+    },
+    "push_to_github": {
+      "type": "boolean"
+    },
+    "all_phases_complete": {
+      "type": "boolean"
+    },
+    "deep_review_prompt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updated_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
