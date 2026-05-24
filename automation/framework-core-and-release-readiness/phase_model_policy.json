@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "max_stalled_runs": 3,
+  "notification": {
+    "mode": "alert_file",
+    "fallback": "alert_file"
+  },
+  "defaults": {
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh"
+  },
+  "phases": {
+    "finalization": {
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh"
+    }
+  }
+}

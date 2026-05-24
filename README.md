@@ -96,12 +96,17 @@ Release notes and residual risks:
 
 ## Planned Roadmaps
 
-- `roadmaps/not_started_framework_core_and_release_readiness_roadmap.md`:
+- `roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`:
   canonical workflow core, schemas, shared library/CLI, CI, security, release,
-  and demo readiness.
+  and demo readiness. Automation is configured as
+  `framework-core-and-release-readiness` with hourly cadence, `gpt-5.5`, and
+  `xhigh`, currently ACTIVE. This roadmap is the active migration contract for
+  separating canonical core, Codex adapter, generated package, and release
+  responsibilities while preserving the existing Codex install path.
 - `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`:
   generated host adapters, Claude plugin packaging, provider-neutral model
-  roles, and adapter parity tests.
+  roles, and adapter parity tests. This companion roadmap intentionally waits
+  on the framework core roadmap through the generated Codex adapter baseline.
 
 ## Operating Model
 

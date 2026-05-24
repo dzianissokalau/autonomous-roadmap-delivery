@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
-Status: Not Started
-Current phase: Phase 0 - Scope And Migration Contract
-Last updated: 2026-05-21
-Next action: Confirm the canonical core layout, schema boundaries, and
-backward-compatibility promise.
+Status: In Progress
+Current phase: Phase 1 - Canonical Core Layout
+Last updated: 2026-05-24
+Next action: Start Phase 1 on
+`codex/framework-core-and-release-readiness-phase-1`.
 Blocked by: None
 
 ## Purpose
@@ -30,6 +30,23 @@ Claude and broader host support are handled by the companion roadmap:
 ```text
 roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
 ```
+
+## Automation Artifacts
+
+Phase-gated delivery artifacts for this roadmap live under:
+
+```text
+automation/framework-core-and-release-readiness/
+```
+
+Codex app automation:
+
+- ID: `framework-core-and-release-readiness`
+- Status: ACTIVE
+- Cadence: hourly
+- Model: `gpt-5.5`
+- Reasoning effort: `xhigh`
+- Execution environment: local
 
 ## Strategic Outcome
 
@@ -60,6 +77,96 @@ The repository should be able to answer:
 - Keep publication, promotion, destructive git, and credential use
   human-approved.
 - Avoid service-backed control planes in this roadmap.
+
+## Phase 0 Migration Contract
+
+Phase 0 fixes the migration boundary before any files move. Later phases may
+create new directories, schemas, and generated packages, but they must preserve
+the compatibility promises in this section.
+
+### Canonical Core Responsibilities
+
+The canonical source of truth will move into host-neutral repository sources:
+
+- `core/references/` owns the workflow rules for setup, phase delivery,
+  review/fix loops, state and branch handling, finalization, troubleshooting,
+  model policy, stall control, and blocked remediation.
+- `core/templates/` owns durable artifact templates for delivery state, logs,
+  reviews, automation guides, and automation prompts.
+- `core/prompts/` owns reusable guard text for blocked remediation, model
+  policy gates, review gates, and completion hard stops.
+- `schemas/` owns versioned JSON contracts for state, policy, review, and run
+  log artifacts.
+- `src/roadmap_delivery/` owns shared Python behavior used by CLI commands,
+  helper-script wrappers, validators, inspection, rendering, and packaging.
+
+### Codex Adapter Responsibilities
+
+Codex-specific behavior remains adapter-owned:
+
+- `skill/roadmap-delivery-skill/SKILL.md` owns Codex skill metadata, trigger
+  routing, and Codex-specific operating notes.
+- `skill/roadmap-delivery-skill/agents/openai.yaml` owns Codex reviewer-agent
+  packaging.
+- Codex automation prompt expectations remain adapter guidance because the
+  Codex app controls automation status, model, reasoning effort, cwd, cadence,
+  and execution environment.
+- Codex reference files must mirror canonical core behavior after Phase 1, with
+  Codex-only notes isolated as adapter overlays or explicitly documented
+  exceptions.
+
+### Generated And Hand-Maintained Files
+
+Generated-file strategy is committed-source first:
+
+- Through Phase 4, `skill/roadmap-delivery-skill/` remains the hand-maintained,
+  installable Codex skill snapshot.
+- Starting in Phase 5, `skill/roadmap-delivery-skill/` becomes the committed
+  generated Codex package, rendered from canonical core sources plus
+  `adapters/codex/` overlays and protected by snapshot tests.
+- `dist/` is reserved for release bundles and check artifacts. It is not the
+  only source of the installable Codex package.
+- Generated-file headers may be added only where they do not reduce skill or
+  prompt readability.
+- Any generated output drift must be caught by tests or release checks before
+  publication.
+
+### Compatibility Promise
+
+Existing Codex users must keep working during the migration:
+
+- The repository path `skill/roadmap-delivery-skill/` remains present and
+  installable.
+- Existing helper script entrypoints under
+  `skill/roadmap-delivery-skill/scripts/` remain available as wrappers even
+  after shared library extraction.
+- The repository-local automation layout under `automation/<roadmap-slug>/`
+  remains supported.
+- Legacy state artifacts without newer schema fields keep a warning-backed
+  compatibility path until an explicit migration phase changes that contract.
+- Installed copies under `${CODEX_HOME:-$HOME/.codex}/skills/` are not mutated
+  by this roadmap. Synchronization remains an explicit install or maintenance
+  action.
+
+### Release Boundary
+
+Release work is separate from core and adapter migration:
+
+- Release phases add `VERSION`, `CHANGELOG.md`, reproducible bundles, checksum
+  generation, release checks, and privacy/security gates.
+- Publication to GitHub Releases, package indexes, or other external channels
+  remains human-approved.
+- Local automation artifacts may support development and review, but release
+  packages must exclude or sanitize private paths, credentials, and
+  operator-local state.
+
+### Companion Roadmap Dependency
+
+The multi-host adapter and Claude plugin roadmap depends on this roadmap
+through Phase 5. It should consume the canonical workflow contract, schemas,
+shared library, and generated Codex adapter baseline from this roadmap before
+building Claude packaging or parity claims. This roadmap does not create a
+Claude plugin.
 
 ## Target Repository Shape
 
@@ -121,6 +228,8 @@ Phase 10 - Migration, Documentation, And Closeout
 
 ## Phase 0 - Scope And Migration Contract
 
+Delivery status: Delivered 2026-05-24.
+
 ### Objective
 
 Define exactly what becomes canonical core, what remains Codex-specific, and
@@ -129,7 +238,7 @@ what backward compatibility must be preserved.
 ### Owned Files
 
 ```text
-roadmaps/not_started_framework_core_and_release_readiness_roadmap.md
+roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md
 README.md
 ```
 
@@ -745,7 +854,7 @@ multi-host adapter work.
 ```text
 README.md
 docs/
-roadmaps/not_started_framework_core_and_release_readiness_roadmap.md
+roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md
 roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
 automation/README.md
 ```

@@ -1,0 +1,110 @@
+{
+  "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
+  "roadmap_slug": "framework-core-and-release-readiness",
+  "current_phase": "Phase 1 - Canonical Core Layout",
+  "branch": null,
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": {
+    "phase": "Phase 0 - Scope And Migration Contract",
+    "completed_at": "2026-05-24T20:28:12Z",
+    "status": "passed",
+    "checks": [
+      {
+        "command": "git diff --check",
+        "status": "passed"
+      },
+      {
+        "command": "manual inspection of roadmap against current skill behavior",
+        "status": "passed"
+      },
+      {
+        "command": "test -d skill/roadmap-delivery-skill && test -f skill/roadmap-delivery-skill/SKILL.md && test -d skill/roadmap-delivery-skill/scripts",
+        "status": "passed"
+      },
+      {
+        "command": "git diff -- skill/roadmap-delivery-skill automation/codex_phase_gated_delivery_automation_template.md schemas core src adapters dist",
+        "status": "passed"
+      },
+      {
+        "command": "validate_delivery_artifacts.py --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "status": "passed_with_expected_warnings",
+        "warnings": [
+          "empty_review_dir before review artifact existed",
+          "worktree_dirty"
+        ]
+      }
+    ]
+  },
+  "last_review": {
+    "phase": "Phase 0 - Scope And Migration Contract",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-0-review-iteration-1.md",
+    "verdict": "delivered",
+    "reviewed_at": "2026-05-24T20:27:21Z"
+  },
+  "last_delivered_phase": "Phase 0 - Scope And Migration Contract",
+  "blocked_reason": null,
+  "last_blocker_repair": null,
+  "required_model": "gpt-5.5",
+  "required_reasoning_effort": "xhigh",
+  "configured_automation_model": "gpt-5.5",
+  "configured_automation_reasoning_effort": "xhigh",
+  "configured_automation_status": "ACTIVE",
+  "configured_execution_environment": "local",
+  "automation": {
+    "id": "framework-core-and-release-readiness",
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh",
+    "execution_environment": "local",
+    "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
+    "readback_at": "2026-05-24",
+    "active_drift_repaired": true
+  },
+  "last_activation": {
+    "activated_at": "2026-05-24T20:09:54Z",
+    "previous_status": "PAUSED",
+    "readback": "ACTIVE, local, gpt-5.5, xhigh",
+    "lifecycle_rename": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md"
+  },
+  "last_activation_validation": {
+    "completed_at": "2026-05-24T20:09:54Z",
+    "status": "passed_with_expected_activation_warnings",
+    "warnings_allowed": [
+      "empty_review_dir",
+      "current_branch_name_mismatch",
+      "worktree_dirty"
+    ],
+    "inspection_warnings": [
+      "worktree_dirty"
+    ]
+  },
+  "last_setup_validation": {
+    "completed_at": "2026-05-24T19:44:33Z",
+    "status": "passed_with_expected_setup_warnings",
+    "warnings_allowed": [
+      "empty_review_dir",
+      "current_branch_name_mismatch",
+      "worktree_dirty",
+      "roadmap_lifecycle_filename_mismatch"
+    ],
+    "inspection_warnings": [
+      "worktree_dirty",
+      "roadmap_lifecycle_filename_mismatch"
+    ]
+  },
+  "run_count": 1,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": "sha256:cafda40534725778ab0e7092f2514526e2c6127984b76094782993f40b12180e",
+  "last_progress_at": "2026-05-24T20:28:12Z",
+  "last_operator_alert": null,
+  "auto_advance_after_delivered_review": true,
+  "commit_delivered_phase_locally": true,
+  "push_to_github": false,
+  "all_phases_complete": false,
+  "deep_review_prompt": null,
+  "updated_at": "2026-05-24T20:28:12Z"
+}
