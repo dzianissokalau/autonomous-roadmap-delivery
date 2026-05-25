@@ -3,6 +3,17 @@
 Review the completed framework core and release readiness roadmap for human
 merge and promotion readiness.
 
+GitHub review location:
+
+- Repository:
+  `https://github.com/dzianissokalau/roadmap-delivery-skill`
+- Review branch:
+  `codex/framework-core-and-release-readiness-phase-10`
+- Branch URL:
+  `https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/framework-core-and-release-readiness-phase-10`
+- Phase 10 comparison:
+  `https://github.com/dzianissokalau/roadmap-delivery-skill/compare/codex/framework-core-and-release-readiness-phase-9...codex/framework-core-and-release-readiness-phase-10`
+
 Use these artifacts:
 
 - Roadmap:
