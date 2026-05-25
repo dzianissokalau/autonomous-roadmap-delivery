@@ -4,9 +4,9 @@ Status: Not Started
 Current phase: Phase 0 - Host Capability Contract
 Last updated: 2026-05-25
 Next action: Start Phase 0 after the framework core closeout branch is
-reviewed and the framework automation pause decision is handled.
-Blocked by: Framework Core And Release Readiness closeout pause/promotion
-decision.
+reviewed and any promotion decision is made.
+Blocked by: Framework Core And Release Readiness closeout branch review and
+promotion decision.
 
 ## Purpose
 

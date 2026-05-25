@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -168,19 +169,149 @@ def build_scaffold_plan(args: argparse.Namespace) -> Dict[str, Any]:
         "cli_schema_version": CLI_SCHEMA_VERSION,
         "command": "scaffold",
         "status": "ok",
-        "dry_run": True,
+        "dry_run": bool(args.dry_run),
         "repo_root": str(repo_root),
         "roadmap_slug": args.roadmap_slug,
         "automation_id": automation_id,
         "planned_paths": planned_paths,
         "would_create": [item["path"] for item in planned_paths if not item["exists"]],
+        "created": [],
         "errors": [],
         "warnings": [],
     }
 
 
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _write_text_if_missing(path: Path, content: str, created: List[str]) -> None:
+    if path.exists():
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    created.append(str(path))
+
+
+def apply_scaffold_plan(report: Dict[str, Any]) -> None:
+    repo_root = Path(str(report["repo_root"]))
+    roadmap_slug = str(report["roadmap_slug"])
+    automation_id = str(report["automation_id"])
+    forms = slug_forms(roadmap_slug)
+    slug_dir = forms["dir"] or roadmap_slug
+    phase = "Phase 0 - Scope Confirmation"
+    timestamp = _utc_now()
+    automation_dir = repo_root / "automation" / slug_dir
+    roadmap_path = repo_root / "roadmaps" / f"not_started_{slug_dir}_roadmap.md"
+    created: List[str] = []
+
+    for directory in (automation_dir, automation_dir / "reviews", automation_dir / "alerts"):
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            created.append(str(directory))
+
+    _write_text_if_missing(
+        roadmap_path,
+        "\n".join(
+            [
+                f"# {roadmap_slug.replace('-', ' ').title()} Roadmap",
+                "",
+                "Status: Not Started",
+                f"Current phase: {phase}",
+                f"Last updated: {timestamp[:10]}",
+                "Next action: Confirm scope and start Phase 0.",
+                "Blocked by: None",
+                "",
+                f"## {phase}",
+                "",
+                "### Objective",
+                "",
+                "Confirm scope and delivery boundaries.",
+                "",
+            ]
+        ),
+        created,
+    )
+    _write_text_if_missing(
+        automation_dir / "automation_guide.md",
+        "\n".join(
+            [
+                f"# {roadmap_slug.replace('-', ' ').title()} Automation Guide",
+                "",
+                "Status: Draft",
+                f"Roadmap: `roadmaps/not_started_{slug_dir}_roadmap.md`",
+                f"Roadmap slug: `{roadmap_slug}`",
+                f"Codex automation: `{automation_id}`",
+                "",
+            ]
+        ),
+        created,
+    )
+    state = {
+        "schema_version": 1,
+        "roadmap": f"roadmaps/not_started_{slug_dir}_roadmap.md",
+        "roadmap_slug": roadmap_slug,
+        "current_phase": phase,
+        "branch": None,
+        "status": "not_started",
+        "review_iterations": 0,
+        "max_review_iterations": 3,
+        "last_verification": None,
+        "last_review": None,
+        "last_delivered_phase": None,
+        "blocked_reason": None,
+        "last_blocker_repair": None,
+        "run_count": 0,
+        "stalled_run_count": 0,
+        "max_stalled_runs": 3,
+        "last_progress_signature": None,
+        "last_progress_at": None,
+        "last_operator_alert": None,
+        "auto_advance_after_delivered_review": True,
+        "commit_delivered_phase_locally": True,
+        "push_to_github": False,
+        "all_phases_complete": False,
+        "deep_review_prompt": None,
+        "updated_at": timestamp,
+    }
+    _write_text_if_missing(automation_dir / "delivery_state.json", json.dumps(state, indent=2, sort_keys=False) + "\n", created)
+    _write_text_if_missing(
+        automation_dir / "delivery_log.md",
+        f"# {roadmap_slug.replace('-', ' ').title()} Delivery Log\n\nStatus: Draft\nRoadmap: `roadmaps/not_started_{slug_dir}_roadmap.md`\n",
+        created,
+    )
+    review_state = {
+        "roadmap": f"roadmaps/not_started_{slug_dir}_roadmap.md",
+        "roadmap_slug": roadmap_slug,
+        "current_phase": phase,
+        "status": "not_started",
+        "review_iterations": 0,
+        "max_review_iterations": 3,
+        "active_review_file": None,
+        "last_verdict": None,
+        "last_review_file": None,
+        "last_delivered_phase": None,
+        "blocked_reason": None,
+        "updated_at": timestamp,
+    }
+    _write_text_if_missing(automation_dir / "review_fix_state.json", json.dumps(review_state, indent=2) + "\n", created)
+    _write_text_if_missing(automation_dir / "review_fix_log.md", f"# {roadmap_slug.replace('-', ' ').title()} Review/Fix Log\n", created)
+    policy = {
+        "schema_version": 1,
+        "max_stalled_runs": 3,
+        "notification": {"mode": "alert_file", "fallback": "alert_file"},
+        "defaults": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+        "phases": {},
+    }
+    _write_text_if_missing(automation_dir / "phase_model_policy.json", json.dumps(policy, indent=2) + "\n", created)
+    _write_text_if_missing(automation_dir / "automation_run_log.jsonl", "", created)
+    report["created"] = created
+
+
 def run_scaffold(args: argparse.Namespace) -> int:
     report = build_scaffold_plan(args)
+    if not args.dry_run:
+        apply_scaffold_plan(report)
     if args.json:
         _print_json(report)
     else:
@@ -292,11 +423,11 @@ def build_parser() -> argparse.ArgumentParser:
     add_strict_flags(validate_parser)
     validate_parser.set_defaults(func=run_validate, parser=validate_parser)
 
-    scaffold_parser = subparsers.add_parser("scaffold", help="Plan automation scaffolding without writing files.")
+    scaffold_parser = subparsers.add_parser("scaffold", help="Create or plan automation scaffolding.")
     add_common_flags(scaffold_parser)
     scaffold_parser.add_argument("--roadmap-slug", required=True, help="Roadmap slug for the planned automation.")
     scaffold_parser.add_argument("--automation-id", help="Automation id to include in the plan.")
-    scaffold_parser.add_argument("--dry-run", action="store_true", help="Accepted for explicit dry-run plans.")
+    scaffold_parser.add_argument("--dry-run", action="store_true", help="Plan files without writing them.")
     add_strict_flags(scaffold_parser)
     scaffold_parser.set_defaults(func=run_scaffold, parser=scaffold_parser)
 

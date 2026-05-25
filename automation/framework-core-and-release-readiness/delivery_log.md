@@ -1,7 +1,7 @@
 # Framework Core And Release Readiness Delivery Log
 
-Status: Active
-Roadmap: `roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`
+Status: Completed
+Roadmap: `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
 State file: `automation/framework-core-and-release-readiness/delivery_state.json`
 Review directory: `automation/framework-core-and-release-readiness/reviews`
 Policy file: `automation/framework-core-and-release-readiness/phase_model_policy.json`
@@ -855,7 +855,7 @@ Branch: `codex/framework-core-and-release-readiness-phase-10`
 - Added a final deep-review prompt for human merge and promotion readiness
   review.
 - Recorded completion state as `completed_pending_pause` because the saved
-  Codex automation remains `ACTIVE` and pausing requires explicit approval.
+  Codex automation still needed a separate pause readback at initial closeout.
 
 ### Tests And Verification
 
@@ -883,24 +883,94 @@ Branch: `codex/framework-core-and-release-readiness-phase-10`
 
 ### Residual Risks
 
-- The saved Codex automation remains `ACTIVE`; completion pause requires human
-  approval or a separate approved app automation update.
-- The saved automation prompt still references the previous `in_progress_`
-  roadmap path. The prompt includes the required completion hard stop, and app
-  automation config was not edited because this run does not have approval for
-  that surface.
+- Resolved after external review: the saved Codex automation is now `PAUSED`
+  and its prompt references the delivered roadmap path.
 - Publication, promotion to `main`, installed-skill synchronization, and
   external release publishing remain human-approved follow-up actions.
 
 ### Next Action
 
-- Preserve the Phase 10 branch and completion evidence. Request approval to
-  pause the `framework-core-and-release-readiness` automation before starting
-  any new delivery work from this automation.
+- Preserve the Phase 10 branch and completion evidence. Keep promotion,
+  publication, and installed-skill synchronization human-approved.
 
 ## Operator Alert - 2026-05-25T11:56:13Z - Completed
 
 - Alert file: `automation/framework-core-and-release-readiness/alerts/2026-05-25T11-56-13Z-completed.md`
-- Reason: All roadmap phases are delivered and final verification passed; the saved Codex automation remains ACTIVE and needs an explicit pause decision.
+- Reason: All roadmap phases are delivered and final verification passed; the saved Codex automation was paused and its delivered roadmap prompt path was confirmed in follow-up closeout repair.
 - Notification sink: `alert_file`
 - Notification status: `local_alert_only`
+
+## Closeout Metadata Repair - 2026-05-25T15:12:23Z
+
+Status: repaired
+
+### Scope
+
+- Recorded explicit final deep-review closeout fields for the delivered
+  framework roadmap.
+
+### Changes
+
+- Added `final_deep_review_prompt_prepared: true`.
+- Added `final_deep_review_prompt_file` pointing to
+  `automation/framework-core-and-release-readiness/deep_review_prompt.md`.
+- Added `final_deep_review_status: prompt-prepared`.
+
+### Next Action
+
+- Preserve the completed state and review the pushed phase branch before any
+  human-approved promotion action.
+
+## Phase 10 Deep Review Fixes - 2026-05-25
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-10`
+Review file:
+`automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-10-deep-review-fixes.md`
+
+### Scope
+
+- Addressed the external deep review from
+  `/Users/dzianissokalau/Downloads/deep-review-phase-10.md`.
+- Repaired completion closeout, version reporting, release workflow coverage,
+  alert/log consistency, and targeted test gaps.
+
+### Changes
+
+- Confirmed the saved Codex automation is `PAUSED` and repaired its prompt to
+  reference the delivered roadmap path.
+- Updated state, automation guide, review/fix state, completion alert,
+  delivery log, roadmap status, automation README, and companion roadmap
+  dependency text to reflect completed closeout.
+- Made package version reporting read the repository `VERSION` and aligned
+  `pyproject.toml` with `0.1.0`.
+- Added push triggers for the release-check workflow on `main` and `codex/**`.
+- Added `scripts/build_release.py` to CI and README local compile coverage.
+- Added tests for strict validation failure, scaffold write mode, and release
+  checksum round-trip.
+- Strengthened final deep-review closeout metadata validation and inspection.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 87 tests.
+- `python3 scripts/build_codex_package.py --check`: passed with 14 files, 0
+  diffs, and 0 errors.
+- `python3 scripts/build_release.py --check`: passed with reproducible `0.1.0`
+  artifacts and checksums.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 73
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning worktree_dirty --json`:
+  passed with only the allowed dirty-worktree warning.
+- `git diff --check`: passed.
+
+### Residual Risks
+
+- GitHub CI and release-check readback must be verified after pushing this fix
+  commit.
+- Promotion to `main`, release publication, installed-skill synchronization,
+  and branch deletion remain human-approved.
+
+### Next Action
+
+- Push the branch and confirm GitHub CI plus release-check pass on the pushed
+  commit.

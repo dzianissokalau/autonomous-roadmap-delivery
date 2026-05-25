@@ -13,12 +13,12 @@
       "size": 217
     },
     {
-      "core_sha256": "49ac30eea3f07ba5fbdc98406fe92a95d71d3bdfae4e440fbaeeaf010a1b6bcf",
-      "core_size": 1855,
+      "core_sha256": "a9472b51a34bfee6d12860d0966c0c9a5917e77d92e8e4ce46b2e1406d3e482c",
+      "core_size": 2620,
       "core_source": "core/references/finalization-and-promotion.md",
       "path": "references/finalization-and-promotion.md",
-      "sha256": "0f55eb72d19f9fd245b88bdb82b86a792669c4ac6834dc2ae49c5f5a866ea4e8",
-      "size": 6406
+      "sha256": "64392e3816c03393fc17fe41a6c345a5729480d86756112b7cd0f0b14494929b",
+      "size": 7637
     },
     {
       "core_sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
@@ -29,12 +29,12 @@
       "size": 11737
     },
     {
-      "core_sha256": "500ca6ea715a7d82b5de562d51bc033a46cecb290e789acbdf4ecacaedfaba75",
-      "core_size": 2892,
+      "core_sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",
+      "core_size": 3198,
       "core_source": "core/references/phase-loop.md",
       "path": "references/phase-loop.md",
-      "sha256": "c1672a24e9b456f820ec806718c7a693524966ba32f853a9561630b5a777bc4f",
-      "size": 10445
+      "sha256": "44723bbb08f2c0abb6d94da3886bd778e7480d628bffe54cdfc19bd2ef584bf5",
+      "size": 11031
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -95,8 +95,8 @@
     {
       "mode": "0644",
       "path": "scripts/write_operator_alert.py",
-      "sha256": "0784a586f941eb9a88cf78e38eaa1dde916fc9edb3464279a6ea100eade387ae",
-      "size": 11063
+      "sha256": "01450f5c42d5f6fa025d317c3fb0cbfa53da899997699ea7bf4cf6fdef775f4f",
+      "size": 11093
     }
   ]
 }

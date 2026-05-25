@@ -3,11 +3,10 @@
 Status: Completed
 Current phase: Complete
 Last updated: 2026-05-25
-Next action: Request or approve pausing the
-`framework-core-and-release-readiness` automation, then start the companion
-multi-host adapter roadmap when ready.
-Blocked by: Automation pause decision before operational closeout is fully
-complete.
+Next action: Review the pushed Phase 10 branch and keep promotion,
+publication, and installed-skill synchronization human-approved.
+Blocked by: None for roadmap delivery closeout; promotion remains a separate
+human-approved decision.
 
 ## Purpose
 
@@ -44,7 +43,7 @@ automation/framework-core-and-release-readiness/
 Codex app automation:
 
 - ID: `framework-core-and-release-readiness`
-- Status: ACTIVE
+- Status: PAUSED
 - Cadence: hourly
 - Model: `gpt-5.5`
 - Reasoning effort: `xhigh`

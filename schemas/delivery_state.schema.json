@@ -200,6 +200,33 @@
         "null"
       ]
     },
+    "final_deep_review_prompt_prepared": {
+      "type": "boolean"
+    },
+    "final_deep_review_prompt_file": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "final_deep_review_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "prompt-prepared",
+        "review-complete",
+        "waived-by-human",
+        null
+      ]
+    },
+    "final_deep_review_waiver_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "updated_at": {
       "type": [
         "string",

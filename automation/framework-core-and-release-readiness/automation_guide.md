@@ -1,7 +1,7 @@
 # Framework Core And Release Readiness Automation Guide
 
-Status: Active
-Roadmap: `roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`
+Status: Paused
+Roadmap: `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
 Roadmap slug: `framework-core-and-release-readiness`
 State file: `automation/framework-core-and-release-readiness/delivery_state.json`
 Delivery log: `automation/framework-core-and-release-readiness/delivery_log.md`
@@ -37,7 +37,7 @@ Execution environment: local
 ## Next Run Prompt
 
 Run the next safe phase-gated delivery step for
-`roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`.
+`roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`.
 
 Use the installed `roadmap-delivery-skill` and read these files before acting:
 

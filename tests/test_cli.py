@@ -33,7 +33,28 @@ class CliTests(unittest.TestCase):
     def test_version_runs_from_source_tree(self):
         proc = self.run_cli("version")
 
-        self.assertEqual(proc.stdout.strip(), "roadmap-delivery 0.0.0")
+        version = (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        self.assertEqual(proc.stdout.strip(), f"roadmap-delivery {version}")
+
+    def test_validate_strict_returns_nonzero_on_errors(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp) / "repo"
+            repo_root.mkdir()
+
+            proc = self.run_cli(
+                "validate",
+                "--repo-root",
+                str(repo_root),
+                "--roadmap-slug",
+                "missing-roadmap",
+                "--strict",
+                "--json",
+                allowed_returncodes=(1,),
+            )
+            report = json.loads(proc.stdout)
+
+            self.assertEqual(report["status"], "error")
+            self.assertEqual(report["errors"][0]["code"], "missing_state_file")
 
     def test_validate_uses_same_report_as_helper_script(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -125,6 +146,32 @@ class CliTests(unittest.TestCase):
             self.assertEqual(report["command"], "scaffold")
             self.assertIn(str(repo_root.resolve() / "automation" / "new_roadmap"), report["would_create"])
             self.assertFalse((repo_root / "automation" / "new_roadmap").exists())
+
+    def test_scaffold_write_mode_creates_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp) / "repo"
+            repo_root.mkdir()
+
+            proc = self.run_cli(
+                "scaffold",
+                "--repo-root",
+                str(repo_root),
+                "--roadmap-slug",
+                "new-roadmap",
+                "--automation-id",
+                "new-roadmap-delivery",
+                "--json",
+            )
+            report = json.loads(proc.stdout)
+
+            automation_dir = repo_root / "automation" / "new_roadmap"
+            self.assertFalse(report["dry_run"])
+            self.assertTrue((repo_root / "roadmaps" / "not_started_new_roadmap_roadmap.md").is_file())
+            self.assertTrue((automation_dir / "delivery_state.json").is_file())
+            self.assertTrue((automation_dir / "reviews").is_dir())
+            state = json.loads((automation_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["roadmap_slug"], "new-roadmap")
+            self.assertIn(str((automation_dir / "delivery_state.json").resolve()), report["created"])
 
     def test_package_dry_run_reports_codex_render_plan(self):
         proc = self.run_cli(

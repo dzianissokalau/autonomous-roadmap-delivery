@@ -81,6 +81,8 @@ class DeliveryFixture:
         run_log_text=None,
         all_phases_complete=False,
         write_deep_review_prompt=False,
+        final_deep_review_status=None,
+        final_deep_review_waiver_reason=None,
     ):
         self.tmpdir = Path(tmpdir)
         self.repo_root = self.tmpdir / "repo"
@@ -115,6 +117,8 @@ class DeliveryFixture:
             run_log_text=run_log_text,
             all_phases_complete=all_phases_complete,
             write_deep_review_prompt=write_deep_review_prompt,
+            final_deep_review_status=final_deep_review_status,
+            final_deep_review_waiver_reason=final_deep_review_waiver_reason,
         )
         if write_automation_config:
             self._write_automation_config(
@@ -152,6 +156,8 @@ class DeliveryFixture:
         run_log_text,
         all_phases_complete,
         write_deep_review_prompt,
+        final_deep_review_status,
+        final_deep_review_waiver_reason,
     ):
         roadmap_path = self.repo_root / "roadmaps" / self.roadmap_filename
         if state_layout == "root":
@@ -217,6 +223,16 @@ class DeliveryFixture:
             "all_phases_complete": all_phases_complete,
             "updated_at": "2026-05-21T00:00:00Z",
         }
+        deep_review_prompt_path = f"{review_prefix.rsplit('/reviews', 1)[0]}/deep_review_prompt.md"
+        if write_deep_review_prompt:
+            state["deep_review_prompt"] = deep_review_prompt_path
+            state["final_deep_review_prompt_prepared"] = True
+            state["final_deep_review_prompt_file"] = deep_review_prompt_path
+            state["final_deep_review_status"] = final_deep_review_status or "prompt-prepared"
+        elif final_deep_review_status is not None:
+            state["final_deep_review_status"] = final_deep_review_status
+        if final_deep_review_waiver_reason is not None:
+            state["final_deep_review_waiver_reason"] = final_deep_review_waiver_reason
         if state_schema_version is None:
             state.pop("schema_version")
         (state_dir / "delivery_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
@@ -573,6 +589,18 @@ class HelperScriptTests(unittest.TestCase):
     def test_operator_alert_generation_records_state_and_log(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, write_model_policy=True, state_status="blocked")
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["last_verification"] = {
+                "status": "passed",
+                "checks": [
+                    {
+                        "command": "python3 -m unittest discover -s tests -v",
+                        "status": "passed",
+                    }
+                ],
+            }
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
             alert = self.run_alert(
                 fixture,
@@ -596,6 +624,7 @@ class HelperScriptTests(unittest.TestCase):
             self.assertIn("Roadmap Delivery Alert: Stalled", alert_text)
             self.assertIn("Phase: `Phase 1 - Fixture`", alert_text)
             self.assertIn("Required model: `gpt-5.5`", alert_text)
+            self.assertIn("python3 -m unittest discover -s tests -v: passed", alert_text)
             self.assertIn("Next human action: Inspect the stalled run", alert_text)
             self.assertEqual(state["last_operator_alert"]["kind"], "stalled")
             self.assertEqual(state["last_operator_alert"]["notification_status"], "local_alert_only")
@@ -807,6 +836,10 @@ class HelperScriptTests(unittest.TestCase):
             self.assertFalse(inspect["completion_pause_required"])
             self.assertFalse(validate["completion_flow"]["completion_pause_required"])
             self.assertTrue(validate["completion_flow"]["completion_alert_present"])
+            self.assertEqual(inspect["final_deep_review_status"], "prompt-prepared")
+            self.assertTrue(inspect["deep_review_prompt_exists"])
+            self.assertEqual(validate["final_deep_review"]["status"], "prompt-prepared")
+            self.assertTrue(validate["final_deep_review"]["prompt_exists"])
             self.assertEqual(validate["errors"], [])
             self.assertEqual(validate["warnings"], [])
 
@@ -864,6 +897,102 @@ class HelperScriptTests(unittest.TestCase):
             self.assertFalse(inspect["completion_alert_present"])
             self.assertIn("completed_state_missing_completed_alert", self.warning_codes(inspect))
             self.assertIn("completed_state_missing_completed_alert", self.error_codes(validate))
+
+    def test_completed_missing_final_deep_review_prompt_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--timestamp",
+                "2026-05-21T12:10:00Z",
+            )
+            fixture.commit_all("record completed alert without final review prompt")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertFalse(inspect["deep_review_prompt_exists"])
+            self.assertIn("completed_state_missing_final_deep_review_prompt", self.warning_codes(inspect))
+            self.assertIn("completed_state_missing_final_deep_review_prompt", self.error_codes(validate))
+
+    def test_completed_final_deep_review_waiver_allows_no_prompt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                final_deep_review_status="waived-by-human",
+                final_deep_review_waiver_reason="Human operator waived final deep review for this fixture.",
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--timestamp",
+                "2026-05-21T12:10:30Z",
+            )
+            fixture.commit_all("record completed alert with final review waiver")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(inspect["final_deep_review_waived"])
+            self.assertFalse(inspect["deep_review_prompt_exists"])
+            self.assertNotIn("completed_state_missing_final_deep_review_prompt", self.warning_codes(inspect))
+            self.assertNotIn("completed_state_missing_final_deep_review_prompt", self.error_codes(validate))
+            self.assertEqual(validate["errors"], [])
+            self.assertEqual(validate["warnings"], [])
+
+    def test_invalid_final_deep_review_status_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                automation_status="PAUSED",
+                current_phase="Complete",
+                state_status="completed",
+                roadmap_status="Completed",
+                roadmap_filename="delivered_eval_fixture_roadmap.md",
+                write_model_policy=True,
+                all_phases_complete=True,
+                write_deep_review_prompt=True,
+                final_deep_review_status="done",
+            )
+            self.run_alert(
+                fixture,
+                "--kind",
+                "completed",
+                "--reason",
+                "All roadmap phases are delivered and final verification passed.",
+                "--timestamp",
+                "2026-05-21T12:10:45Z",
+            )
+            fixture.commit_all("record completed alert with invalid final review status")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertIn("invalid_final_deep_review_status", self.warning_codes(inspect))
+            self.assertIn("invalid_final_deep_review_status", self.error_codes(validate))
 
     def test_completed_notification_failure_preserves_alert(self):
         with tempfile.TemporaryDirectory() as tmp:

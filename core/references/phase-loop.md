@@ -66,6 +66,12 @@ criteria are met, required verification passed after the final change, the
 fresh review verdict is `delivered`, and roadmap/state/log/review evidence
 agree. Stop immediately after advancing state to the next phase.
 
+When the delivered phase is the final numbered phase, stop the normal phase
+loop and enter finalization. Load the finalization and promotion reference,
+prepare or verify the final deep-review prompt/artifact, and do not set
+`all_phases_complete` or completed-pending-pause state from the phase-loop
+path.
+
 ## Host Adapter Boundary
 
 The core defines gates and durable evidence. Host adapters choose the concrete

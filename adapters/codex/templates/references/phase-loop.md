@@ -97,7 +97,9 @@ run.
 After a delivered review verdict and before advancing state to the next phase:
 
 1. Resolve the next numbered phase from the roadmap. If no numbered phase
-   remains, resolve the `finalization` pseudo-phase.
+   remains, stop the normal phase loop, load
+   `references/finalization-and-promotion.md`, and resolve the `finalization`
+   pseudo-phase.
 2. Read `phase_model_policy.json` and compute the next required model and
    reasoning effort. Use the next phase override when present; otherwise use
    policy defaults.
@@ -114,6 +116,11 @@ After a delivered review verdict and before advancing state to the next phase:
    starts the next phase.
 7. If the update or readback fails, set or keep the state blocked, write or
    request a `retarget-failed` alert, and do not start the next phase.
+
+When there is no next numbered phase, do not set `all_phases_complete`,
+`completed`, or `completed_pending_pause` from this phase-loop path. The
+finalization reference owns final verification, final deep-review prompt or
+waiver evidence, completed alert, pause handling, and promotion readiness.
 
 Use the read-only helper when a deterministic plan is useful:
 
@@ -297,3 +304,7 @@ Do not advance to the next phase until all are true:
 Local commits are optional unless the roadmap or operator requires them. If a
 commit is made, stage only phase-owned files and bookkeeping files by explicit
 path. Publication remains a separate human-approved action.
+
+If this was the final numbered phase, the next action is finalization, not
+completion. A same-context phase review remains a phase review and does not
+satisfy the final deep-review prompt requirement.

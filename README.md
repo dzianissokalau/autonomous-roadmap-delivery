@@ -205,6 +205,7 @@ python3 -m unittest discover -s tests -v
 PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
   python3 -m py_compile \
   scripts/build_codex_package.py \
+  scripts/build_release.py \
   scripts/check_release_privacy.py \
   src/roadmap_delivery/*.py \
   roadmap_delivery/__init__.py \

@@ -71,6 +71,7 @@ class QualityGateTests(unittest.TestCase):
             "name: CI",
             "python3 -m unittest discover -s tests -v",
             "python3 -m py_compile",
+            "scripts/build_release.py",
             "python3 -m unittest tests.test_schema_validation -v",
             "python3 scripts/build_codex_package.py --check",
             "python3 -m unittest tests.test_quality_gates -v",
@@ -87,6 +88,7 @@ class QualityGateTests(unittest.TestCase):
 
         required_snippets = (
             "name: Release Check",
+            "'codex/**'",
             "python3 -m unittest discover -s tests -v",
             "python3 scripts/build_codex_package.py --check",
             "python3 scripts/check_release_privacy.py --repo-root .",

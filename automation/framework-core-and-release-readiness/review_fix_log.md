@@ -1,7 +1,7 @@
 # Framework Core And Release Readiness Review/Fix Log
 
-Status: Not Started
-Roadmap: `roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`
+Status: Completed
+Roadmap: `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
 State file: `automation/framework-core-and-release-readiness/review_fix_state.json`
 
 No review/fix iterations have been run yet.

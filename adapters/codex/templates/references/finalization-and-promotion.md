@@ -17,6 +17,11 @@ Before finalization:
 - automation status has been reviewed
 - dirty worktree is explained
 
+The phase review artifact and final deep-review prompt are separate
+deliverables. A phase review checks the just-delivered phase diff. The final
+deep-review prompt hands the complete roadmap to another LLM or fresh reviewer
+for whole-roadmap acceptance and promotion readiness.
+
 ## Final Verification
 
 Run the roadmap's final checks plus targeted smoke checks for changed helper
@@ -38,9 +43,10 @@ If retargeting or readback fails, do not mark the roadmap complete. Keep or set
 state to `blocked`, write or request a `retarget-failed` alert, and preserve
 the last delivered phase evidence for the next operator action.
 
-## Deep Review Prompt
+## Final Deep Review Prompt
 
-A final deep review should ask for:
+A final deep-review prompt is required before completion unless the human
+operator explicitly waives it. It should ask for:
 
 - roadmap acceptance against all phases
 - state/log/review consistency
@@ -50,8 +56,19 @@ A final deep review should ask for:
 - explicit list of unresolved risks
 - verdict on whether human merge review can begin
 
-Store the prompt or review artifact under the roadmap automation directory if
-the roadmap calls for it.
+Store the prompt or review artifact under the roadmap automation directory.
+Record these fields in `delivery_state.json` before setting completion:
+
+- `final_deep_review_prompt_prepared`: `true` when a prompt/artifact exists
+- `final_deep_review_prompt_file`: path to the prompt or final review artifact
+- `final_deep_review_status`: `prompt-prepared`, `review-complete`, or
+  `waived-by-human`
+- `final_deep_review_waiver_reason`: required when status is
+  `waived-by-human`
+
+Do not treat a same-context phase review as this artifact. If the prompt or
+review artifact is not prepared and no human waiver is recorded in both state
+and log, finalization is blocked.
 
 ## Completion Hard Stop
 
@@ -60,15 +77,21 @@ any further delivery extraction:
 
 1. Confirm final verification passed.
 2. Confirm the latest review verdict is `delivered`.
-3. Confirm a deep-review prompt or final review artifact is recorded.
-4. Confirm publication or final branch push is approved before attempting it.
-5. Set `all_phases_complete` or an equivalent completed status in state.
-6. Write a `completed` operator alert before any optional notification sink.
-7. Pause the automation when the pause surface is approved, then read back
+3. Confirm a final deep-review prompt/review artifact exists, or record an
+   explicit human waiver.
+4. Record the final deep-review state fields.
+5. Confirm publication or final branch push is approved before attempting it.
+6. Set `all_phases_complete` or an equivalent completed status in state.
+7. Write a `completed` operator alert before any optional notification sink.
+8. Pause the automation when the pause surface is approved, then read back
    status.
-8. If pause approval or tooling is unavailable, record
+9. If pause approval or tooling is unavailable, record
    `completed_pending_pause`, keep the hard-stop guard active, and ask the
    operator to pause the automation.
+
+Do not set `all_phases_complete: true`, `status: completed`, or
+`status: completed_pending_pause` before the final deep-review prompt/review
+artifact or waiver is recorded. Validation treats that as a closeout blocker.
 
 Completed state must not start another phase. A later run that sees completed
 state should only verify the pause/alert evidence or ask for the missing pause

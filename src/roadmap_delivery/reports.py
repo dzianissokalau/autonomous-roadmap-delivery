@@ -32,16 +32,79 @@ from .toml import parse_minimal_toml
 
 
 AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
-DEEP_REVIEW_CANDIDATES = (
+DEEP_REVIEW_FILENAMES = (
     "deep_review_prompt.md",
     "deep_review_prompt.txt",
+    "final_deep_review_prompt.md",
+    "final-deep-review-prompt.md",
+    "final_review_prompt.md",
+    "final-review-prompt.md",
+    "final_deep_review.md",
+    "final-deep-review.md",
     "review_fixes_prompt.md",
     "deep_review.md",
+)
+DEEP_REVIEW_STATE_KEYS = (
+    "deep_review_prompt",
+    "deep_review_prompt_path",
+    "deep_review",
+    "deep_review_path",
+    "final_deep_review_prompt_file",
+    "final_deep_review_prompt",
+    "final_deep_review_review_file",
+    "final_deep_review_artifact",
+    "final_review_prompt",
+    "final_review_artifact",
+)
+FINAL_DEEP_REVIEW_STATUSES = {"prompt-prepared", "review-complete", "waived-by-human"}
+FINAL_DEEP_REVIEW_STATUS_KEYS = ("final_deep_review_status", "deep_review_status", "final_review_status")
+FINAL_DEEP_REVIEW_PREPARED_KEYS = ("final_deep_review_prompt_prepared", "deep_review_prompt_prepared")
+FINAL_DEEP_REVIEW_WAIVER_REASON_KEYS = (
+    "final_deep_review_waiver_reason",
+    "final_review_waiver_reason",
+    "deep_review_waiver_reason",
 )
 
 
 def add_warning(warnings: List[Dict[str, str]], code: str, message: str) -> None:
     warnings.append({"code": code, "message": message})
+
+
+def first_finalization_value(state: Optional[Dict[str, Any]], keys: tuple[str, ...]) -> Any:
+    if not state:
+        return None
+    finalization = state.get("finalization")
+    containers: List[Dict[str, Any]] = []
+    if isinstance(finalization, dict):
+        containers.append(finalization)
+    containers.append(state)
+    for container in containers:
+        for key in keys:
+            value = container.get(key)
+            if value not in (None, ""):
+                return value
+    return None
+
+
+def final_deep_review_status(state: Optional[Dict[str, Any]]) -> Optional[str]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_STATUS_KEYS)
+    if value is None:
+        return None
+    return normalized(value)
+
+
+def final_deep_review_prompt_prepared(state: Optional[Dict[str, Any]]) -> Optional[bool]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_PREPARED_KEYS)
+    if isinstance(value, bool):
+        return value
+    return None
+
+
+def final_deep_review_waiver_reason(state: Optional[Dict[str, Any]]) -> Optional[str]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_WAIVER_REASON_KEYS)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
 
 
 def load_json(path: Path, warnings: List[Dict[str, str]]) -> Optional[Dict[str, Any]]:
@@ -190,6 +253,105 @@ def inspect_completion_alert(
             warnings,
             "completed_state_missing_completed_alert",
             "Completed state records a completed alert, but the alert file is missing.",
+        )
+    return result
+
+
+def find_deep_review_artifact(
+    repo_root: Path,
+    state_file: Optional[Path],
+    forms: Dict[str, Optional[str]],
+    state: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    if state:
+        for key in DEEP_REVIEW_STATE_KEYS:
+            value = first_finalization_value(state, (key,))
+            if value:
+                path = resolve_repo_path(repo_root, str(value))
+                return {
+                    "path": str(path) if path else str(value),
+                    "exists": bool(path and path.exists() and path.is_file()),
+                }
+        last_verification = state.get("last_verification")
+        if isinstance(last_verification, dict) and last_verification.get("deep_review_prompt"):
+            value = str(last_verification["deep_review_prompt"])
+            path = resolve_repo_path(repo_root, value)
+            return {
+                "path": str(path) if path else value,
+                "exists": bool(path and path.exists() and path.is_file()),
+            }
+
+    deep_review_dirs: List[Path] = []
+    if state_file is not None:
+        deep_review_dirs.append(state_file.parent)
+    deep_review_dirs.extend(path for path in automation_dir_candidates(repo_root, forms) if path not in deep_review_dirs)
+    for automation_dir in deep_review_dirs:
+        review_dir = automation_dir / "reviews"
+        if review_dir.is_dir():
+            for pattern in ("*deep-review-prompt.md", "*final-deep-review*.md"):
+                for path in review_dir.glob(pattern):
+                    return {"path": str(path), "exists": path.is_file()}
+        for name in DEEP_REVIEW_FILENAMES:
+            path = automation_dir / name
+            if path.exists():
+                return {"path": str(path), "exists": path.is_file()}
+    return {"path": None, "exists": False}
+
+
+def inspect_final_deep_review(
+    repo_root: Path,
+    state_file: Optional[Path],
+    forms: Dict[str, Optional[str]],
+    state: Optional[Dict[str, Any]],
+    complete: bool,
+    warnings: List[Dict[str, str]],
+) -> Dict[str, Any]:
+    status = final_deep_review_status(state)
+    prompt_prepared = final_deep_review_prompt_prepared(state)
+    waiver_reason = final_deep_review_waiver_reason(state)
+    artifact = find_deep_review_artifact(repo_root, state_file, forms, state)
+    result: Dict[str, Any] = {
+        "status": status,
+        "prompt_prepared": prompt_prepared,
+        "prompt": artifact["path"],
+        "prompt_exists": artifact["exists"],
+        "waived": status == "waived-by-human",
+        "waiver_reason": waiver_reason,
+    }
+    if not complete:
+        return result
+
+    if status is not None and status not in FINAL_DEEP_REVIEW_STATUSES:
+        add_warning(
+            warnings,
+            "invalid_final_deep_review_status",
+            f"Final deep-review status {status!r} is not one of {sorted(FINAL_DEEP_REVIEW_STATUSES)}.",
+        )
+    if status == "waived-by-human":
+        if not waiver_reason:
+            add_warning(
+                warnings,
+                "final_deep_review_waiver_missing_reason",
+                "Final deep review was waived, but no human waiver reason is recorded.",
+            )
+        return result
+    if not artifact["exists"]:
+        add_warning(
+            warnings,
+            "completed_state_missing_final_deep_review_prompt",
+            "Completed state does not record an existing final deep-review prompt/review artifact or a human waiver.",
+        )
+    elif prompt_prepared is None:
+        add_warning(
+            warnings,
+            "final_deep_review_metadata_missing",
+            "Completed state has a final deep-review prompt, but does not record final_deep_review_prompt_prepared.",
+        )
+    if artifact["exists"] and status is None:
+        add_warning(
+            warnings,
+            "final_deep_review_status_missing",
+            "Completed state has a final deep-review prompt, but does not record final_deep_review_status.",
         )
     return result
 
@@ -439,6 +601,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         add_warning(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.")
     all_phases_complete = is_complete_state(state)
     completion_alert = inspect_completion_alert(repo_root, state, warnings)
+    final_deep_review = inspect_final_deep_review(repo_root, state_file, forms, state, all_phases_complete, warnings)
     completion_pause_required = all_phases_complete and str(automation_status).upper() == "ACTIVE"
     automation_should_be_paused = all_phases_complete and str(automation_status).upper() != "PAUSED"
     if all_phases_complete and str(automation_status).upper() == "ACTIVE":
@@ -447,17 +610,6 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
             "completed_state_active_automation",
             "State appears complete but the automation is ACTIVE.",
         )
-
-    deep_review_prompt_exists = False
-    deep_review_dirs: List[Path] = []
-    if state_file is not None:
-        deep_review_dirs.append(state_file.parent)
-    deep_review_dirs.extend(path for path in automation_dir_candidates(repo_root, forms) if path not in deep_review_dirs)
-    deep_review_prompt_exists = any(
-        (automation_dir / name).exists()
-        for automation_dir in deep_review_dirs
-        for name in DEEP_REVIEW_CANDIDATES
-    )
 
     return {
         "automation_id": automation_id,
@@ -502,10 +654,14 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "completion_alert_file": completion_alert["completion_alert_file"],
         "completion_pause_required": completion_pause_required,
         "automation_should_be_paused": automation_should_be_paused,
+        "final_deep_review_status": final_deep_review["status"],
+        "final_deep_review_prompt": final_deep_review["prompt"],
+        "final_deep_review_prompt_prepared": final_deep_review["prompt_prepared"],
+        "final_deep_review_waived": final_deep_review["waived"],
         "current_branch": current_branch,
         "matching_branches": matching_branches,
         "worktree_dirty": worktree_dirty,
-        "deep_review_prompt_exists": deep_review_prompt_exists,
+        "deep_review_prompt_exists": final_deep_review["prompt_exists"],
         "warnings": warnings,
     }
 
@@ -567,6 +723,10 @@ def main(argv: Optional[List[str]] = None) -> int:
             "completion_alert_present",
             "completion_pause_required",
             "automation_should_be_paused",
+            "final_deep_review_status",
+            "final_deep_review_prompt",
+            "final_deep_review_prompt_prepared",
+            "final_deep_review_waived",
             "current_branch",
             "worktree_dirty",
             "deep_review_prompt_exists",

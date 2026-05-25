@@ -39,5 +39,5 @@ in the project root or `../roadmaps/`.
 |---|---|---|---|---|
 | `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md` | Delivered | Complete | `autonomous-roadmap-delivery-skill` hourly, PAUSED | `autonomous-roadmap-delivery-skill/delivery_state.json` |
 | `../roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md` | Delivered | Complete | `phase-model-policy-and-stall-control` hourly, PAUSED | `phase-model-policy-and-stall-control/delivery_state.json` |
-| `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed pending pause | Complete | `framework-core-and-release-readiness` hourly, ACTIVE | `framework-core-and-release-readiness/delivery_state.json` |
+| `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed | Complete | `framework-core-and-release-readiness` hourly, PAUSED | `framework-core-and-release-readiness/delivery_state.json` |
 | `../roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md` | Not Started | Phase 0 - Host Capability Contract | not configured | not configured |

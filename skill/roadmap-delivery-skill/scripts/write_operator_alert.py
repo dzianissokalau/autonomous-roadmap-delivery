@@ -66,7 +66,7 @@ def verification_summary(state: Dict[str, Any]) -> str:
     verification = state.get("last_verification")
     if not isinstance(verification, dict):
         return "not recorded"
-    commands = verification.get("commands")
+    commands = verification.get("commands") or verification.get("checks")
     if not isinstance(commands, list) or not commands:
         return display(verification.get("summary"))
     fragments: List[str] = []

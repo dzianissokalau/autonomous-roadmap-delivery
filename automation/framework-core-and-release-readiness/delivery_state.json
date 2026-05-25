@@ -4,18 +4,18 @@
   "roadmap_slug": "framework-core-and-release-readiness",
   "current_phase": "Complete",
   "branch": "codex/framework-core-and-release-readiness-phase-10",
-  "status": "completed_pending_pause",
+  "status": "completed",
   "review_iterations": 1,
   "max_review_iterations": 3,
   "last_verification": {
     "phase": "Phase 10 - Migration, Documentation, And Closeout",
-    "completed_at": "2026-05-25T11:55:12Z",
+    "completed_at": "2026-05-25T15:20:22Z",
     "status": "passed",
     "checks": [
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "81 tests passed."
+        "details": "87 tests passed."
       },
       {
         "command": "python3 scripts/build_codex_package.py --check",
@@ -33,9 +33,9 @@
         "details": "73 files scanned; 0 findings and 0 errors."
       },
       {
-        "command": "python3 -m unittest tests.test_quality_gates -v",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning worktree_dirty --json",
         "status": "passed",
-        "details": "5 quality gate tests passed."
+        "details": "Validation passed with only the allowed dirty-worktree warning before commit."
       },
       {
         "command": "git diff --check",
@@ -44,30 +44,31 @@
     ]
   },
   "last_review": {
-    "phase": "Phase 10 - Migration, Documentation, And Closeout",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-10-review-iteration-1.md",
+    "phase": "Phase 10 - Deep Review Fixes",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-10-deep-review-fixes.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T11:55:01Z"
+    "reviewed_at": "2026-05-25T15:20:22Z"
   },
   "last_delivered_phase": "Phase 10 - Migration, Documentation, And Closeout",
   "blocked_reason": null,
-  "last_blocker_repair": null,
   "required_model": "gpt-5.5",
   "required_reasoning_effort": "xhigh",
   "configured_automation_model": "gpt-5.5",
   "configured_automation_reasoning_effort": "xhigh",
-  "configured_automation_status": "ACTIVE",
+  "configured_automation_status": "PAUSED",
   "configured_execution_environment": "local",
   "automation": {
     "id": "framework-core-and-release-readiness",
-    "status": "ACTIVE",
+    "status": "PAUSED",
     "rrule": "FREQ=HOURLY;INTERVAL=1",
     "model": "gpt-5.5",
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-25T11:55:12Z",
-    "active_drift_repaired": true
+    "readback_at": "2026-05-25T15:13:10Z",
+    "active_drift_repaired": true,
+    "final_pause_confirmed_at": "2026-05-25T15:13:10Z",
+    "final_prompt_path_repaired_at": "2026-05-25T15:13:10Z"
   },
   "last_activation": {
     "activated_at": "2026-05-24T20:09:54Z",
@@ -101,17 +102,23 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 12,
+  "run_count": 14,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:b3fc8fb19dc5c0942981256d1e3fe6066cc9cdb708c1a8fa74bb1dd08217e395",
-  "last_progress_at": "2026-05-25T11:57:25Z",
+  "last_progress_signature": "sha256:103acb3580cd3fbe3241b5bcaa7e83579833d75cedb35c05ad6aa2c79afb59b6",
+  "last_progress_at": "2026-05-25T15:20:30Z",
+  "last_blocker_repair": {
+    "completed_at": "2026-05-25T15:13:10Z",
+    "classification": "automation-config repairable",
+    "status": "repaired",
+    "details": "Saved Codex automation readback is PAUSED and prompt now references roadmaps/delivered_framework_core_and_release_readiness_roadmap.md."
+  },
   "last_operator_alert": {
     "kind": "completed",
     "file": "automation/framework-core-and-release-readiness/alerts/2026-05-25T11-56-13Z-completed.md",
-    "timestamp": "2026-05-25T11:56:13Z",
-    "reason": "All roadmap phases are delivered and final verification passed; the saved Codex automation remains ACTIVE and needs an explicit pause decision.",
-    "next_human_action": "Approve or perform pausing the framework-core-and-release-readiness automation, then preserve final evidence.",
+    "timestamp": "2026-05-25T15:20:22Z",
+    "reason": "All roadmap phases are delivered, final verification passed, and the saved Codex automation is PAUSED with the delivered roadmap prompt path.",
+    "next_human_action": "Review the pushed phase branch and keep promotion, publication, and installed-skill sync human-approved.",
     "notification_sink": "alert_file",
     "notification_status": "local_alert_only"
   },
@@ -120,5 +127,8 @@
   "push_to_github": false,
   "all_phases_complete": true,
   "deep_review_prompt": "automation/framework-core-and-release-readiness/deep_review_prompt.md",
-  "updated_at": "2026-05-25T11:57:25Z"
+  "final_deep_review_prompt_prepared": true,
+  "final_deep_review_prompt_file": "automation/framework-core-and-release-readiness/deep_review_prompt.md",
+  "final_deep_review_status": "prompt-prepared",
+  "updated_at": "2026-05-25T15:20:30Z"
 }

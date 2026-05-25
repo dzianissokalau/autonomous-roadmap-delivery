@@ -78,14 +78,32 @@ DEEP_REVIEW_CANDIDATES = (
     "deep_review_prompt_path",
     "deep_review",
     "deep_review_path",
+    "final_deep_review_prompt_file",
     "final_deep_review_prompt",
+    "final_deep_review_review_file",
+    "final_deep_review_artifact",
     "final_review_prompt",
+    "final_review_artifact",
 )
 DEEP_REVIEW_FILENAMES = (
     "deep_review_prompt.md",
     "deep_review_prompt.txt",
+    "final_deep_review_prompt.md",
+    "final-deep-review-prompt.md",
+    "final_review_prompt.md",
+    "final-review-prompt.md",
+    "final_deep_review.md",
+    "final-deep-review.md",
     "review_fixes_prompt.md",
     "deep_review.md",
+)
+FINAL_DEEP_REVIEW_STATUSES = {"prompt-prepared", "review-complete", "waived-by-human"}
+FINAL_DEEP_REVIEW_STATUS_KEYS = ("final_deep_review_status", "deep_review_status", "final_review_status")
+FINAL_DEEP_REVIEW_PREPARED_KEYS = ("final_deep_review_prompt_prepared", "deep_review_prompt_prepared")
+FINAL_DEEP_REVIEW_WAIVER_REASON_KEYS = (
+    "final_deep_review_waiver_reason",
+    "final_review_waiver_reason",
+    "deep_review_waiver_reason",
 )
 
 
@@ -425,10 +443,47 @@ def find_deep_review_prompt(state_dir: Optional[Path], state: Dict[str, Any]) ->
         if review_dir.is_dir():
             for path in review_dir.glob("*deep-review-prompt.md"):
                 return path
+            for path in review_dir.glob("*final-deep-review*.md"):
+                return path
         for name in DEEP_REVIEW_FILENAMES:
             path = state_dir / name
             if path.exists():
                 return path
+    return None
+
+
+def first_finalization_value(state: Dict[str, Any], keys: Tuple[str, ...]) -> Any:
+    finalization = state.get("finalization")
+    containers: List[Dict[str, Any]] = []
+    if isinstance(finalization, dict):
+        containers.append(finalization)
+    containers.append(state)
+    for container in containers:
+        for key in keys:
+            value = container.get(key)
+            if value not in (None, ""):
+                return value
+    return None
+
+
+def final_deep_review_status(state: Dict[str, Any]) -> Optional[str]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_STATUS_KEYS)
+    if value is None:
+        return None
+    return normalized(value)
+
+
+def final_deep_review_prompt_prepared(state: Dict[str, Any]) -> Optional[bool]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_PREPARED_KEYS)
+    if isinstance(value, bool):
+        return value
+    return None
+
+
+def final_deep_review_waiver_reason(state: Dict[str, Any]) -> Optional[str]:
+    value = first_finalization_value(state, FINAL_DEEP_REVIEW_WAIVER_REASON_KEYS)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
     return None
 
 
@@ -851,6 +906,87 @@ def validate_completion_flow(
     return result
 
 
+def validate_final_deep_review_gate(
+    repo_root: Path,
+    state_dir: Optional[Path],
+    state: Dict[str, Any],
+    complete: bool,
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    status = final_deep_review_status(state)
+    prompt_prepared = final_deep_review_prompt_prepared(state)
+    waiver_reason = final_deep_review_waiver_reason(state)
+    prompt = find_deep_review_prompt(state_dir, state)
+    result: Dict[str, Any] = {
+        "required": complete,
+        "status": status,
+        "prompt_prepared": prompt_prepared,
+        "prompt": str(prompt) if prompt else None,
+        "prompt_file": None,
+        "prompt_exists": False,
+        "waived": status == "waived-by-human",
+        "waiver_reason": waiver_reason,
+    }
+    if not complete:
+        return result
+
+    if status is not None and status not in FINAL_DEEP_REVIEW_STATUSES:
+        add(
+            errors,
+            "invalid_final_deep_review_status",
+            f"Final deep-review status {status!r} is not one of {sorted(FINAL_DEEP_REVIEW_STATUSES)}.",
+        )
+
+    if status == "waived-by-human":
+        if not waiver_reason:
+            add(
+                errors,
+                "final_deep_review_waiver_missing_reason",
+                "Final deep review was waived, but no human waiver reason is recorded.",
+            )
+        return result
+
+    if prompt is None:
+        add(
+            errors,
+            "completed_state_missing_final_deep_review_prompt",
+            "Completed state must record or colocate a final deep-review prompt/review artifact, "
+            "or record final_deep_review_status 'waived-by-human' with a waiver reason before "
+            "all_phases_complete/completed_pending_pause.",
+        )
+        return result
+
+    deep_review_path = resolve_repo_path(repo_root, str(prompt))
+    result["prompt_file"] = str(deep_review_path) if deep_review_path else str(prompt)
+    if not deep_review_path or not deep_review_path.exists():
+        add(errors, "final_deep_review_prompt_missing_file", "Final deep-review prompt path does not exist.", deep_review_path)
+    elif not deep_review_path.is_file():
+        add(errors, "final_deep_review_prompt_not_file", "Final deep-review prompt path is not a file.", deep_review_path)
+    else:
+        result["prompt_exists"] = True
+
+    if prompt_prepared is False:
+        add(
+            errors,
+            "final_deep_review_prompt_not_prepared",
+            "Completed state explicitly records final_deep_review_prompt_prepared as false.",
+        )
+    elif prompt_prepared is None:
+        add(
+            warnings,
+            "final_deep_review_metadata_missing",
+            "Completed state has a final deep-review prompt, but does not record final_deep_review_prompt_prepared.",
+        )
+    if status is None:
+        add(
+            warnings,
+            "final_deep_review_status_missing",
+            "Completed state has a final deep-review prompt, but does not record final_deep_review_status.",
+        )
+    return result
+
+
 def validate_branch(repo_root: Path, forms: Dict[str, Optional[str]], state: Dict[str, Any], complete: bool, warnings: List[Finding]) -> Dict[str, Optional[str]]:
     branch_info: Dict[str, Optional[str]] = {"current_branch": None, "expected_branch": None}
     proc = run_git(repo_root, ["branch", "--show-current"])
@@ -1042,14 +1178,8 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     run_log_schema_report = validate_run_log_schema(state_file, schemas.get("automation_run_log"), errors) if state_file else None
     operator_alert = validate_operator_alert(repo_root, state_dir, state, errors, warnings) if state_dir else None
     completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, errors, warnings)
-
-    deep_review_prompt = find_deep_review_prompt(state_dir, state)
-    if complete and deep_review_prompt is None:
-        add(warnings, "missing_deep_review_prompt", "Completed state does not include or colocate a deep-review prompt path.")
-    elif complete and deep_review_prompt is not None:
-        deep_review_path = resolve_repo_path(repo_root, str(deep_review_prompt))
-        if deep_review_path and not deep_review_path.exists():
-            add(warnings, "deep_review_prompt_missing_file", "Deep-review prompt path does not exist.", deep_review_path)
+    final_deep_review = validate_final_deep_review_gate(repo_root, state_dir, state, complete, errors, warnings)
+    deep_review_prompt = Path(str(final_deep_review["prompt"])) if final_deep_review.get("prompt") else None
 
     if complete and str(automation_status).upper() == "ACTIVE":
         if hard_stop_guard:
@@ -1093,6 +1223,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "progress_tracking": progress_tracking,
         "operator_alert": operator_alert,
         "completion_flow": completion_flow,
+        "final_deep_review": final_deep_review,
         "repo_root": str(repo_root),
         "roadmap_slug": roadmap_slug or state.get("roadmap_slug"),
         "state_file": path_for_report(state_file),

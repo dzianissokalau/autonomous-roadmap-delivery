@@ -11,19 +11,33 @@ and log contain final evidence, no blocker remains, completion alert evidence
 exists or is the next required action, runner status has been reviewed, and any
 dirty worktree entries are explained.
 
+Phase review artifacts and final deep-review handoff artifacts are distinct.
+A phase review covers the current phase diff. A final deep-review prompt or
+artifact asks a fresh reviewer to assess the whole roadmap, state/log/review
+consistency, verification sufficiency, branch and worktree risk, promotion
+readiness, unresolved risks, and whether human merge review can begin.
+
 ## Completion Hard Stop
 
 When all phases are complete, do not extract or start another phase. Instead:
 
 1. Confirm final verification and latest delivered review evidence.
-2. Confirm a final review artifact or deep-review prompt exists when required.
-3. Write a completed operator alert before relying on optional notification
+2. Confirm a final deep-review prompt or final review artifact exists, or
+   record an explicit human waiver.
+3. Record `final_deep_review_prompt_prepared`,
+   `final_deep_review_prompt_file`, and `final_deep_review_status` as
+   `prompt-prepared`, `review-complete`, or `waived-by-human`.
+4. Write a completed operator alert before relying on optional notification
    sinks.
-4. Set completed state or completed-pending-pause state.
-5. Pause the runner only when the pause surface is approved and read back.
-6. If pause approval is unavailable, record the required human pause action.
+5. Set completed state or completed-pending-pause state.
+6. Pause the runner only when the pause surface is approved and read back.
+7. If pause approval is unavailable, record the required human pause action.
 
 Completed state is a hard stop for future scheduled runs.
+
+Do not set `all_phases_complete: true` or a completed-pending-pause status
+until the final deep-review prompt/artifact exists or the human waiver is
+recorded in state and log.
 
 ## Final Verification
 

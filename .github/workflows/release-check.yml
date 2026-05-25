@@ -2,6 +2,10 @@ name: Release Check
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
+      - 'codex/**'
   workflow_dispatch:
 
 permissions:
