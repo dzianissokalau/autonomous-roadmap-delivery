@@ -591,3 +591,83 @@ Branch: `codex/framework-core-and-release-readiness-phase-6`
 
 - Start Phase 7 - Security And Privacy Guardrails on
   `codex/framework-core-and-release-readiness-phase-7`.
+
+## Phase 7 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-7`
+
+### Scope
+
+- Delivered Phase 7 only: Security And Privacy Guardrails.
+- Owned files: `SECURITY.md`, `docs/privacy-and-sanitization.md`,
+  `scripts/check_release_privacy.py`, `tests/test_privacy_sanitization.py`,
+  and `.github/workflows/ci.yml`.
+- Updated `README.md` because Phase 7 acceptance requires the security policy
+  to be linked from the README.
+- Updated `.github/workflows/release-check.yml` so the release-check artifact
+  includes `SECURITY.md` and `docs/`, keeping the README links valid inside
+  the bundle.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added `SECURITY.md` with supported-version policy, responsible disclosure
+  guidance, unsafe automation surfaces, and secret-handling expectations.
+- Added `docs/privacy-and-sanitization.md` covering release-bound content,
+  local paths, operator names, repository remotes, secrets, review artifacts,
+  and a manual release checklist.
+- Added `scripts/check_release_privacy.py`, a dependency-free release privacy
+  scanner for release-bound paths and optional tar bundles.
+- Added `tests/test_privacy_sanitization.py` for clean current release-bound
+  files, local path findings, obvious secret findings, forbidden bundle paths,
+  and CI/docs wiring.
+- Wired the privacy scan into CI and documented the local command in README.
+- Advanced the roadmap and state to Phase 8 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 67
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest tests.test_privacy_sanitization -v`: passed, 5 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 76 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase7-pycache python3 -m py_compile scripts/build_codex_package.py scripts/check_release_privacy.py src/roadmap_delivery/*.py roadmap_delivery/__init__.py skill/roadmap-delivery-skill/scripts/*.py tests/*.py`:
+  passed.
+- `python3 scripts/build_codex_package.py --check`: passed with `status: ok`,
+  14 files, zero diffs, and zero errors.
+- Local release-bundle privacy smoke check: passed, built
+  `dist/roadmap-delivery-codex-skill.tar.gz` with `SECURITY.md` and `docs/`,
+  scanned it with `scripts/check_release_privacy.py --bundle`, found 0 issues,
+  and removed the generated bundle.
+- `git diff --check`: passed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected `worktree_dirty` warning.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-7-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; delegated fresh-context review was
+  not used because the available sub-agent tool requires an explicit sub-agent
+  request.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The privacy scanner catches common leak shapes and forbidden bundle paths,
+  but it is not a full DLP system.
+- The release-check workflow still has its existing archive-member safety
+  check; richer content scanning is now in CI and documented as a local/manual
+  release command.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 8 - Demo Fixture And Smoke Tests on
+  `codex/framework-core-and-release-readiness-phase-8`.

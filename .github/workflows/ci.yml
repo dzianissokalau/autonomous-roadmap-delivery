@@ -37,6 +37,7 @@ jobs:
         run: |
           python3 -m py_compile \
             scripts/build_codex_package.py \
+            scripts/check_release_privacy.py \
             src/roadmap_delivery/*.py \
             roadmap_delivery/__init__.py \
             skill/roadmap-delivery-skill/scripts/*.py \
@@ -50,6 +51,9 @@ jobs:
 
       - name: Check markdown, ASCII, and whitespace gates
         run: python3 -m unittest tests.test_quality_gates -v
+
+      - name: Check release privacy guardrails
+        run: python3 scripts/check_release_privacy.py --repo-root .
 
       - name: Validate delivery artifacts
         run: |

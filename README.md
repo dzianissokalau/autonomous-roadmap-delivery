@@ -8,6 +8,9 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 [![CI](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml)
 [![Release Check](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml)
 
+Security policy: `SECURITY.md`. Privacy and release sanitization guide:
+`docs/privacy-and-sanitization.md`.
+
 ## Roadmaps
 
 - Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
@@ -182,6 +185,7 @@ python3 -m unittest discover -s tests -v
 PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
   python3 -m py_compile \
   scripts/build_codex_package.py \
+  scripts/check_release_privacy.py \
   src/roadmap_delivery/*.py \
   roadmap_delivery/__init__.py \
   skill/roadmap-delivery-skill/scripts/*.py \
@@ -190,6 +194,7 @@ PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
 python3 -m unittest tests.test_schema_validation -v
 python3 scripts/build_codex_package.py --check
 python3 -m unittest tests.test_quality_gates -v
+python3 scripts/check_release_privacy.py --repo-root .
 
 python3 -m roadmap_delivery.cli validate \
   --repo-root "$PWD" \
@@ -214,8 +219,10 @@ Local equivalent for the release-check artifact build:
 mkdir -p dist
 tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
   README.md \
+  SECURITY.md \
   LICENSE \
   pyproject.toml \
+  docs \
   core \
   schemas \
   src \

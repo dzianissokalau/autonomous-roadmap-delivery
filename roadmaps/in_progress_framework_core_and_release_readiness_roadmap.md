@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 7 - Security And Privacy Guardrails
+Current phase: Phase 8 - Demo Fixture And Smoke Tests
 Last updated: 2026-05-25
-Next action: Start Phase 7 on
-`codex/framework-core-and-release-readiness-phase-7`.
+Next action: Start Phase 8 on
+`codex/framework-core-and-release-readiness-phase-8`.
 Blocked by: None
 
 ## Purpose
@@ -688,6 +688,8 @@ gh run list --limit 5
 - Stop if CI cannot run without local private paths.
 
 ## Phase 7 - Security And Privacy Guardrails
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 

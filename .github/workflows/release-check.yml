@@ -34,8 +34,10 @@ jobs:
           mkdir -p dist
           tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
             README.md \
+            SECURITY.md \
             LICENSE \
             pyproject.toml \
+            docs \
             core \
             schemas \
             src \
