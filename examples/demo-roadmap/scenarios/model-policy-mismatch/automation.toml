@@ -1,0 +1,10 @@
+version = 1
+id = "demo-roadmap-delivery"
+kind = "manual"
+name = "Demo Roadmap Delivery - Mismatch Scenario"
+prompt = "Run the next safe phase-gated delivery step for `roadmaps/in_progress_demo_roadmap.md`. If state has all_phases_complete or completed_pending_pause, do not start a new phase. If status: blocked, enter Blocked Remediation Mode, repair local blockers before advance, and only then resume."
+status = "ACTIVE"
+model = "gpt-5.4"
+reasoning_effort = "high"
+execution_environment = "local"
+cwds = ["."]

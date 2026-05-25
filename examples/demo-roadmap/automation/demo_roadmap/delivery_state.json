@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "roadmap": "roadmaps/in_progress_demo_roadmap.md",
+  "roadmap_slug": "demo-roadmap",
+  "current_phase": "Phase 1 - Add Smoke Checked Command",
+  "branch": "codex/demo-roadmap-phase-1",
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": {
+    "phase": "Phase 0 - Establish Fixture Contract",
+    "completed_at": "2026-05-25T08:00:00Z",
+    "status": "passed",
+    "checks": [
+      {
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root examples/demo-roadmap --roadmap-slug demo-roadmap --json",
+        "status": "passed"
+      },
+      {
+        "command": "git diff --check",
+        "status": "passed"
+      }
+    ]
+  },
+  "last_review": {
+    "phase": "Phase 0 - Establish Fixture Contract",
+    "file": "automation/demo_roadmap/reviews/demo-roadmap-phase-0-review-iteration-1.md",
+    "verdict": "delivered",
+    "reviewed_at": "2026-05-25T08:00:00Z"
+  },
+  "last_delivered_phase": "Phase 0 - Establish Fixture Contract",
+  "blocked_reason": null,
+  "last_blocker_repair": null,
+  "required_model": "gpt-5.5",
+  "required_reasoning_effort": "xhigh",
+  "configured_automation_model": "gpt-5.5",
+  "configured_automation_reasoning_effort": "xhigh",
+  "configured_automation_status": "ACTIVE",
+  "configured_execution_environment": "local",
+  "automation": {
+    "id": "demo-roadmap-delivery",
+    "status": "ACTIVE",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh",
+    "execution_environment": "local",
+    "readback_at": "2026-05-25T08:00:00Z"
+  },
+  "run_count": 1,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "last_progress_at": "2026-05-25T08:00:00Z",
+  "last_operator_alert": null,
+  "auto_advance_after_delivered_review": true,
+  "commit_delivered_phase_locally": true,
+  "push_to_github": false,
+  "all_phases_complete": false,
+  "deep_review_prompt": null,
+  "updated_at": "2026-05-25T08:00:00Z"
+}

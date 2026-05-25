@@ -1,14 +1,14 @@
 {
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 8 - Demo Fixture And Smoke Tests",
+  "current_phase": "Phase 9 - Release And Versioning System",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "active_review_file": null,
   "last_verdict": "delivered",
-  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-7-review-iteration-1.md",
-  "last_delivered_phase": "Phase 7 - Security And Privacy Guardrails",
+  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-8-review-iteration-1.md",
+  "last_delivered_phase": "Phase 8 - Demo Fixture And Smoke Tests",
   "blocked_reason": null,
-  "updated_at": "2026-05-25T08:14:53Z"
+  "updated_at": "2026-05-25T09:18:32Z"
 }

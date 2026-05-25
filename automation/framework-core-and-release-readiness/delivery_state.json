@@ -2,51 +2,39 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 8 - Demo Fixture And Smoke Tests",
+  "current_phase": "Phase 9 - Release And Versioning System",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 7 - Security And Privacy Guardrails",
-    "completed_at": "2026-05-25T08:14:53Z",
+    "phase": "Phase 8 - Demo Fixture And Smoke Tests",
+    "completed_at": "2026-05-25T09:18:32Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 scripts/check_release_privacy.py --repo-root .",
+        "command": "python3 -m unittest tests.test_smoke_demo -v",
         "status": "passed",
-        "details": "67 release-bound files scanned with 0 findings and 0 errors."
+        "details": "5 demo smoke tests passed."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "76 tests passed."
+        "details": "81 tests passed."
       },
       {
-        "command": "python3 -m unittest tests.test_privacy_sanitization -v",
-        "status": "passed",
-        "details": "5 privacy sanitization tests passed."
-      },
-      {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase7-pycache python3 -m py_compile scripts/build_codex_package.py scripts/check_release_privacy.py src/roadmap_delivery/*.py roadmap_delivery/__init__.py skill/roadmap-delivery-skill/scripts/*.py tests/*.py",
-        "status": "passed"
-      },
-      {
-        "command": "python3 scripts/build_codex_package.py --check",
-        "status": "passed",
-        "details": "Rendered 14 Codex package files with zero diffs and zero errors."
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning worktree_dirty --json",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root examples/demo-roadmap --roadmap-slug demo-roadmap --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
+          "automation_config_not_found",
+          "current_branch_name_mismatch",
           "worktree_dirty"
-        ]
+        ],
+        "details": "Demo fixture validation passed without credentials or live automation access."
       },
       {
-        "command": "mkdir -p dist && tar -czf dist/roadmap-delivery-codex-skill.tar.gz README.md SECURITY.md LICENSE pyproject.toml docs core schemas src scripts adapters skill/roadmap-delivery-skill && python3 scripts/check_release_privacy.py --repo-root . --bundle dist/roadmap-delivery-codex-skill.tar.gz && rm dist/roadmap-delivery-codex-skill.tar.gz && rmdir dist",
-        "status": "passed",
-        "details": "Built local release bundle, scanned 134 release-bound files with 0 findings and 0 errors, and removed the local bundle."
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase8-pycache python3 -m py_compile tests/test_smoke_demo.py",
+        "status": "passed"
       },
       {
         "command": "git diff --check",
@@ -55,12 +43,12 @@
     ]
   },
   "last_review": {
-    "phase": "Phase 7 - Security And Privacy Guardrails",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-7-review-iteration-1.md",
+    "phase": "Phase 8 - Demo Fixture And Smoke Tests",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-8-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T08:14:53Z"
+    "reviewed_at": "2026-05-25T09:18:32Z"
   },
-  "last_delivered_phase": "Phase 7 - Security And Privacy Guardrails",
+  "last_delivered_phase": "Phase 8 - Demo Fixture And Smoke Tests",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -77,7 +65,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-25T08:07:57Z",
+    "readback_at": "2026-05-25T09:18:32Z",
     "active_drift_repaired": true
   },
   "last_activation": {
@@ -112,16 +100,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 8,
+  "run_count": 9,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:43526464c802530512c0026112a34d9551f013c9a7a419fd696935070b603778",
-  "last_progress_at": "2026-05-25T08:14:53Z",
+  "last_progress_signature": "sha256:697011c0fb911155f4a7454c14ac07a7470a0528bb76277838b03f0d795c34e2",
+  "last_progress_at": "2026-05-25T09:18:32Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-25T08:14:53Z"
+  "updated_at": "2026-05-25T09:18:32Z"
 }

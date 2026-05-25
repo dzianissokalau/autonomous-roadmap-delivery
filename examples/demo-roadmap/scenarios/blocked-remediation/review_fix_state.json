@@ -1,0 +1,14 @@
+{
+  "roadmap": "roadmaps/in_progress_demo_roadmap.md",
+  "roadmap_slug": "demo-roadmap",
+  "current_phase": "Phase 1 - Add Smoke Checked Command",
+  "status": "blocked",
+  "review_iterations": 1,
+  "max_review_iterations": 3,
+  "active_review_file": "automation/demo_roadmap/reviews/demo-roadmap-phase-1-review-iteration-1.md",
+  "last_verdict": "blocked",
+  "last_review_file": "automation/demo_roadmap/reviews/demo-roadmap-phase-1-review-iteration-1.md",
+  "last_delivered_phase": "Phase 0 - Establish Fixture Contract",
+  "blocked_reason": "Phase 1 smoke verification failed because demo_tool/status.py is intentionally missing in this scenario.",
+  "updated_at": "2026-05-25T08:10:00Z"
+}

@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 8 - Demo Fixture And Smoke Tests
+Current phase: Phase 9 - Release And Versioning System
 Last updated: 2026-05-25
-Next action: Start Phase 8 on
-`codex/framework-core-and-release-readiness-phase-8`.
+Next action: Start Phase 9 on
+`codex/framework-core-and-release-readiness-phase-9`.
 Blocked by: None
 
 ## Purpose
@@ -749,6 +749,8 @@ python3 -m unittest discover -s tests -v
   decision about what to sanitize.
 
 ## Phase 8 - Demo Fixture And Smoke Tests
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 

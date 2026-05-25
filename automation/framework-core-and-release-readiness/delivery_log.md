@@ -671,3 +671,72 @@ Branch: `codex/framework-core-and-release-readiness-phase-7`
 
 - Start Phase 8 - Demo Fixture And Smoke Tests on
   `codex/framework-core-and-release-readiness-phase-8`.
+
+## Phase 8 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-8`
+
+### Scope
+
+- Delivered Phase 8 only: Demo Fixture And Smoke Tests.
+- Owned files: `examples/demo-roadmap/`, `tests/test_smoke_demo.py`, and
+  `README.md`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added `examples/demo-roadmap/`, a file-backed demo repository fixture with a
+  three-phase roadmap, automation guide, delivery state, delivery log,
+  review/fix state, model policy, run log, sample saved automation config, and
+  delivered Phase 0 review.
+- Added blocked-remediation scenario artifacts that preserve a blocked Phase 1
+  state, failed verification evidence, and a blocked review for safe
+  remediation inspection.
+- Added model-policy mismatch scenario config that intentionally uses
+  non-required model/reasoning values so validation stops before delivery.
+- Added `tests/test_smoke_demo.py` covering scaffold dry-run, validate,
+  inspect, one delivered phase loop, blocked-remediation reporting, and
+  model-policy mismatch behavior using a temporary git repo and temporary
+  Codex home.
+- Added a README demo quickstart and included the smoke test in local CI
+  equivalents.
+- Advanced the roadmap and state to Phase 9 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_smoke_demo -v`: passed, 5 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 81 tests.
+- `python3 -m roadmap_delivery.cli validate --repo-root examples/demo-roadmap --roadmap-slug demo-roadmap --json`:
+  passed with expected local-demo warnings for missing saved demo automation
+  config, parent branch mismatch, and dirty parent worktree.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase8-pycache python3 -m py_compile tests/test_smoke_demo.py`:
+  passed.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-8-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; delegated fresh-context review was
+  not used because no explicit sub-agent request was present.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The direct demo validation command intentionally avoids requiring a real
+  saved demo automation, so it can report expected warnings when run inside
+  the parent repository checkout. The smoke tests cover clean automation
+  readback through a temporary home.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 9 - Release And Versioning System on
+  `codex/framework-core-and-release-readiness-phase-9`.

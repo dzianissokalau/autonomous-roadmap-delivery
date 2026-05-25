@@ -170,6 +170,38 @@ After installation, the same interface is available as `roadmap-delivery`.
 The legacy helper scripts under `skill/roadmap-delivery-skill/scripts/` remain
 compatibility wrappers around the same shared library behavior.
 
+## Demo Fixture
+
+`examples/demo-roadmap/` is a small self-contained fixture for trying the
+phase-gated workflow without network access, credentials, or live Codex app
+automation. It includes a three-phase demo roadmap, committed state/log/review
+artifacts, a matching model policy, and scenario files for blocked remediation
+and model-policy mismatch checks.
+
+```bash
+python3 -m roadmap_delivery.cli scaffold \
+  --repo-root /tmp/demo-roadmap-plan \
+  --roadmap-slug demo-roadmap \
+  --automation-id demo-roadmap-delivery \
+  --dry-run \
+  --json
+
+python3 -m roadmap_delivery.cli validate \
+  --repo-root examples/demo-roadmap \
+  --roadmap-slug demo-roadmap \
+  --json
+
+python3 -m roadmap_delivery.cli inspect \
+  --repo-root examples/demo-roadmap \
+  --roadmap-slug demo-roadmap \
+  --json
+```
+
+The fixture is intentionally file-backed. The smoke tests copy it to a
+temporary git repository and temporary home directory so automation readback,
+blocked-run inspection, and model-policy mismatch behavior can be exercised
+without touching a real saved Codex automation.
+
 ## CI And Release Checks
 
 GitHub Actions run repository-local checks only. The optional Codex skill
@@ -194,6 +226,7 @@ PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
 python3 -m unittest tests.test_schema_validation -v
 python3 scripts/build_codex_package.py --check
 python3 -m unittest tests.test_quality_gates -v
+python3 -m unittest tests.test_smoke_demo -v
 python3 scripts/check_release_privacy.py --repo-root .
 
 python3 -m roadmap_delivery.cli validate \
