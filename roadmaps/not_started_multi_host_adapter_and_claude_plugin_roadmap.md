@@ -2,10 +2,11 @@
 
 Status: Not Started
 Current phase: Phase 0 - Host Capability Contract
-Last updated: 2026-05-21
-Next action: Confirm Codex and Claude host capabilities, adapter boundaries,
-and parity promises.
-Blocked by: Framework Core And Release Readiness Roadmap through Phase 5.
+Last updated: 2026-05-25
+Next action: Start Phase 0 after the framework core closeout branch is
+reviewed and the framework automation pause decision is handled.
+Blocked by: Framework Core And Release Readiness closeout pause/promotion
+decision.
 
 ## Purpose
 
@@ -13,13 +14,13 @@ This roadmap makes Roadmap Delivery Skill portable beyond Codex by adding a
 multi-host adapter layer and a first-class Claude plugin package.
 
 It intentionally depends on the framework core roadmap. The workflow contract,
-schemas, library, and Codex adapter should be stable enough before Claude work
-starts in earnest.
+schemas, shared library, CLI, generated Codex adapter, release checks, and
+privacy gates should be stable before Claude work starts in earnest.
 
 Dependency roadmap:
 
 ```text
-roadmaps/not_started_framework_core_and_release_readiness_roadmap.md
+roadmaps/delivered_framework_core_and_release_readiness_roadmap.md
 ```
 
 ## Strategic Outcome
@@ -114,10 +115,11 @@ host-capabilities/claude.yaml
 
 ### Inputs
 
-- Framework core roadmap through Phase 5
+- Framework core roadmap through Phase 10 closeout
 - Current Codex skill package
 - Claude plugin packaging requirements
 - Current model-policy and blocked-remediation framework behavior
+- Framework compatibility, migration, contributor, and release notes docs
 
 ### Implementation Steps
 

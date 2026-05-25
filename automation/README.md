@@ -7,6 +7,8 @@ Use `../roadmaps/` for human-facing documents:
 
 - `../roadmaps/automated-roadmap-delivery-strategy.md`
 - `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+- `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
+- `../roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`
 
 Use this folder for automation templates, state, logs, review outputs, and
 closeout checklists.
@@ -31,8 +33,11 @@ automation/
 Do not place delivery state, automation logs, or review iteration files directly
 in the project root or `../roadmaps/`.
 
-## Active Roadmaps
+## Configured Roadmaps
 
 | Roadmap | Status | Phase | Automation | State |
 |---|---|---|---|---|
-| `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md` | In Progress | Phase 0 - Scope Confirmation | `autonomous-roadmap-delivery-skill` hourly, ACTIVE | `autonomous-roadmap-delivery-skill/delivery_state.json` |
+| `../roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md` | Delivered | Complete | `autonomous-roadmap-delivery-skill` hourly, PAUSED | `autonomous-roadmap-delivery-skill/delivery_state.json` |
+| `../roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md` | Delivered | Complete | `phase-model-policy-and-stall-control` hourly, PAUSED | `phase-model-policy-and-stall-control/delivery_state.json` |
+| `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed pending pause | Complete | `framework-core-and-release-readiness` hourly, ACTIVE | `framework-core-and-release-readiness/delivery_state.json` |
+| `../roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md` | Not Started | Phase 0 - Host Capability Contract | not configured | not configured |

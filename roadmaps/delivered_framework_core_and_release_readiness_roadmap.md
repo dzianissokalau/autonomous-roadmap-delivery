@@ -1,11 +1,13 @@
 # Framework Core And Release Readiness Roadmap
 
-Status: In Progress
-Current phase: Phase 10 - Migration, Documentation, And Closeout
+Status: Completed
+Current phase: Complete
 Last updated: 2026-05-25
-Next action: Start Phase 10 on
-`codex/framework-core-and-release-readiness-phase-10`.
-Blocked by: None
+Next action: Request or approve pausing the
+`framework-core-and-release-readiness` automation, then start the companion
+multi-host adapter roadmap when ready.
+Blocked by: Automation pause decision before operational closeout is fully
+complete.
 
 ## Purpose
 
@@ -163,10 +165,10 @@ Release work is separate from core and adapter migration:
 ### Companion Roadmap Dependency
 
 The multi-host adapter and Claude plugin roadmap depends on this roadmap
-through Phase 5. It should consume the canonical workflow contract, schemas,
-shared library, and generated Codex adapter baseline from this roadmap before
-building Claude packaging or parity claims. This roadmap does not create a
-Claude plugin.
+through Phase 10 closeout. It should consume the canonical workflow contract,
+schemas, shared library, CLI, generated Codex adapter baseline, release checks,
+privacy guardrails, and closeout docs from this roadmap before building Claude
+packaging or parity claims. This roadmap does not create a Claude plugin.
 
 ## Target Repository Shape
 
@@ -862,6 +864,8 @@ python3 -m unittest discover -s tests -v
 
 ## Phase 10 - Migration, Documentation, And Closeout
 
+Delivery status: Delivered 2026-05-25.
+
 ### Objective
 
 Finish the framework hardening migration and leave the repository ready for
@@ -872,7 +876,7 @@ multi-host adapter work.
 ```text
 README.md
 docs/
-roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md
+roadmaps/delivered_framework_core_and_release_readiness_roadmap.md
 roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
 automation/README.md
 ```

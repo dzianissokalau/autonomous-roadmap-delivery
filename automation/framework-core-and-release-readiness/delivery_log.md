@@ -821,3 +821,86 @@ Branch: `codex/framework-core-and-release-readiness-phase-9`
 
 - Start Phase 10 - Migration, Documentation, And Closeout on
   `codex/framework-core-and-release-readiness-phase-10`.
+
+## Phase 10 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-10`
+
+### Scope
+
+- Delivered Phase 10 only: Migration, Documentation, And Closeout.
+- Owned files: `README.md`, `docs/`,
+  `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`,
+  `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`, and
+  `automation/README.md`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added framework closeout documentation for architecture, compatibility,
+  contributor workflow, migration from the pre-core layout, and `0.1.0`
+  release notes.
+- Reworked README into a framework quickstart with architecture summary,
+  install options, compatibility matrix, local verification commands, release
+  links, contributor workflow, and migration pointers.
+- Fixed `automation/README.md` so configured roadmap statuses reflect the
+  delivered original roadmap, delivered model-policy roadmap, completed
+  pending-pause framework roadmap, and not-started companion roadmap.
+- Updated the companion multi-host adapter roadmap so it depends on the
+  completed framework closeout outputs rather than the old Phase 5 baseline.
+- Moved the framework roadmap to the delivered lifecycle filename and marked
+  Phase 10 delivered.
+- Added a final deep-review prompt for human merge and promotion readiness
+  review.
+- Recorded completion state as `completed_pending_pause` because the saved
+  Codex automation remains `ACTIVE` and pausing requires explicit approval.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 81 tests.
+- `python3 scripts/build_codex_package.py --check`: passed with 14 files, 0
+  diffs, and 0 errors.
+- `python3 scripts/build_release.py --check`: passed with reproducible `0.1.0`
+  source, Codex skill, schema, CLI, manifest, and checksum artifacts.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 73
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest tests.test_quality_gates -v`: passed, 5 tests.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-10-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; sub-agent delegation was not used
+  because explicit delegation authorization was not present in this run.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The saved Codex automation remains `ACTIVE`; completion pause requires human
+  approval or a separate approved app automation update.
+- The saved automation prompt still references the previous `in_progress_`
+  roadmap path. The prompt includes the required completion hard stop, and app
+  automation config was not edited because this run does not have approval for
+  that surface.
+- Publication, promotion to `main`, installed-skill synchronization, and
+  external release publishing remain human-approved follow-up actions.
+
+### Next Action
+
+- Preserve the Phase 10 branch and completion evidence. Request approval to
+  pause the `framework-core-and-release-readiness` automation before starting
+  any new delivery work from this automation.
+
+## Operator Alert - 2026-05-25T11:56:13Z - Completed
+
+- Alert file: `automation/framework-core-and-release-readiness/alerts/2026-05-25T11-56-13Z-completed.md`
+- Reason: All roadmap phases are delivered and final verification passed; the saved Codex automation remains ACTIVE and needs an explicit pause decision.
+- Notification sink: `alert_file`
+- Notification status: `local_alert_only`

@@ -1,139 +1,129 @@
 # Roadmap Delivery Skill
 
-This workspace contains the strategy, phased roadmap, and local automation
-artifacts for building the Roadmap Delivery Skill for Codex.
+Roadmap Delivery Skill is a file-backed, phase-gated delivery framework for
+roadmap-driven coding work. The repository now separates the canonical workflow
+core from host-specific packaging, with Codex as the first generated adapter.
 
 GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
 [![CI](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml)
 [![Release Check](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml)
 
-Security policy: `SECURITY.md`. Privacy and release sanitization guide:
-`docs/privacy-and-sanitization.md`.
+Key docs:
+
+- Architecture: `docs/architecture.md`
+- Compatibility: `docs/compatibility.md`
+- Contributor workflow: `docs/contributor-workflow.md`
+- Migration guide: `docs/migration-guide.md`
+- Privacy and release sanitization: `docs/privacy-and-sanitization.md`
+- Release notes: `docs/release-notes-0.1.0.md`
+- Security policy: `SECURITY.md`
+
+## Quickstart
+
+Run the framework from a checkout:
+
+```bash
+python3 -m roadmap_delivery.cli version
+
+python3 -m roadmap_delivery.cli inspect \
+  --repo-root "$PWD" \
+  --roadmap-slug framework-core-and-release-readiness \
+  --automation-id framework-core-and-release-readiness \
+  --json
+
+python3 -m roadmap_delivery.cli validate \
+  --repo-root "$PWD" \
+  --roadmap-slug framework-core-and-release-readiness \
+  --automation-id framework-core-and-release-readiness \
+  --strict \
+  --allow-warning worktree_dirty \
+  --json
+```
+
+Install the local Python package when you want the `roadmap-delivery` console
+script during development:
+
+```bash
+python3 -m pip install -e .
+roadmap-delivery version
+```
+
+The installable Codex skill package lives at
+`skill/roadmap-delivery-skill/`. The generated package is committed so Codex
+users can install it without running the renderer first.
+
+## Architecture
+
+The repository is organized around durable files rather than a service-backed
+control plane:
+
+| Surface | Path | Responsibility |
+|---|---|---|
+| Core workflow | `core/references/` | Host-neutral setup, delivery, review, state, finalization, and troubleshooting rules. |
+| Templates and prompts | `core/templates/`, `core/prompts/` | Reusable state, log, review, prompt, and guard text. |
+| Schemas | `schemas/` | Versioned contracts for delivery state, model policy, reviews, and run logs. |
+| Shared library | `src/roadmap_delivery/` | Validation, inspection, model policy, progress, git, state, and CLI behavior. |
+| Codex adapter | `adapters/codex/` | Rendering inputs for the committed Codex skill package. |
+| Codex package | `skill/roadmap-delivery-skill/` | Generated installable skill snapshot and compatibility scripts. |
+| Automation evidence | `automation/<roadmap-slug>/` | Local state, logs, alerts, reviews, and guide files for roadmap runs. |
+| Release output | `dist/` | Ignored local build artifacts created by `scripts/build_release.py`. |
+
+The Codex package is generated from canonical core sources plus the Codex
+adapter overlay. `scripts/build_codex_package.py --check` fails when the
+committed package drifts from those inputs.
+
+## Compatibility Matrix
+
+| Surface | Current support | Notes |
+|---|---|---|
+| Codex skill path | Supported | `skill/roadmap-delivery-skill/` remains installable. |
+| Legacy helper script paths | Supported | Scripts under `skill/roadmap-delivery-skill/scripts/` are compatibility wrappers. |
+| Python CLI | Supported | Use `python3 -m roadmap_delivery.cli` from a checkout or `roadmap-delivery` after install. |
+| State schema | Versioned | `schema_version: 1` is validated; legacy states remain warning-backed where supported. |
+| Model policy | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
+| Release artifacts | Local only | Build and verify locally; publication requires explicit human approval. |
+| Claude adapter | Not yet implemented | The companion multi-host roadmap starts from the framework outputs here. |
+| Hosted control plane | Not included | This roadmap keeps state, logs, reviews, and alerts file-backed. |
 
 ## Roadmaps
 
-- Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
-- Status: Delivered
-- Current phase: Complete
-- Review branch: `codex/autonomous-roadmap-delivery-skill-phase-10`
-- Automation guide: `automation/autonomous-roadmap-delivery-skill/automation_guide.md`
-- Delivery state: `automation/autonomous-roadmap-delivery-skill/delivery_state.json`
-- Delivery log: `automation/autonomous-roadmap-delivery-skill/delivery_log.md`
-- Final review prompt: `automation/autonomous-roadmap-delivery-skill/deep_review_prompt.md`
-- Codex automation: `autonomous-roadmap-delivery-skill` hourly, PAUSED
-- Repository skill snapshot: `skill/roadmap-delivery-skill/`
-
-## Model-Aware Automation Update
-
+- `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`: delivered
+  original Codex roadmap and repository skill snapshot.
 - `roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md`:
-  model-aware automation retargeting, stalled-run pause behavior, and local
-  operator alerts. The roadmap is delivered and the automation pause has been
-  confirmed.
-
-Model-aware roadmap delivery uses a repository-local policy file:
-
-```text
-automation/<roadmap-slug>/phase_model_policy.json
-```
-
-The policy records default model/reasoning choices, optional per-phase
-overrides, the finalization model, stalled-run threshold, and notification
-fallback. New roadmap delivery automations created with the current setup
-guidance should create this file by default.
-
-Important limitation: the skill cannot switch the model or reasoning effort of
-an already-running Codex session. The Codex app automation, CLI command, or
-runner profile must be configured for the required model before delivery work
-starts. The skill validates that readback and stops before implementation when
-the configured model or reasoning effort cannot be proven.
-
-### Migrating Existing Automations
-
-Existing roadmap delivery automations can adopt model policy incrementally:
-
-1. Create `automation/<roadmap-slug>/phase_model_policy.json` with
-   `schema_version`, `max_stalled_runs`, `notification`, `defaults`, and
-   `phases`.
-2. Add or verify state fields for `required_model`,
-   `required_reasoning_effort`, configured automation model/reasoning,
-   `run_count`, `stalled_run_count`, `max_stalled_runs`,
-   `last_progress_signature`, `last_progress_at`, and `last_operator_alert`.
-3. Resolve the current phase's required model from the policy and read back the
-   saved automation or runner config before editing phase files.
-4. Update the automation prompt to include the start-run model-policy hard
-   stop, Blocker Remediation Mode, completion hard stop, and one-phase delivery
-   guard.
-5. Run artifact validation and status inspection before reactivating scheduled
-   delivery:
-
-```bash
-python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py \
-  --repo-root /path/to/repo \
-  --roadmap-slug <roadmap-slug> \
-  --automation-id <automation-id> \
-  --json
-
-python3 skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py \
-  --repo-root /path/to/repo \
-  --roadmap-slug <roadmap-slug> \
-  --automation-id <automation-id> \
-  --json
-```
-
-Backward compatibility is intentional: roadmaps without
-`phase_model_policy.json` continue to use legacy behavior unless the roadmap,
-automation guide, or operator explicitly makes model policy strict. Do not add
-policy state fields by guessing desired automation values; configured
-model/reasoning fields should come from readback.
-
-Release notes and residual risks:
-
-- Alert files are always local first; GitHub issues and other external
-  notification sinks are optional and require credentials plus approval.
-- Completed roadmaps still need explicit pause handling when the automation
-  remains active. A hard-stop prompt is a safety backstop, not a substitute for
-  a paused automation.
-- Publication, promotion to `main`, branch deletion, and live automation config
-  changes remain human-approved actions.
-- The repository skill snapshot is the releasable source. Installed
-  `${CODEX_HOME:-$HOME/.codex}/skills/roadmap-delivery-skill` copies should be
-  synchronized only by an approved install or maintenance step.
-
-## Planned Roadmaps
-
-- `roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md`:
-  canonical workflow core, schemas, shared library/CLI, CI, security, release,
-  and demo readiness. Automation is configured as
-  `framework-core-and-release-readiness` with hourly cadence, `gpt-5.5`, and
-  `xhigh`, currently ACTIVE. This roadmap is the active migration contract for
-  separating canonical core, Codex adapter, generated package, and release
-  responsibilities while preserving the existing Codex install path.
+  delivered model-aware automation retargeting, stalled-run handling, and local
+  operator alerts.
+- `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`:
+  delivered framework hardening roadmap for the canonical core, schemas, shared
+  library, CLI, generated Codex adapter, CI, privacy, release, and closeout.
 - `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`:
-  generated host adapters, Claude plugin packaging, provider-neutral model
-  roles, and adapter parity tests. This companion roadmap intentionally waits
-  on the framework core roadmap through the generated Codex adapter baseline.
+  companion roadmap for generated host adapters and Claude packaging. It can
+  start after the framework automation pause decision is handled.
 
 ## Operating Model
 
-Use a phase-gated delivery loop:
+Roadmap delivery uses a single-phase loop:
 
-1. Treat the roadmap as the phase contract.
-2. Deliver exactly one phase at a time.
-3. Record durable state before and after each phase pass.
-4. Run required verification before claiming phase delivery.
-5. Require a fresh review verdict before phase advancement.
-6. Stop on blockers, stale state, failed verification, or unclear scope.
+1. Reconcile the roadmap, state, log, reviews, model policy, saved automation
+   config, branch, and worktree before editing.
+2. Deliver exactly one current phase on `codex/<roadmap-slug>-phase-<n>`.
+3. Run every required verification command plus targeted checks for changed
+   behavior.
+4. Write a skeptical review artifact with verdict `delivered`, `needs-fix`, or
+   `blocked`.
+5. Advance state only after acceptance criteria, verification, and review all
+   agree.
+6. Preserve publication, promotion, installed-skill sync, destructive git, and
+   credential use as explicit human-approved actions.
 
-The roadmap is complete locally. The pushed branch contains the roadmap
-evidence plus a source snapshot of the installed skill package so external
-reviewers can inspect the delivered skill without access to the local
-`~/.codex/skills` directory.
+Completed roadmaps still need an automation pause decision when the saved
+automation remains active. The local completion alert is the durable fallback;
+pausing the Codex app automation is a separate approved operation.
 
 ## Framework CLI
 
-The shared package exposes a stable CLI for local inspection, validation, and
-dry-run planning:
+The shared package exposes stable inspection, validation, scaffold, package,
+and version commands:
 
 ```bash
 python3 -m roadmap_delivery.cli version
@@ -167,16 +157,15 @@ python3 -m roadmap_delivery.cli package \
 ```
 
 After installation, the same interface is available as `roadmap-delivery`.
-The legacy helper scripts under `skill/roadmap-delivery-skill/scripts/` remain
-compatibility wrappers around the same shared library behavior.
+The legacy helper scripts under `skill/roadmap-delivery-skill/scripts/` call
+the same shared library paths.
 
 ## Demo Fixture
 
-`examples/demo-roadmap/` is a small self-contained fixture for trying the
-phase-gated workflow without network access, credentials, or live Codex app
-automation. It includes a three-phase demo roadmap, committed state/log/review
-artifacts, a matching model policy, and scenario files for blocked remediation
-and model-policy mismatch checks.
+`examples/demo-roadmap/` is a self-contained fixture for trying the workflow
+without network access, credentials, or live Codex app automation. It includes
+a three-phase demo roadmap, state/log/review artifacts, a model policy, and
+scenarios for blocked remediation and model-policy mismatch.
 
 ```bash
 python3 -m roadmap_delivery.cli scaffold \
@@ -197,9 +186,8 @@ python3 -m roadmap_delivery.cli inspect \
   --json
 ```
 
-The fixture is intentionally file-backed. The smoke tests copy it to a
-temporary git repository and temporary home directory so automation readback,
-blocked-run inspection, and model-policy mismatch behavior can be exercised
+The smoke tests copy the fixture to a temporary git repository and temporary
+home directory so automation readback and blocker behavior can be exercised
 without touching a real saved Codex automation.
 
 ## CI And Release Checks
@@ -274,6 +262,13 @@ python3 scripts/check_release_privacy.py --repo-root . \
   --bundle dist/roadmap-delivery-cli-0.1.0.tar.gz
 ```
 
+Release links:
+
+- Changelog: `CHANGELOG.md`
+- Release notes: `docs/release-notes-0.1.0.md`
+- Release check workflow:
+  `https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml`
+
 Rollback is file-backed: keep the previous `VERSION`, changelog entry, and
 checksum file together, rebuild from that commit, and reinstall the prior
 `skill/roadmap-delivery-skill/` package if an operator needs to revert a local
@@ -313,15 +308,26 @@ cp -R /tmp/roadmap-delivery-skill/skill/roadmap-delivery-skill \
   "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
-To run the repository-local checks:
+To verify the generated package before installing:
 
 ```bash
-python3 -m unittest discover -s tests -v
-PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-skill-review-compile-pycache \
-  python3 -m py_compile \
-  skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py \
-  skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py
+python3 scripts/build_codex_package.py --check
+python3 -m unittest tests.test_adapter_codex -v
 ```
+
+## Contributor Workflow
+
+Use `docs/contributor-workflow.md` for the full workflow. The short form is:
+pick the current roadmap phase, verify the owned file list, keep changes
+phase-scoped, run required checks, write review evidence, and avoid publishing
+or syncing installed skills without explicit approval.
+
+## Migration Guide
+
+Use `docs/migration-guide.md` when moving an existing Codex-only automation to
+the framework layout. The migration keeps `skill/roadmap-delivery-skill/`
+installable while moving source-of-truth behavior into `core/`, `schemas/`,
+`src/roadmap_delivery/`, and adapter templates.
 
 ## License
 

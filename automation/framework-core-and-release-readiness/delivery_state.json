@@ -1,50 +1,41 @@
 {
   "schema_version": 1,
-  "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
+  "roadmap": "roadmaps/delivered_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 10 - Migration, Documentation, And Closeout",
-  "branch": null,
-  "status": "not_started",
-  "review_iterations": 0,
+  "current_phase": "Complete",
+  "branch": "codex/framework-core-and-release-readiness-phase-10",
+  "status": "completed_pending_pause",
+  "review_iterations": 1,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 9 - Release And Versioning System",
-    "completed_at": "2026-05-25T10:17:21Z",
+    "phase": "Phase 10 - Migration, Documentation, And Closeout",
+    "completed_at": "2026-05-25T11:55:12Z",
     "status": "passed",
     "checks": [
-      {
-        "command": "python3 scripts/build_release.py --check",
-        "status": "passed",
-        "details": "Reproducible 0.1.0 source, Codex skill, schema, CLI, manifest, and checksum artifacts built in temporary directories; Codex artifact validation and bundle privacy scan passed."
-      },
-      {
-        "command": "python3 scripts/check_release_privacy.py --repo-root .",
-        "status": "passed",
-        "details": "68 files scanned; 0 findings and 0 errors."
-      },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
         "details": "81 tests passed."
       },
       {
-        "command": "python3 scripts/build_release.py --output-dir dist --json",
-        "status": "passed",
-        "details": "Wrote versioned artifacts under ignored dist/ for local release-check parity."
-      },
-      {
-        "command": "shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256",
-        "status": "passed",
-        "details": "All generated artifact checksums verified from dist/."
-      },
-      {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase9-pycache python3 -m py_compile scripts/build_release.py scripts/build_codex_package.py scripts/check_release_privacy.py",
-        "status": "passed"
-      },
-      {
         "command": "python3 scripts/build_codex_package.py --check",
         "status": "passed",
         "details": "14 generated Codex package files checked with 0 diffs and 0 errors."
+      },
+      {
+        "command": "python3 scripts/build_release.py --check",
+        "status": "passed",
+        "details": "Reproducible 0.1.0 source, Codex skill, schema, CLI, manifest, and checksum artifacts built in temporary directories."
+      },
+      {
+        "command": "python3 scripts/check_release_privacy.py --repo-root .",
+        "status": "passed",
+        "details": "73 files scanned; 0 findings and 0 errors."
+      },
+      {
+        "command": "python3 -m unittest tests.test_quality_gates -v",
+        "status": "passed",
+        "details": "5 quality gate tests passed."
       },
       {
         "command": "git diff --check",
@@ -53,12 +44,12 @@
     ]
   },
   "last_review": {
-    "phase": "Phase 9 - Release And Versioning System",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-9-review-iteration-1.md",
+    "phase": "Phase 10 - Migration, Documentation, And Closeout",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-10-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T10:16:51Z"
+    "reviewed_at": "2026-05-25T11:55:01Z"
   },
-  "last_delivered_phase": "Phase 9 - Release And Versioning System",
+  "last_delivered_phase": "Phase 10 - Migration, Documentation, And Closeout",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -75,7 +66,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-25T10:17:21Z",
+    "readback_at": "2026-05-25T11:55:12Z",
     "active_drift_repaired": true
   },
   "last_activation": {
@@ -110,16 +101,24 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 10,
+  "run_count": 12,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:e32704430822ffd878dabf6de034b5fc7535c463a1a62305a69560c0b0b5e60a",
-  "last_progress_at": "2026-05-25T10:18:55Z",
-  "last_operator_alert": null,
+  "last_progress_signature": "sha256:b3fc8fb19dc5c0942981256d1e3fe6066cc9cdb708c1a8fa74bb1dd08217e395",
+  "last_progress_at": "2026-05-25T11:57:25Z",
+  "last_operator_alert": {
+    "kind": "completed",
+    "file": "automation/framework-core-and-release-readiness/alerts/2026-05-25T11-56-13Z-completed.md",
+    "timestamp": "2026-05-25T11:56:13Z",
+    "reason": "All roadmap phases are delivered and final verification passed; the saved Codex automation remains ACTIVE and needs an explicit pause decision.",
+    "next_human_action": "Approve or perform pausing the framework-core-and-release-readiness automation, then preserve final evidence.",
+    "notification_sink": "alert_file",
+    "notification_status": "local_alert_only"
+  },
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
-  "all_phases_complete": false,
-  "deep_review_prompt": null,
-  "updated_at": "2026-05-25T10:18:55Z"
+  "all_phases_complete": true,
+  "deep_review_prompt": "automation/framework-core-and-release-readiness/deep_review_prompt.md",
+  "updated_at": "2026-05-25T11:57:25Z"
 }
