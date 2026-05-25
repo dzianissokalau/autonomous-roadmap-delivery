@@ -246,23 +246,39 @@ if [ -n "${CODEX_QUICK_VALIDATE:-}" ] && [ -f "${CODEX_QUICK_VALIDATE}" ]; then
 fi
 ```
 
+## Release Artifacts
+
+The repository release version is stored in `VERSION`. The Python package
+metadata stays unpublished until a separate publication phase, so local
+release artifacts use `VERSION` for archive names, manifests, and checksums.
+
+`scripts/build_release.py` builds these deterministic local artifacts:
+
+- source archive
+- Codex skill package
+- schema bundle
+- CLI source package
+- release manifest
+- SHA-256 checksum file
+
 Local equivalent for the release-check artifact build:
 
 ```bash
-mkdir -p dist
-tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
-  README.md \
-  SECURITY.md \
-  LICENSE \
-  pyproject.toml \
-  docs \
-  core \
-  schemas \
-  src \
-  scripts \
-  adapters \
-  skill/roadmap-delivery-skill
+python3 scripts/build_release.py --check
+python3 scripts/build_release.py --output-dir dist --json
+(cd dist && shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256)
+python3 scripts/check_release_privacy.py --repo-root . \
+  --bundle dist/roadmap-delivery-0.1.0-source.tar.gz \
+  --bundle dist/roadmap-delivery-codex-skill-0.1.0.tar.gz \
+  --bundle dist/roadmap-delivery-schemas-0.1.0.tar.gz \
+  --bundle dist/roadmap-delivery-cli-0.1.0.tar.gz
 ```
+
+Rollback is file-backed: keep the previous `VERSION`, changelog entry, and
+checksum file together, rebuild from that commit, and reinstall the prior
+`skill/roadmap-delivery-skill/` package if an operator needs to revert a local
+Codex installation. Do not publish GitHub Releases, PyPI packages, Homebrew
+formulae, or other external artifacts without explicit approval.
 
 ## Install The Codex Skill
 

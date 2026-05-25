@@ -740,3 +740,84 @@ Branch: `codex/framework-core-and-release-readiness-phase-8`
 
 - Start Phase 9 - Release And Versioning System on
   `codex/framework-core-and-release-readiness-phase-9`.
+
+## Phase 9 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-9`
+
+### Scope
+
+- Delivered Phase 9 only: Release And Versioning System.
+- Owned files: `CHANGELOG.md`, `VERSION`, `scripts/build_release.py`,
+  `dist/`, `.github/workflows/release-check.yml`, and `README.md`.
+- Updated release-adjacent quality tests so the new release builder is covered
+  by existing gates.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added `VERSION` with repository release version `0.1.0`.
+- Added `CHANGELOG.md` with compatibility notes for the Codex package path,
+  helper wrappers, legacy state compatibility, and human-approved publication.
+- Added `scripts/build_release.py`, a dependency-free deterministic release
+  builder for source, Codex skill, schema, CLI source, manifest, and checksum
+  artifacts.
+- Added `dist/.gitignore` so local release artifacts can be generated without
+  committing build output.
+- Updated the release-check workflow to run unit tests, Codex package checks,
+  privacy scanning, release reproducibility checks, and versioned artifact
+  upload without publishing.
+- Documented local release build, checksum verification, privacy scanning,
+  rollback, and publication approval boundaries in README.
+- Updated quality/privacy tests to assert the new release-builder workflow.
+- Advanced the roadmap and state to Phase 10 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 scripts/build_release.py --check`: passed; produced reproducible
+  `0.1.0` source, Codex skill, schema, CLI, manifest, and checksum artifacts;
+  Codex artifact validation passed; privacy scan found 0 findings.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 68
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest discover -s tests -v`: passed, 81 tests.
+- `python3 scripts/build_release.py --output-dir dist --json`: passed and
+  wrote versioned artifacts under ignored `dist/`.
+- `shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256`: passed from
+  `dist/` for all generated artifacts.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase9-pycache python3 -m py_compile scripts/build_release.py scripts/build_codex_package.py scripts/check_release_privacy.py`:
+  passed.
+- `python3 scripts/build_codex_package.py --check`: passed with 14 files, 0
+  diffs, and 0 errors.
+- `python3 -m unittest tests.test_quality_gates -v`: passed, 5 tests.
+- `git diff --check`: passed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning worktree_dirty --allow-warning current_branch_name_mismatch --json`:
+  passed with only the expected dirty-worktree warning after switching to the
+  Phase 9 branch.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-9-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; delegated fresh-context review was
+  not used because explicit sub-agent delegation was not requested.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- GitHub Actions were authored and locally validated, but the release-check
+  workflow was not run on GitHub because this phase did not push.
+- Generated artifacts under `dist/` are intentionally ignored; release
+  publication remains a separate human-approved action.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 10 - Migration, Documentation, And Closeout on
+  `codex/framework-core-and-release-readiness-phase-10`.

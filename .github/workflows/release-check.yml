@@ -28,46 +28,14 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -v
           python3 scripts/build_codex_package.py --check
+          python3 scripts/check_release_privacy.py --repo-root .
+          python3 scripts/build_release.py --check
 
-      - name: Build local release bundle
-        run: |
-          mkdir -p dist
-          tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
-            README.md \
-            SECURITY.md \
-            LICENSE \
-            pyproject.toml \
-            docs \
-            core \
-            schemas \
-            src \
-            scripts \
-            adapters \
-            skill/roadmap-delivery-skill
-          python3 - <<'PY'
-          from pathlib import Path
-          from pathlib import PurePosixPath
-          import tarfile
-
-          bundle = Path("dist/roadmap-delivery-codex-skill.tar.gz")
-          with tarfile.open(bundle, "r:gz") as archive:
-              names = archive.getnames()
-
-          forbidden_prefixes = ("automation/", "roadmaps/", ".git/")
-          leaked = [
-              name
-              for name in names
-              if name.startswith(forbidden_prefixes)
-              or name.startswith("/")
-              or ".codex" in PurePosixPath(name).parts
-          ]
-          if leaked:
-              raise SystemExit(f"Release bundle contains non-release paths: {leaked}")
-          print(f"Built {bundle} with {len(names)} entries.")
-          PY
+      - name: Build local release artifacts
+        run: python3 scripts/build_release.py --output-dir dist --json
 
       - name: Upload release-check artifact
         uses: actions/upload-artifact@v4
         with:
-          name: roadmap-delivery-codex-skill
-          path: dist/roadmap-delivery-codex-skill.tar.gz
+          name: roadmap-delivery-release-artifacts
+          path: dist/*

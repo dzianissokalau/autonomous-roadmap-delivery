@@ -6,6 +6,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_DIR = REPO_ROOT / ".github" / "workflows"
 QUALITY_ROOTS = (
     REPO_ROOT / "README.md",
+    REPO_ROOT / "CHANGELOG.md",
+    REPO_ROOT / "VERSION",
     REPO_ROOT / "core",
     REPO_ROOT / "schemas",
     REPO_ROOT / "src",
@@ -27,7 +29,7 @@ def iter_quality_files():
         else:
             candidates = []
         for path in candidates:
-            if path.suffix.lower() in QUALITY_SUFFIXES:
+            if path.name == "VERSION" or path.suffix.lower() in QUALITY_SUFFIXES:
                 yield path
 
 
@@ -87,9 +89,11 @@ class QualityGateTests(unittest.TestCase):
             "name: Release Check",
             "python3 -m unittest discover -s tests -v",
             "python3 scripts/build_codex_package.py --check",
-            "tar -czf dist/roadmap-delivery-codex-skill.tar.gz",
+            "python3 scripts/check_release_privacy.py --repo-root .",
+            "python3 scripts/build_release.py --check",
+            "python3 scripts/build_release.py --output-dir dist --json",
             "actions/upload-artifact@v4",
-            "Release bundle contains non-release paths",
+            "roadmap-delivery-release-artifacts",
         )
         for snippet in required_snippets:
             with self.subTest(snippet=snippet):
@@ -117,10 +121,11 @@ class QualityGateTests(unittest.TestCase):
             "python3 -m unittest tests.test_schema_validation -v",
             "python3 scripts/build_codex_package.py --check",
             "python3 -m unittest tests.test_quality_gates -v",
+            "python3 scripts/build_release.py --check",
             "python3 -m roadmap_delivery.cli validate",
             "git diff --check",
             "CODEX_QUICK_VALIDATE",
-            "tar -czf dist/roadmap-delivery-codex-skill.tar.gz",
+            "roadmap-delivery-0.1.0-checksums.sha256",
         )
         for snippet in required_snippets:
             with self.subTest(snippet=snippet):

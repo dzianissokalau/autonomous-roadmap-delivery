@@ -76,3 +76,24 @@ Review file:
 ### Next Action
 
 - Phase 3 is ready to start on the next automation run.
+
+## Phase 9 - 2026-05-25 - Review Iteration 1
+
+Status: delivered
+Review file:
+`automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-9-review-iteration-1.md`
+
+### Findings
+
+- No blocking findings.
+
+### Verification
+
+- `python3 scripts/build_release.py --check`: passed.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed.
+- `python3 -m unittest discover -s tests -v`: passed, 81 tests.
+- `git diff --check`: passed.
+
+### Next Action
+
+- Phase 10 is ready to start on the next automation run.

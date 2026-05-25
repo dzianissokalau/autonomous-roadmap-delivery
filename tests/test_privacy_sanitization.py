@@ -112,12 +112,14 @@ class PrivacySanitizationTests(unittest.TestCase):
         security = (REPO_ROOT / "SECURITY.md").read_text(encoding="utf-8")
         privacy = (REPO_ROOT / "docs" / "privacy-and-sanitization.md").read_text(encoding="utf-8")
         release_check = (REPO_ROOT / ".github" / "workflows" / "release-check.yml").read_text(encoding="utf-8")
+        release_builder = (REPO_ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
 
         self.assertIn("python3 scripts/check_release_privacy.py --repo-root .", workflow)
         self.assertIn("SECURITY.md", readme)
         self.assertIn("docs/privacy-and-sanitization.md", readme)
-        self.assertIn("SECURITY.md", release_check)
-        self.assertIn("docs", release_check)
+        self.assertIn("python3 scripts/build_release.py --check", release_check)
+        self.assertIn('"SECURITY.md"', release_builder)
+        self.assertIn('"docs"', release_builder)
         self.assertIn("Reporting A Vulnerability", security)
         self.assertIn("Manual Release Checklist", privacy)
 

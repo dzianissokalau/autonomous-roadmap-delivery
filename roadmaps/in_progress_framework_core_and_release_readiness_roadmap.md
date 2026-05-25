@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 9 - Release And Versioning System
+Current phase: Phase 10 - Migration, Documentation, And Closeout
 Last updated: 2026-05-25
-Next action: Start Phase 9 on
-`codex/framework-core-and-release-readiness-phase-9`.
+Next action: Start Phase 10 on
+`codex/framework-core-and-release-readiness-phase-10`.
 Blocked by: None
 
 ## Purpose
@@ -804,6 +804,8 @@ python3 -m roadmap_delivery.cli validate \
 - Stop if smoke tests need live Codex app automation access.
 
 ## Phase 9 - Release And Versioning System
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 

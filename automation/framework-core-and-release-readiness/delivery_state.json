@@ -2,20 +2,25 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 9 - Release And Versioning System",
+  "current_phase": "Phase 10 - Migration, Documentation, And Closeout",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 8 - Demo Fixture And Smoke Tests",
-    "completed_at": "2026-05-25T09:18:32Z",
+    "phase": "Phase 9 - Release And Versioning System",
+    "completed_at": "2026-05-25T10:17:21Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 -m unittest tests.test_smoke_demo -v",
+        "command": "python3 scripts/build_release.py --check",
         "status": "passed",
-        "details": "5 demo smoke tests passed."
+        "details": "Reproducible 0.1.0 source, Codex skill, schema, CLI, manifest, and checksum artifacts built in temporary directories; Codex artifact validation and bundle privacy scan passed."
+      },
+      {
+        "command": "python3 scripts/check_release_privacy.py --repo-root .",
+        "status": "passed",
+        "details": "68 files scanned; 0 findings and 0 errors."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
@@ -23,18 +28,23 @@
         "details": "81 tests passed."
       },
       {
-        "command": "python3 -m roadmap_delivery.cli validate --repo-root examples/demo-roadmap --roadmap-slug demo-roadmap --json",
-        "status": "passed_with_expected_warnings",
-        "warnings": [
-          "automation_config_not_found",
-          "current_branch_name_mismatch",
-          "worktree_dirty"
-        ],
-        "details": "Demo fixture validation passed without credentials or live automation access."
+        "command": "python3 scripts/build_release.py --output-dir dist --json",
+        "status": "passed",
+        "details": "Wrote versioned artifacts under ignored dist/ for local release-check parity."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase8-pycache python3 -m py_compile tests/test_smoke_demo.py",
+        "command": "shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256",
+        "status": "passed",
+        "details": "All generated artifact checksums verified from dist/."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-phase9-pycache python3 -m py_compile scripts/build_release.py scripts/build_codex_package.py scripts/check_release_privacy.py",
         "status": "passed"
+      },
+      {
+        "command": "python3 scripts/build_codex_package.py --check",
+        "status": "passed",
+        "details": "14 generated Codex package files checked with 0 diffs and 0 errors."
       },
       {
         "command": "git diff --check",
@@ -43,12 +53,12 @@
     ]
   },
   "last_review": {
-    "phase": "Phase 8 - Demo Fixture And Smoke Tests",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-8-review-iteration-1.md",
+    "phase": "Phase 9 - Release And Versioning System",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-9-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T09:18:32Z"
+    "reviewed_at": "2026-05-25T10:16:51Z"
   },
-  "last_delivered_phase": "Phase 8 - Demo Fixture And Smoke Tests",
+  "last_delivered_phase": "Phase 9 - Release And Versioning System",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -65,7 +75,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-25T09:18:32Z",
+    "readback_at": "2026-05-25T10:17:21Z",
     "active_drift_repaired": true
   },
   "last_activation": {
@@ -100,16 +110,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 9,
+  "run_count": 10,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:697011c0fb911155f4a7454c14ac07a7470a0528bb76277838b03f0d795c34e2",
-  "last_progress_at": "2026-05-25T09:18:32Z",
+  "last_progress_signature": "sha256:e32704430822ffd878dabf6de034b5fc7535c463a1a62305a69560c0b0b5e60a",
+  "last_progress_at": "2026-05-25T10:18:55Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-25T09:18:32Z"
+  "updated_at": "2026-05-25T10:18:55Z"
 }
