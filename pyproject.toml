@@ -8,6 +8,9 @@ version = "0.0.0"
 description = "Shared helpers for phase-gated roadmap delivery workflows."
 requires-python = ">=3.9"
 
+[project.scripts]
+roadmap-delivery = "roadmap_delivery.cli:main"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 

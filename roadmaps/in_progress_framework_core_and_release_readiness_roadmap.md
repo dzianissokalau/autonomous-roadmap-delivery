@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 4 - Stable CLI
+Current phase: Phase 5 - Codex Adapter Generation
 Last updated: 2026-05-25
-Next action: Start Phase 4 on
-`codex/framework-core-and-release-readiness-phase-4`.
+Next action: Start Phase 5 on
+`codex/framework-core-and-release-readiness-phase-5`.
 Blocked by: None
 
 ## Purpose
@@ -507,6 +507,8 @@ PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-library-compile-pycache \
   mode.
 
 ## Phase 4 - Stable CLI
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 

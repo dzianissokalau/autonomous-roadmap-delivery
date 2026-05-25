@@ -367,3 +367,81 @@ Branch: `codex/framework-core-and-release-readiness-phase-3`
 
 - Start Phase 4 - Stable CLI on
   `codex/framework-core-and-release-readiness-phase-4`.
+
+## Phase 4 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-4`
+
+### Scope
+
+- Delivered Phase 4 only: Stable CLI.
+- Owned files: `src/roadmap_delivery/cli.py`, `pyproject.toml`,
+  `README.md`, and `tests/test_cli.py`.
+- Added `roadmap_delivery/__init__.py` as a repository-local source-tree import
+  shim so the roadmap-required `python3 -m roadmap_delivery.cli ...` command
+  works before installation while installed packaging still uses `src/`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added the stable `roadmap_delivery.cli` command surface with `version`,
+  `inspect`, `validate`, `scaffold`, and `package` subcommands.
+- Routed `inspect` and `validate` through the same shared library modules used
+  by the compatibility helper scripts.
+- Added stable JSON metadata fields: `cli_schema_version`, `command`, and
+  `status`.
+- Added text and JSON output modes, plus `--repo-root`, `--strict`, and
+  `--allow-warning` handling on repository-aware commands.
+- Added scaffold dry-run planning for the canonical automation artifact set.
+- Added Codex package dry-run planning that reports Phase 5 adapter overlay
+  readiness without rendering packages.
+- Added the `roadmap-delivery` console script entry point.
+- Added CLI usage examples to `README.md`.
+- Advanced the roadmap and state to Phase 5 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_cli -v`: passed, 5 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 62 tests.
+- `python3 -m roadmap_delivery.cli version`: passed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json`:
+  passed with no errors and expected warnings for legacy completed roadmap
+  artifacts, stale paused automation prompt references, and the dirty
+  worktree.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-cli-compile-pycache python3 -m py_compile src/roadmap_delivery/cli.py roadmap_delivery/__init__.py`:
+  passed.
+- `python3 -m roadmap_delivery.cli scaffold --repo-root /private/tmp/roadmap-cli-plan --roadmap-slug example-roadmap --automation-id example-roadmap-delivery --dry-run --json`:
+  passed and wrote no files.
+- `python3 -m roadmap_delivery.cli package --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --adapter codex --dry-run --json`:
+  passed with `status: ok`, `dry_run_ready: true`, and `renderer_ready:
+  false`.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-4-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; sub-agent delegation was not used
+  because explicit delegation authorization was not present in this run.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The repository-local import shim exists only to support module-form
+  verification from an uninstalled checkout. The packaged distribution remains
+  sourced from `src/roadmap_delivery/`.
+- The package dry-run command does not render packages yet. Actual Codex
+  adapter rendering is Phase 5 scope.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 5 - Codex Adapter Generation on
+  `codex/framework-core-and-release-readiness-phase-5`.

@@ -124,6 +124,46 @@ evidence plus a source snapshot of the installed skill package so external
 reviewers can inspect the delivered skill without access to the local
 `~/.codex/skills` directory.
 
+## Framework CLI
+
+The shared package exposes a stable CLI for local inspection, validation, and
+dry-run planning:
+
+```bash
+python3 -m roadmap_delivery.cli version
+
+python3 -m roadmap_delivery.cli inspect \
+  --repo-root "$PWD" \
+  --roadmap-slug framework-core-and-release-readiness \
+  --automation-id framework-core-and-release-readiness \
+  --json
+
+python3 -m roadmap_delivery.cli validate \
+  --repo-root "$PWD" \
+  --roadmap-slug framework-core-and-release-readiness \
+  --automation-id framework-core-and-release-readiness \
+  --strict \
+  --allow-warning worktree_dirty \
+  --json
+
+python3 -m roadmap_delivery.cli scaffold \
+  --repo-root "$PWD" \
+  --roadmap-slug example-roadmap \
+  --automation-id example-roadmap-delivery \
+  --dry-run \
+  --json
+
+python3 -m roadmap_delivery.cli package \
+  --repo-root "$PWD" \
+  --adapter codex \
+  --dry-run \
+  --json
+```
+
+After installation, the same interface is available as `roadmap-delivery`.
+The legacy helper scripts under `skill/roadmap-delivery-skill/scripts/` remain
+compatibility wrappers around the same shared library behavior.
+
 ## Install The Codex Skill
 
 The installable skill lives at:

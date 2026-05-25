@@ -2,46 +2,55 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 4 - Stable CLI",
+  "current_phase": "Phase 5 - Codex Adapter Generation",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 3 - Shared Python Library Extraction",
-    "completed_at": "2026-05-25T06:47:52Z",
+    "phase": "Phase 4 - Stable CLI",
+    "completed_at": "2026-05-25T07:06:38Z",
     "status": "passed",
     "checks": [
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "57 tests passed."
+        "details": "62 tests passed."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-library-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
+        "command": "python3 -m roadmap_delivery.cli version",
         "status": "passed"
       },
       {
-        "command": "python3 -m unittest tests.test_library_units -v",
-        "status": "passed",
-        "details": "7 tests passed."
-      },
-      {
-        "command": "python3 -m unittest tests.test_helper_scripts -v",
-        "status": "passed",
-        "details": "39 tests passed."
-      },
-      {
-        "command": "skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
-        "status": "passed",
-        "details": "Executable wrapper readback succeeded with only the expected dirty-worktree warning."
-      },
-      {
-        "command": "skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
+          "legacy_delivery_state_schema_version",
+          "legacy_review_artifact_schema",
+          "automation_prompt_current_roadmap_missing",
+          "stale_automation_roadmap_path",
           "worktree_dirty"
         ]
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-cli-compile-pycache python3 -m py_compile src/roadmap_delivery/cli.py roadmap_delivery/__init__.py",
+        "status": "passed",
+        "details": "CLI module and source-tree import shim compiled."
+      },
+      {
+        "command": "python3 -m unittest tests.test_cli -v",
+        "status": "passed",
+        "details": "5 tests passed."
+      },
+      {
+        "command": "python3 -m roadmap_delivery.cli scaffold --repo-root /private/tmp/roadmap-cli-plan --roadmap-slug example-roadmap --automation-id example-roadmap-delivery --dry-run --json",
+        "status": "passed",
+        "details": "Dry-run plan listed canonical automation artifacts and wrote no files."
+      },
+      {
+        "command": "python3 -m roadmap_delivery.cli package --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --adapter codex --dry-run --json",
+        "status": "passed",
+        "details": "Dry-run Codex package plan returned status ok, dry_run_ready true, and renderer_ready false for Phase 5 overlay work."
       },
       {
         "command": "git diff --check",
@@ -50,12 +59,12 @@
     ]
   },
   "last_review": {
-    "phase": "Phase 3 - Shared Python Library Extraction",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-3-review-iteration-1.md",
+    "phase": "Phase 4 - Stable CLI",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-4-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T06:47:52Z"
+    "reviewed_at": "2026-05-25T07:06:38Z"
   },
-  "last_delivered_phase": "Phase 3 - Shared Python Library Extraction",
+  "last_delivered_phase": "Phase 4 - Stable CLI",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -107,16 +116,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 4,
+  "run_count": 5,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:deebf6f5f1051c83b4c4118da113b431e51ff595090f9c8d2a9245c07bc58579",
-  "last_progress_at": "2026-05-25T06:47:52Z",
+  "last_progress_signature": "sha256:206eecf8165708049d9f62b0e7849a062b34be6b27b0f5d5ebd6d062e1846a5f",
+  "last_progress_at": "2026-05-25T07:09:57Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-25T06:47:52Z"
+  "updated_at": "2026-05-25T07:09:57Z"
 }
