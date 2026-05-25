@@ -301,3 +301,69 @@ Branch: `codex/framework-core-and-release-readiness-phase-2`
 
 - Start Phase 3 - Shared Python Library Extraction on
   `codex/framework-core-and-release-readiness-phase-3`.
+
+## Phase 3 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-3`
+
+### Scope
+
+- Delivered Phase 3 only: Shared Python Library Extraction.
+- Owned files: `src/roadmap_delivery/`,
+  `skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py`,
+  `skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`,
+  `tests/test_helper_scripts.py`, `tests/test_library_units.py`, and
+  `pyproject.toml`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added the shared `roadmap_delivery` package under `src/` with centralized
+  path, TOML, git, state, policy, progress, inspection, and validation modules.
+- Converted the phase-owned inspection and validation helper scripts into
+  executable compatibility wrappers that locate repository `src/` without an
+  editable install.
+- Added package metadata in `pyproject.toml` without adding public CLI names.
+- Added direct library unit tests while preserving existing helper-script
+  regression behavior.
+- Advanced the roadmap and state to Phase 4 after the delivered review verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_library_units -v`: passed, 7 tests.
+- `python3 -m unittest tests.test_helper_scripts -v`: passed, 39 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 57 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-library-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py`:
+  passed.
+- `git diff --check`: passed.
+- Direct executable wrapper readback for `inspect_delivery_state.py`: passed
+  with only the expected dirty-worktree warning.
+- Direct executable wrapper artifact validation: passed with no errors and
+  only the expected dirty-worktree warning.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-3-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; sub-agent delegation was available
+  only with explicit delegation authorization, which was not present in this
+  run.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The compatibility wrappers require either a repository checkout containing
+  `src/roadmap_delivery/` or an installed `roadmap-delivery` package. Checkout
+  mode was verified by direct executable wrapper smoke checks.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 4 - Stable CLI on
+  `codex/framework-core-and-release-readiness-phase-4`.

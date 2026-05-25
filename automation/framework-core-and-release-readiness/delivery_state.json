@@ -2,38 +2,27 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 3 - Shared Python Library Extraction",
+  "current_phase": "Phase 4 - Stable CLI",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 2 - JSON Schemas And Versioned State",
-    "completed_at": "2026-05-24T21:11:05Z",
+    "phase": "Phase 3 - Shared Python Library Extraction",
+    "completed_at": "2026-05-25T06:47:52Z",
     "status": "passed",
     "checks": [
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "50 tests passed."
+        "details": "57 tests passed."
       },
       {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-schema-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-library-compile-pycache python3 -m py_compile skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py",
         "status": "passed"
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
-        "status": "passed_with_expected_warnings",
-        "warnings": [
-          "legacy_delivery_state_schema_version",
-          "legacy_review_artifact_schema",
-          "automation_prompt_current_roadmap_missing",
-          "stale_automation_roadmap_path",
-          "worktree_dirty"
-        ]
-      },
-      {
-        "command": "python3 -m unittest tests.test_schema_validation -v",
+        "command": "python3 -m unittest tests.test_library_units -v",
         "status": "passed",
         "details": "7 tests passed."
       },
@@ -43,25 +32,30 @@
         "details": "39 tests passed."
       },
       {
-        "command": "git diff --check",
-        "status": "passed"
+        "command": "skill/roadmap-delivery-skill/scripts/inspect_delivery_state.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "status": "passed",
+        "details": "Executable wrapper readback succeeded with only the expected dirty-worktree warning."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "command": "skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
           "worktree_dirty"
         ]
+      },
+      {
+        "command": "git diff --check",
+        "status": "passed"
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 2 - JSON Schemas And Versioned State",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-2-review-iteration-1.md",
+    "phase": "Phase 3 - Shared Python Library Extraction",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-3-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-24T21:11:05Z"
+    "reviewed_at": "2026-05-25T06:47:52Z"
   },
-  "last_delivered_phase": "Phase 2 - JSON Schemas And Versioned State",
+  "last_delivered_phase": "Phase 3 - Shared Python Library Extraction",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -113,16 +107,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 3,
+  "run_count": 4,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:a1ed92e26aee25efe964530904beefd1f51ac8bd0d3cdb38455c729c537bfd0e",
-  "last_progress_at": "2026-05-24T21:11:05Z",
+  "last_progress_signature": "sha256:deebf6f5f1051c83b4c4118da113b431e51ff595090f9c8d2a9245c07bc58579",
+  "last_progress_at": "2026-05-25T06:47:52Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-24T21:11:05Z"
+  "updated_at": "2026-05-25T06:47:52Z"
 }

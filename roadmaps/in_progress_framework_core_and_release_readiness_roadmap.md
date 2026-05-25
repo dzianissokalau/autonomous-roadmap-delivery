@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 3 - Shared Python Library Extraction
-Last updated: 2026-05-24
-Next action: Start Phase 3 on
-`codex/framework-core-and-release-readiness-phase-3`.
+Current phase: Phase 4 - Stable CLI
+Last updated: 2026-05-25
+Next action: Start Phase 4 on
+`codex/framework-core-and-release-readiness-phase-4`.
 Blocked by: None
 
 ## Purpose
@@ -441,6 +441,8 @@ git diff --check
   without a migration path.
 
 ## Phase 3 - Shared Python Library Extraction
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 
