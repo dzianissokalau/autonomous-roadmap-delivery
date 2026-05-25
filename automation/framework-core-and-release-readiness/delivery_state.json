@@ -2,69 +2,65 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 5 - Codex Adapter Generation",
+  "current_phase": "Phase 6 - CI And Quality Gates",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 4 - Stable CLI",
-    "completed_at": "2026-05-25T07:06:38Z",
+    "phase": "Phase 5 - Codex Adapter Generation",
+    "completed_at": "2026-05-25T07:33:15Z",
     "status": "passed",
     "checks": [
       {
+        "command": "python3 scripts/build_codex_package.py --check",
+        "status": "passed",
+        "details": "Rendered 14 Codex package files with zero diffs and zero errors."
+      },
+      {
+        "command": "python3 -m unittest tests.test_adapter_codex -v",
+        "status": "passed",
+        "details": "4 adapter generation tests passed."
+      },
+      {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "62 tests passed."
+        "details": "66 tests passed."
       },
       {
-        "command": "python3 -m roadmap_delivery.cli version",
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "status": "passed",
+        "details": "Required validator passed after repairing the local temporary yaml package shim used by this command."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-adapter-compile-pycache python3 -m py_compile scripts/build_codex_package.py tests/test_adapter_codex.py",
         "status": "passed"
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug phase-model-policy-and-stall-control --automation-id phase-model-policy-and-stall-control --json",
-        "status": "passed_with_expected_warnings",
-        "warnings": [
-          "legacy_delivery_state_schema_version",
-          "legacy_review_artifact_schema",
-          "automation_prompt_current_roadmap_missing",
-          "stale_automation_roadmap_path",
-          "worktree_dirty"
-        ]
-      },
-      {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-cli-compile-pycache python3 -m py_compile src/roadmap_delivery/cli.py roadmap_delivery/__init__.py",
-        "status": "passed",
-        "details": "CLI module and source-tree import shim compiled."
-      },
-      {
-        "command": "python3 -m unittest tests.test_cli -v",
-        "status": "passed",
-        "details": "5 tests passed."
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli scaffold --repo-root /private/tmp/roadmap-cli-plan --roadmap-slug example-roadmap --automation-id example-roadmap-delivery --dry-run --json",
-        "status": "passed",
-        "details": "Dry-run plan listed canonical automation artifacts and wrote no files."
       },
       {
         "command": "python3 -m roadmap_delivery.cli package --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --adapter codex --dry-run --json",
         "status": "passed",
-        "details": "Dry-run Codex package plan returned status ok, dry_run_ready true, and renderer_ready false for Phase 5 overlay work."
+        "details": "Dry-run package plan returned renderer_ready true and adapter_overlay_present true."
       },
       {
         "command": "git diff --check",
         "status": "passed"
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "status": "passed_with_expected_warnings",
+        "warnings": [
+          "worktree_dirty"
+        ]
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 4 - Stable CLI",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-4-review-iteration-1.md",
+    "phase": "Phase 5 - Codex Adapter Generation",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-5-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T07:06:38Z"
+    "reviewed_at": "2026-05-25T07:33:15Z"
   },
-  "last_delivered_phase": "Phase 4 - Stable CLI",
+  "last_delivered_phase": "Phase 5 - Codex Adapter Generation",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -116,16 +112,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 5,
+  "run_count": 6,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:206eecf8165708049d9f62b0e7849a062b34be6b27b0f5d5ebd6d062e1846a5f",
-  "last_progress_at": "2026-05-25T07:09:57Z",
+  "last_progress_signature": "sha256:0e784290ef101e3946227b98ee3b763479d0f146bb6cefecada5785246b21185",
+  "last_progress_at": "2026-05-25T07:33:15Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-25T07:09:57Z"
+  "updated_at": "2026-05-25T07:33:15Z"
 }

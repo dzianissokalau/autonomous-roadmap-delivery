@@ -445,3 +445,76 @@ Branch: `codex/framework-core-and-release-readiness-phase-4`
 
 - Start Phase 5 - Codex Adapter Generation on
   `codex/framework-core-and-release-readiness-phase-5`.
+
+## Phase 5 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-5`
+
+### Scope
+
+- Delivered Phase 5 only: Codex Adapter Generation.
+- Owned files: `adapters/codex/`, `skill/roadmap-delivery-skill/`,
+  `tests/snapshots/codex/`, `tests/test_adapter_codex.py`, and
+  `scripts/build_codex_package.py`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added `adapters/codex/package_manifest.json` and adapter templates that
+  render the committed Codex skill package.
+- Added `scripts/build_codex_package.py` with check/write modes, manifest path
+  safety, core-source readback for reference files, content and mode drift
+  checks, and JSON/text reports.
+- Added snapshot coverage under `tests/snapshots/codex/` for generated package
+  hashes, file sizes, executable modes, and canonical core source hashes.
+- Added `tests/test_adapter_codex.py` for package drift, reference/core-source
+  coupling, snapshot drift, and CLI renderer-readiness checks.
+- Preserved the current `skill/roadmap-delivery-skill/` package output; the
+  renderer reports zero generated drift.
+- Advanced the roadmap and state to Phase 6 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 scripts/build_codex_package.py --check`: passed with `status: ok`,
+  14 files, zero diffs, and zero errors.
+- `python3 -m unittest tests.test_adapter_codex -v`: passed, 4 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 66 tests.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed after a local repair to the temporary `yaml` dependency shim used by
+  this required command.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-adapter-compile-pycache python3 -m py_compile scripts/build_codex_package.py tests/test_adapter_codex.py`:
+  passed.
+- `python3 -m roadmap_delivery.cli package --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --adapter codex --dry-run --json`:
+  passed with `renderer_ready: true` and `adapter_overlay_present: true`.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json`:
+  passed with only the expected `worktree_dirty` warning.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-5-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; sub-agent delegation was not used
+  because explicit delegation authorization was not present in this run.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The Codex adapter templates preserve the current package text. Core reference
+  changes are now snapshot-coupled through core source hashes and require an
+  explicit adapter snapshot update decision.
+- The local temporary PyYAML shim repair was only for the roadmap-required
+  quick validator command and is not a committed release artifact.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 6 - CI And Quality Gates on
+  `codex/framework-core-and-release-readiness-phase-6`.

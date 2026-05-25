@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "adapter": "codex",
+  "files": [
+    {
+      "path": "SKILL.md",
+      "sha256": "1dca5b21186168bed8294b8376e6dc22b69f28f94c981b696313fca8ed9795ba",
+      "size": 3103
+    },
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "9648e747c6a51c1b1895d9ee4b70f951846cf291590a53a036fc2cc695a8644b",
+      "size": 217
+    },
+    {
+      "core_sha256": "49ac30eea3f07ba5fbdc98406fe92a95d71d3bdfae4e440fbaeeaf010a1b6bcf",
+      "core_size": 1855,
+      "core_source": "core/references/finalization-and-promotion.md",
+      "path": "references/finalization-and-promotion.md",
+      "sha256": "0f55eb72d19f9fd245b88bdb82b86a792669c4ac6834dc2ae49c5f5a866ea4e8",
+      "size": 6406
+    },
+    {
+      "core_sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
+      "core_size": 2692,
+      "core_source": "core/references/model-policy-and-stall-control.md",
+      "path": "references/model-policy-and-stall-control.md",
+      "sha256": "f0a7354533671b4e00ef945c122cc0112d931ea5d465d0271fe403843cb835a6",
+      "size": 11737
+    },
+    {
+      "core_sha256": "500ca6ea715a7d82b5de562d51bc033a46cecb290e789acbdf4ecacaedfaba75",
+      "core_size": 2892,
+      "core_source": "core/references/phase-loop.md",
+      "path": "references/phase-loop.md",
+      "sha256": "c1672a24e9b456f820ec806718c7a693524966ba32f853a9561630b5a777bc4f",
+      "size": 10445
+    },
+    {
+      "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
+      "core_size": 2595,
+      "core_source": "core/references/review-and-fix.md",
+      "path": "references/review-and-fix.md",
+      "sha256": "a9c8b8c69bc54b23678254ce26152da8ad7d0c6957f960bdcc5fb8c7bc174b1b",
+      "size": 5619
+    },
+    {
+      "core_sha256": "852166c6f94a5d8ee564fe3babde6193e24a594be7b3fb0761c4c38386cdfc6b",
+      "core_size": 2808,
+      "core_source": "core/references/setup-automation.md",
+      "path": "references/setup-automation.md",
+      "sha256": "951ca73857130c67c04b1e65b4e0b2876b32635cc55e3549b34ccb01d515e1aa",
+      "size": 15297
+    },
+    {
+      "core_sha256": "f229ca35d7d06062513156987eefb3ff5ee42a823190b5963f7c1bcfd4a6e422",
+      "core_size": 2466,
+      "core_source": "core/references/state-log-and-branches.md",
+      "path": "references/state-log-and-branches.md",
+      "sha256": "fa141901ff27419cec420a9c1511c2cbd3f2e838060ad598b0d7ad72fac44a5a",
+      "size": 10626
+    },
+    {
+      "core_sha256": "b28a6c0e656aff6ca81b93ee4909acd33f2238fcd1c0d773c6aaa2a9b4b41d9e",
+      "core_size": 2493,
+      "core_source": "core/references/troubleshooting.md",
+      "path": "references/troubleshooting.md",
+      "sha256": "20fec2e5d9789beea01f34c9a15aa31ef6ded4b946486f23e14169e8d6e40581",
+      "size": 15121
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/compute_progress_signature.py",
+      "sha256": "41d208975a47ce1f71a0f61d07e812662d05b57790707a258053afadb9fd544a",
+      "size": 14167
+    },
+    {
+      "mode": "0755",
+      "path": "scripts/inspect_delivery_state.py",
+      "sha256": "68ce88bbb1e32884724109c1263017216d2bb1b01a8b5d7205a1476ddd5fcb6c",
+      "size": 883
+    },
+    {
+      "mode": "0755",
+      "path": "scripts/plan_automation_retarget.py",
+      "sha256": "3348ec1d29a17be76a6eb1d404eaf8ccf63517b0a892a5c540979197aa8478c6",
+      "size": 13659
+    },
+    {
+      "mode": "0755",
+      "path": "scripts/validate_delivery_artifacts.py",
+      "sha256": "efc29a1589c051ed139ff6135590d10003f6ab95af2d0f6e7f0639a037835f24",
+      "size": 889
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/write_operator_alert.py",
+      "sha256": "0784a586f941eb9a88cf78e38eaa1dde916fc9edb3464279a6ea100eade387ae",
+      "size": 11063
+    }
+  ]
+}

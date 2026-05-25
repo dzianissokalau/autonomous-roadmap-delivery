@@ -1,0 +1,4 @@
+interface:
+  display_name: "Roadmap Delivery Skill"
+  short_description: "Operate phase-gated roadmap delivery"
+  default_prompt: "Use $roadmap-delivery-skill to inspect and deliver the current roadmap phase safely."

@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 5 - Codex Adapter Generation
+Current phase: Phase 6 - CI And Quality Gates
 Last updated: 2026-05-25
-Next action: Start Phase 5 on
-`codex/framework-core-and-release-readiness-phase-5`.
+Next action: Start Phase 6 on
+`codex/framework-core-and-release-readiness-phase-6`.
 Blocked by: None
 
 ## Purpose
@@ -567,6 +567,8 @@ python3 -m roadmap_delivery.cli validate \
 - Stop if packaging requires a dependency that breaks installed-skill usage.
 
 ## Phase 5 - Codex Adapter Generation
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 

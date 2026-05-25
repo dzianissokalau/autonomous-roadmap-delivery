@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "adapter": "codex",
+  "output_dir": "skill/roadmap-delivery-skill",
+  "template_dir": "adapters/codex/templates",
+  "files": [
+    {
+      "output": "SKILL.md",
+      "template": "SKILL.md"
+    },
+    {
+      "output": "agents/openai.yaml",
+      "template": "agents/openai.yaml"
+    },
+    {
+      "output": "references/finalization-and-promotion.md",
+      "template": "references/finalization-and-promotion.md",
+      "core_source": "core/references/finalization-and-promotion.md"
+    },
+    {
+      "output": "references/model-policy-and-stall-control.md",
+      "template": "references/model-policy-and-stall-control.md",
+      "core_source": "core/references/model-policy-and-stall-control.md"
+    },
+    {
+      "output": "references/phase-loop.md",
+      "template": "references/phase-loop.md",
+      "core_source": "core/references/phase-loop.md"
+    },
+    {
+      "output": "references/review-and-fix.md",
+      "template": "references/review-and-fix.md",
+      "core_source": "core/references/review-and-fix.md"
+    },
+    {
+      "output": "references/setup-automation.md",
+      "template": "references/setup-automation.md",
+      "core_source": "core/references/setup-automation.md"
+    },
+    {
+      "output": "references/state-log-and-branches.md",
+      "template": "references/state-log-and-branches.md",
+      "core_source": "core/references/state-log-and-branches.md"
+    },
+    {
+      "output": "references/troubleshooting.md",
+      "template": "references/troubleshooting.md",
+      "core_source": "core/references/troubleshooting.md"
+    },
+    {
+      "output": "scripts/compute_progress_signature.py",
+      "template": "scripts/compute_progress_signature.py",
+      "mode": "0644"
+    },
+    {
+      "output": "scripts/inspect_delivery_state.py",
+      "template": "scripts/inspect_delivery_state.py",
+      "mode": "0755"
+    },
+    {
+      "output": "scripts/plan_automation_retarget.py",
+      "template": "scripts/plan_automation_retarget.py",
+      "mode": "0755"
+    },
+    {
+      "output": "scripts/validate_delivery_artifacts.py",
+      "template": "scripts/validate_delivery_artifacts.py",
+      "mode": "0755"
+    },
+    {
+      "output": "scripts/write_operator_alert.py",
+      "template": "scripts/write_operator_alert.py",
+      "mode": "0644"
+    }
+  ]
+}

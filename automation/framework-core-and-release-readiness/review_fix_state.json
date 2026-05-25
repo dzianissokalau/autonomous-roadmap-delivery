@@ -1,14 +1,14 @@
 {
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 5 - Codex Adapter Generation",
+  "current_phase": "Phase 6 - CI And Quality Gates",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "active_review_file": null,
   "last_verdict": "delivered",
-  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-4-review-iteration-1.md",
-  "last_delivered_phase": "Phase 4 - Stable CLI",
+  "last_review_file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-5-review-iteration-1.md",
+  "last_delivered_phase": "Phase 5 - Codex Adapter Generation",
   "blocked_reason": null,
-  "updated_at": "2026-05-25T07:06:38Z"
+  "updated_at": "2026-05-25T07:33:15Z"
 }
