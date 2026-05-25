@@ -5,6 +5,9 @@ artifacts for building the Roadmap Delivery Skill for Codex.
 
 GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
+[![CI](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/ci.yml)
+[![Release Check](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml/badge.svg)](https://github.com/dzianissokalau/roadmap-delivery-skill/actions/workflows/release-check.yml)
+
 ## Roadmaps
 
 - Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
@@ -163,6 +166,63 @@ python3 -m roadmap_delivery.cli package \
 After installation, the same interface is available as `roadmap-delivery`.
 The legacy helper scripts under `skill/roadmap-delivery-skill/scripts/` remain
 compatibility wrappers around the same shared library behavior.
+
+## CI And Release Checks
+
+GitHub Actions run repository-local checks only. The optional Codex skill
+validator runs only when `CODEX_QUICK_VALIDATE` points at an available
+`quick_validate.py` script, so CI does not require private Codex directories or
+credentials.
+
+Local equivalents for the CI workflow:
+
+```bash
+python3 -m unittest discover -s tests -v
+
+PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
+  python3 -m py_compile \
+  scripts/build_codex_package.py \
+  src/roadmap_delivery/*.py \
+  roadmap_delivery/__init__.py \
+  skill/roadmap-delivery-skill/scripts/*.py \
+  tests/*.py
+
+python3 -m unittest tests.test_schema_validation -v
+python3 scripts/build_codex_package.py --check
+python3 -m unittest tests.test_quality_gates -v
+
+python3 -m roadmap_delivery.cli validate \
+  --repo-root "$PWD" \
+  --roadmap-slug framework-core-and-release-readiness \
+  --automation-id framework-core-and-release-readiness \
+  --strict \
+  --allow-warning missing_automation_config \
+  --allow-warning current_branch_name_mismatch \
+  --allow-warning worktree_dirty \
+  --json
+
+git diff --check
+
+if [ -n "${CODEX_QUICK_VALIDATE:-}" ] && [ -f "${CODEX_QUICK_VALIDATE}" ]; then
+  python3 "${CODEX_QUICK_VALIDATE}" skill/roadmap-delivery-skill
+fi
+```
+
+Local equivalent for the release-check artifact build:
+
+```bash
+mkdir -p dist
+tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
+  README.md \
+  LICENSE \
+  pyproject.toml \
+  core \
+  schemas \
+  src \
+  scripts \
+  adapters \
+  skill/roadmap-delivery-skill
+```
 
 ## Install The Codex Skill
 

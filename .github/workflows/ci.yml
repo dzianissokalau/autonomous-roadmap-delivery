@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'codex/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install package
+        run: python3 -m pip install -e .
+
+      - name: Run unit tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Compile Python sources
+        env:
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/roadmap-delivery-ci-pycache
+        run: |
+          python3 -m py_compile \
+            scripts/build_codex_package.py \
+            src/roadmap_delivery/*.py \
+            roadmap_delivery/__init__.py \
+            skill/roadmap-delivery-skill/scripts/*.py \
+            tests/*.py
+
+      - name: Check schema validation fixtures
+        run: python3 -m unittest tests.test_schema_validation -v
+
+      - name: Check Codex package generation
+        run: python3 scripts/build_codex_package.py --check
+
+      - name: Check markdown, ASCII, and whitespace gates
+        run: python3 -m unittest tests.test_quality_gates -v
+
+      - name: Validate delivery artifacts
+        run: |
+          python3 -m roadmap_delivery.cli validate \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --roadmap-slug framework-core-and-release-readiness \
+            --automation-id framework-core-and-release-readiness \
+            --strict \
+            --allow-warning missing_automation_config \
+            --allow-warning current_branch_name_mismatch \
+            --allow-warning worktree_dirty \
+            --json
+
+      - name: Check git whitespace
+        run: git diff --check
+
+      - name: Optional Codex skill validation
+        shell: bash
+        run: |
+          if [ -n "${CODEX_QUICK_VALIDATE:-}" ] && [ -f "${CODEX_QUICK_VALIDATE}" ]; then
+            python3 "${CODEX_QUICK_VALIDATE}" skill/roadmap-delivery-skill
+          else
+            echo "::notice::Set CODEX_QUICK_VALIDATE to quick_validate.py to enable Codex skill validation."
+          fi

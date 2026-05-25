@@ -2,65 +2,64 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_framework_core_and_release_readiness_roadmap.md",
   "roadmap_slug": "framework-core-and-release-readiness",
-  "current_phase": "Phase 6 - CI And Quality Gates",
+  "current_phase": "Phase 7 - Security And Privacy Guardrails",
   "branch": null,
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 5 - Codex Adapter Generation",
-    "completed_at": "2026-05-25T07:33:15Z",
+    "phase": "Phase 6 - CI And Quality Gates",
+    "completed_at": "2026-05-25T07:50:13Z",
     "status": "passed",
     "checks": [
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "71 tests passed."
+      },
+      {
+        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-ci-pycache python3 -m py_compile scripts/build_codex_package.py src/roadmap_delivery/*.py roadmap_delivery/__init__.py skill/roadmap-delivery-skill/scripts/*.py tests/*.py",
+        "status": "passed"
+      },
+      {
+        "command": "python3 -m unittest tests.test_quality_gates -v",
+        "status": "passed",
+        "details": "5 quality gate tests passed."
+      },
       {
         "command": "python3 scripts/build_codex_package.py --check",
         "status": "passed",
         "details": "Rendered 14 Codex package files with zero diffs and zero errors."
       },
       {
-        "command": "python3 -m unittest tests.test_adapter_codex -v",
-        "status": "passed",
-        "details": "4 adapter generation tests passed."
-      },
-      {
-        "command": "python3 -m unittest discover -s tests -v",
-        "status": "passed",
-        "details": "66 tests passed."
-      },
-      {
-        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
-        "status": "passed",
-        "details": "Required validator passed after repairing the local temporary yaml package shim used by this command."
-      },
-      {
-        "command": "PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-adapter-compile-pycache python3 -m py_compile scripts/build_codex_package.py tests/test_adapter_codex.py",
-        "status": "passed"
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli package --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --adapter codex --dry-run --json",
-        "status": "passed",
-        "details": "Dry-run package plan returned renderer_ready true and adapter_overlay_present true."
-      },
-      {
-        "command": "git diff --check",
-        "status": "passed"
-      },
-      {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/validate_delivery_artifacts.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --json",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning missing_automation_config --allow-warning current_branch_name_mismatch --allow-warning worktree_dirty --json",
         "status": "passed_with_expected_warnings",
         "warnings": [
           "worktree_dirty"
         ]
+      },
+      {
+        "command": "mkdir -p dist && tar -czf dist/roadmap-delivery-codex-skill.tar.gz README.md LICENSE pyproject.toml core schemas src scripts adapters skill/roadmap-delivery-skill && python3 - <<'PY' ... PY && rm dist/roadmap-delivery-codex-skill.tar.gz && rmdir dist",
+        "status": "passed",
+        "details": "Built release-check bundle with 164 entries, rejected no non-release paths, and removed the local bundle."
+      },
+      {
+        "command": "PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill",
+        "status": "passed"
+      },
+      {
+        "command": "git diff --check",
+        "status": "passed"
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 5 - Codex Adapter Generation",
-    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-5-review-iteration-1.md",
+    "phase": "Phase 6 - CI And Quality Gates",
+    "file": "automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-6-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-25T07:33:15Z"
+    "reviewed_at": "2026-05-25T07:50:13Z"
   },
-  "last_delivered_phase": "Phase 5 - Codex Adapter Generation",
+  "last_delivered_phase": "Phase 6 - CI And Quality Gates",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -112,16 +111,16 @@
       "roadmap_lifecycle_filename_mismatch"
     ]
   },
-  "run_count": 6,
+  "run_count": 7,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:0e784290ef101e3946227b98ee3b763479d0f146bb6cefecada5785246b21185",
-  "last_progress_at": "2026-05-25T07:33:15Z",
+  "last_progress_signature": "sha256:c91001900f25399405e1dc9181d639d61f2891f27b8c30c671fda253d36365d3",
+  "last_progress_at": "2026-05-25T07:52:12Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
   "all_phases_complete": false,
   "deep_review_prompt": null,
-  "updated_at": "2026-05-25T07:33:15Z"
+  "updated_at": "2026-05-25T07:52:12Z"
 }

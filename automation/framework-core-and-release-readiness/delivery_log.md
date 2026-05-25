@@ -518,3 +518,76 @@ Branch: `codex/framework-core-and-release-readiness-phase-5`
 
 - Start Phase 6 - CI And Quality Gates on
   `codex/framework-core-and-release-readiness-phase-6`.
+
+## Phase 6 - 2026-05-25 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/framework-core-and-release-readiness-phase-6`
+
+### Scope
+
+- Delivered Phase 6 only: CI And Quality Gates.
+- Owned files: `.github/workflows/ci.yml`,
+  `.github/workflows/release-check.yml`, `README.md`, and
+  `tests/test_quality_gates.py`.
+- Automation bookkeeping updated under
+  `automation/framework-core-and-release-readiness/`.
+
+### Changes
+
+- Added a `CI` GitHub Actions workflow for unit tests, `py_compile`, schema
+  fixture checks, Codex package generation checks, markdown/ASCII/whitespace
+  gates, delivery artifact validation, `git diff --check`, and optional Codex
+  skill validation through `CODEX_QUICK_VALIDATE`.
+- Added a `Release Check` workflow that builds a local
+  `dist/roadmap-delivery-codex-skill.tar.gz` bundle, rejects non-release path
+  entries, and uploads the workflow artifact without publishing a release.
+- Added `tests/test_quality_gates.py` to enforce quality surfaces and workflow
+  contracts without extra dependencies.
+- Added stable workflow badges and local command equivalents to `README.md`.
+- Advanced the roadmap and state to Phase 7 after the delivered review
+  verdict.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 71 tests.
+- `PYTHONPYCACHEPREFIX=$TMPDIR/roadmap-delivery-ci-pycache python3 -m py_compile scripts/build_codex_package.py src/roadmap_delivery/*.py roadmap_delivery/__init__.py skill/roadmap-delivery-skill/scripts/*.py tests/*.py`:
+  passed.
+- `python3 -m unittest tests.test_quality_gates -v`: passed, 5 tests.
+- `python3 scripts/build_codex_package.py --check`: passed with `status: ok`,
+  14 files, zero diffs, and zero errors.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug framework-core-and-release-readiness --automation-id framework-core-and-release-readiness --strict --allow-warning missing_automation_config --allow-warning current_branch_name_mismatch --allow-warning worktree_dirty --json`:
+  passed with only the expected `worktree_dirty` warning.
+- Local release-check bundle smoke command: passed, built
+  `dist/roadmap-delivery-codex-skill.tar.gz` with 164 entries, rejected no
+  non-release paths, and removed the generated bundle afterward.
+- `PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml python3 /Users/dzianissokalau/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill/roadmap-delivery-skill`:
+  passed.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/framework-core-and-release-readiness/reviews/framework-core-and-release-readiness-phase-6-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; sub-agent delegation was not used
+  because the available multi-agent tool requires an explicit sub-agent
+  request.
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- GitHub Actions were authored and locally validated, but the after-push
+  `gh run list --limit 5` command was not run because this phase did not push.
+- Optional CI skill validation depends on an operator-provided
+  `CODEX_QUICK_VALIDATE` path; this avoids private Codex directory
+  requirements in CI.
+- Existing setup/activation changes remain in the worktree and are preserved.
+
+### Next Action
+
+- Start Phase 7 - Security And Privacy Guardrails on
+  `codex/framework-core-and-release-readiness-phase-7`.

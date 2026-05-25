@@ -1,0 +1,71 @@
+name: Release Check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-artifact:
+    name: Build Release Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install package
+        run: python3 -m pip install -e .
+
+      - name: Run release checks
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/build_codex_package.py --check
+
+      - name: Build local release bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/roadmap-delivery-codex-skill.tar.gz \
+            README.md \
+            LICENSE \
+            pyproject.toml \
+            core \
+            schemas \
+            src \
+            scripts \
+            adapters \
+            skill/roadmap-delivery-skill
+          python3 - <<'PY'
+          from pathlib import Path
+          from pathlib import PurePosixPath
+          import tarfile
+
+          bundle = Path("dist/roadmap-delivery-codex-skill.tar.gz")
+          with tarfile.open(bundle, "r:gz") as archive:
+              names = archive.getnames()
+
+          forbidden_prefixes = ("automation/", "roadmaps/", ".git/")
+          leaked = [
+              name
+              for name in names
+              if name.startswith(forbidden_prefixes)
+              or name.startswith("/")
+              or ".codex" in PurePosixPath(name).parts
+          ]
+          if leaked:
+              raise SystemExit(f"Release bundle contains non-release paths: {leaked}")
+          print(f"Built {bundle} with {len(names)} entries.")
+          PY
+
+      - name: Upload release-check artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: roadmap-delivery-codex-skill
+          path: dist/roadmap-delivery-codex-skill.tar.gz

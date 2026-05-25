@@ -1,10 +1,10 @@
 # Framework Core And Release Readiness Roadmap
 
 Status: In Progress
-Current phase: Phase 6 - CI And Quality Gates
+Current phase: Phase 7 - Security And Privacy Guardrails
 Last updated: 2026-05-25
-Next action: Start Phase 6 on
-`codex/framework-core-and-release-readiness-phase-6`.
+Next action: Start Phase 7 on
+`codex/framework-core-and-release-readiness-phase-7`.
 Blocked by: None
 
 ## Purpose
@@ -628,6 +628,8 @@ PYTHONPATH=/private/tmp/autonomous-roadmap-delivery-pyyaml \
   explicit migration note.
 
 ## Phase 6 - CI And Quality Gates
+
+Delivery status: Delivered 2026-05-25.
 
 ### Objective
 
