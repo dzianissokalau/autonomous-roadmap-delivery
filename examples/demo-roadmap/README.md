@@ -11,6 +11,7 @@ It demonstrates:
 - a scaffold dry-run that plans files without writing them
 - validation and inspection of the file-backed control plane
 - safe blocked-run and model-policy mismatch scenarios
+- an install and runtime checklist for the generated Codex and Claude packages
 
 ## Try The Fixture
 
@@ -51,3 +52,10 @@ Mode on the next pass.
 `scenarios/model-policy-mismatch/automation.toml` intentionally configures the
 wrong model and reasoning effort. Validation should stop before delivery when
 that saved automation config is used with the demo policy.
+
+## Runtime Checklist
+
+Use `runtime-checklist.md` to stage the generated Codex package and Claude
+plugin in temporary directories, run inspect and validate on a temporary demo
+checkout, trigger the blocked-remediation fixture, and trigger the
+model-policy-mismatch fixture without credentials or live automation changes.

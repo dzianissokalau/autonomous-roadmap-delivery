@@ -484,3 +484,68 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-7`
 
 - Phase 8 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-8`.
+
+## Phase 8 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-8`
+
+### Scope
+
+- Added install smoke coverage for the generated Codex package and Claude
+  plugin package.
+- Added maintainer-facing install commands and a repeatable demo runtime
+  checklist.
+- Kept checks offline and credential-free; live host binaries are optional.
+
+### Changes
+
+- Added `tests/test_install_smoke.py` with temp-home Codex package staging,
+  installed helper-script demo validation, Claude plugin staging, Claude-side
+  CLI runtime validation, install-doc coverage, and optional live host help
+  checks.
+- Added `docs/installing-codex.md` with exact package check, isolated install,
+  demo inspect, and demo validate commands.
+- Added `docs/installing-claude.md` with exact plugin check, isolated plugin
+  staging, demo inspect, and demo validate commands.
+- Added `examples/demo-roadmap/runtime-checklist.md` covering temporary demo
+  checkout setup, package staging, inspect, validate, blocked-remediation
+  fixture, and model-policy-mismatch fixture.
+- Updated `examples/demo-roadmap/README.md` to point maintainers at the runtime
+  checklist.
+- Updated the roadmap to mark Phase 8 delivered and advance to Phase 9.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_install_smoke -v`: passed, 5 tests with 1
+  expected skip because the `claude` binary is not installed locally.
+- `python3 -m unittest discover -s tests -v`: passed, 128 tests with 1
+  expected skip.
+- `python3 scripts/build_adapters.py --check`: passed for Codex and Claude,
+  0 diffs and 0 errors.
+- `git diff --check`: passed.
+- `python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root "$PWD" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 8 - Install And Runtime Smoke Tests" --json`:
+  passed; Phase 9 uses policy defaults and needs no automation config retarget.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-8-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- The local machine does not have the `claude` binary, so live Claude host help
+  was skipped. Offline plugin structure staging and demo runtime validation
+  passed.
+- Same-context review was used because no independent delegated reviewer was
+  authorized in this run.
+
+### Next Action
+
+- Phase 9 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-9`.

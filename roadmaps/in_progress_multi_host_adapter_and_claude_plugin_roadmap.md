@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
 Status: Active
-Current phase: Phase 8 - Install And Runtime Smoke Tests
+Current phase: Phase 9 - Generic Adapter Preparation
 Last updated: 2026-05-31
-Next action: Deliver Phase 8 with the configured phase-gated automation.
+Next action: Deliver Phase 9 with the configured phase-gated automation.
 Blocked by: None.
 
 ## Purpose
@@ -573,6 +573,8 @@ python3 scripts/build_adapters.py --check
   compatibility note.
 
 ## Phase 8 - Install And Runtime Smoke Tests
+
+Delivery status: Delivered 2026-05-31.
 
 ### Objective
 
