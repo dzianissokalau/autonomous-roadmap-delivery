@@ -1,12 +1,10 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
-Status: Not Started
-Current phase: Phase 0 - Host Capability Contract
-Last updated: 2026-05-25
-Next action: Start Phase 0 after the framework core closeout branch is
-reviewed and any promotion decision is made.
-Blocked by: Framework Core And Release Readiness closeout branch review and
-promotion decision.
+Status: Active
+Current phase: Phase 1 - Adapter Build System
+Last updated: 2026-05-31
+Next action: Deliver Phase 1 with the configured phase-gated automation.
+Blocked by: None.
 
 ## Purpose
 
@@ -22,6 +20,23 @@ Dependency roadmap:
 ```text
 roadmaps/delivered_framework_core_and_release_readiness_roadmap.md
 ```
+
+## Automation Artifacts
+
+Phase-gated delivery artifacts for this roadmap live under:
+
+```text
+automation/multi-host-adapter-and-claude-plugin/
+```
+
+Codex app automation:
+
+- ID: `multi-host-adapter-and-claude-plugin`
+- Status: ACTIVE
+- Cadence: hourly
+- Model: `gpt-5.5`
+- Reasoning effort: `xhigh`
+- Execution environment: local
 
 ## Strategic Outcome
 
@@ -99,6 +114,8 @@ Phase 10 - Compatibility Docs And Release Artifacts
 
 ## Phase 0 - Host Capability Contract
 
+Delivery status: Delivered 2026-05-31.
+
 ### Objective
 
 Define the supported host capabilities and the parity promise before adapter
@@ -107,7 +124,7 @@ implementation begins.
 ### Owned Files
 
 ```text
-roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
+roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md
 docs/compatibility.md
 host-capabilities/codex.yaml
 host-capabilities/claude.yaml

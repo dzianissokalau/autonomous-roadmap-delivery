@@ -29,7 +29,7 @@ This roadmap focuses on non-marketing improvements:
 Claude and broader host support are handled by the companion roadmap:
 
 ```text
-roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
+roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md
 ```
 
 ## Automation Artifacts
@@ -876,7 +876,7 @@ multi-host adapter work.
 README.md
 docs/
 roadmaps/delivered_framework_core_and_release_readiness_roadmap.md
-roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md
+roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md
 automation/README.md
 ```
 

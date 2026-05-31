@@ -1,0 +1,51 @@
+schema_version: 1
+host: claude
+updated: 2026-05-31
+support_status: planned
+parity_role: first_additional_host
+contract:
+  supported_means:
+    - A Claude plugin package can be generated from the same core workflow sources.
+    - The plugin exposes setup, phase delivery, review, remediation, model policy, and finalization guidance.
+    - Repository-local state, logs, reviews, alerts, and validation remain authoritative.
+  parity_target: core_workflow_required_parity_with_host_specific_fallbacks
+capabilities:
+  skill_instruction_packaging:
+    parity_level: required_parity
+    status: planned
+    target_artifacts:
+      - adapters/claude/
+      - dist/claude/
+  agent_or_subagent_support:
+    parity_level: host_specific_enhancement
+    status: planned_if_runtime_exposes_agent_surface
+    fallback: same-context review with explicit limitation, or an external review prompt artifact
+  hooks_or_guards:
+    parity_level: host_specific_enhancement
+    status: planned
+    fallback: repository validators, blocked state, and local alert files
+  recurring_automation:
+    parity_level: unsupported_by_host
+    status: not_assumed
+    fallback: manual or host-runner scheduled execution against repository artifacts
+  model_selection:
+    parity_level: required_parity
+    status: planned_runner_contract
+    guard: provider-neutral phase_model_policy.json maps model roles to host runner configuration
+  filesystem_sandboxing:
+    parity_level: required_parity
+    status: host_provided_when_available
+    guard: stop for permission-gated writes and preserve unrelated worktree changes
+  approval_boundaries:
+    parity_level: required_parity
+    status: required
+    protected_operations:
+      - publication
+      - promotion
+      - destructive_git
+      - credentials
+      - installed_plugin_sync
+  mcp_or_tool_integration:
+    parity_level: host_specific_enhancement
+    status: planned_when_available
+    fallback: local CLI validation and file-backed inspection

@@ -832,7 +832,7 @@ Branch: `codex/framework-core-and-release-readiness-phase-10`
 - Delivered Phase 10 only: Migration, Documentation, And Closeout.
 - Owned files: `README.md`, `docs/`,
   `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`,
-  `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`, and
+  `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`, and
   `automation/README.md`.
 - Automation bookkeeping updated under
   `automation/framework-core-and-release-readiness/`.

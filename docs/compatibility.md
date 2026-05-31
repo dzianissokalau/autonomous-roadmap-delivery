@@ -17,7 +17,8 @@ Codex adapter after the framework hardening migration.
 | Model policy file | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
 | Codex package generation | Supported | `scripts/build_codex_package.py --check` verifies committed output. |
 | Local release artifacts | Supported | `scripts/build_release.py --check` verifies reproducible local artifacts. |
-| Claude plugin package | Future roadmap | Not implemented by this roadmap. |
+| Host capability metadata | Supported | `host-capabilities/codex.yaml` and `host-capabilities/claude.yaml` define the adapter support contract. |
+| Claude plugin package | Active roadmap | Planned by the multi-host adapter roadmap; not installable until the Claude package phases are delivered. |
 
 ## Host Capability Notes
 
@@ -28,8 +29,32 @@ is available, but it does not switch the active model from prompt text.
 
 Claude and other host adapters should consume the same `core/`, `schemas/`,
 and shared library contracts. Any host-specific differences must be represented
-as explicit capability metadata and parity tests in the companion multi-host
+as explicit capability metadata and parity tests in the active multi-host
 roadmap.
+
+## Host Capability Contract
+
+The multi-host adapter work uses explicit capability files instead of burying
+host assumptions in prompts:
+
+- `host-capabilities/codex.yaml` records the current Codex baseline.
+- `host-capabilities/claude.yaml` records the planned Claude target and known
+  gaps before implementation.
+
+Parity levels:
+
+- `required_parity`: behavior must be equivalent across supported hosts.
+- `host_specific_enhancement`: behavior may exceed the shared contract on one
+  host without becoming required elsewhere.
+- `unsupported_by_host`: the host does not expose the capability, so the
+  adapter must document the fallback.
+- `future_work`: the capability is intentionally outside the current roadmap
+  phase.
+
+Claude support is a required-parity target for the core phase-gated workflow,
+file-backed state, validation, review artifacts, and release privacy gates. It
+is a best-effort target for host-specific scheduling, hooks, subagents, and
+approval UX until the Claude plugin phases prove the exact runtime surfaces.
 
 ## Human-Approved Operations
 

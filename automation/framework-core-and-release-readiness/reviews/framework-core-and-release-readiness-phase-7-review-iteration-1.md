@@ -81,7 +81,7 @@ obvious local path and secret leaks, not a full DLP system.
   check; the richer content scan runs in CI and as a documented local/manual
   release command.
 - Existing unrelated worktree dirt remains limited to `automation/README.md`
-  and `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`.
+  and `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`.
 
 ## Verdict
 

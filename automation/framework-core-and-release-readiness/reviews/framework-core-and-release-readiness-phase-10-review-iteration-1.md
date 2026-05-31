@@ -42,7 +42,7 @@ No blocking findings.
 - `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md:3`
   records the completed lifecycle state, pause-required next action, delivered
   Phase 10 status, and delivered lifecycle filename.
-- `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md:6`
+- `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md:6`
   updates the companion roadmap dependency and next action so it waits on the
   framework closeout pause decision instead of the old Phase 5 baseline.
 - `automation/framework-core-and-release-readiness/deep_review_prompt.md:1`

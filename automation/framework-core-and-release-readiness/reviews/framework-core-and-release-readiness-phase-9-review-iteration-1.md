@@ -79,7 +79,7 @@ GitHub because this run did not push.
 - External publication to GitHub Releases, PyPI, npm, Homebrew, or other
   channels remains human-approved and was not performed.
 - Existing unrelated worktree dirt remains limited to `automation/README.md`
-  and `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`.
+  and `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`.
 
 ## Verdict
 

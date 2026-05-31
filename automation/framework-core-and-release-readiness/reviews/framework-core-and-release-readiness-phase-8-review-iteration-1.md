@@ -63,7 +63,7 @@ by using a temporary home directory and repository-local fixture copy.
   saved demo automation, so it can report expected warnings when run inside the
   parent repository checkout.
 - Existing unrelated worktree dirt remains limited to `automation/README.md`
-  and `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`.
+  and `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`.
 
 ## Verdict
 

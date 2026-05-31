@@ -1,0 +1,53 @@
+schema_version: 1
+host: codex
+updated: 2026-05-31
+support_status: supported
+parity_role: baseline
+contract:
+  supported_means:
+    - The generated Codex skill package installs from skill/roadmap-delivery-skill/.
+    - The package routes setup, phase delivery, review, remediation, model policy, and finalization workflows.
+    - Repository-local state, logs, reviews, alerts, and validation remain authoritative.
+  parity_target: required_parity
+capabilities:
+  skill_instruction_packaging:
+    parity_level: required_parity
+    status: supported
+    evidence:
+      - skill/roadmap-delivery-skill/SKILL.md
+      - skill/roadmap-delivery-skill/references/
+  agent_or_subagent_support:
+    parity_level: host_specific_enhancement
+    status: supported_when_available
+    fallback: same-context review with the limitation recorded in the review artifact
+    evidence:
+      - skill/roadmap-delivery-skill/agents/openai.yaml
+  hooks_or_guards:
+    parity_level: required_parity
+    status: implemented_as_prompt_and_validator_guards
+    fallback: validation errors, blocked state, and local alert files
+  recurring_automation:
+    parity_level: host_specific_enhancement
+    status: supported_by_codex_app_automation
+    fallback: manual codex exec or Codex app runs against the same repository artifacts
+  model_selection:
+    parity_level: required_parity
+    status: supported_by_runner_configuration
+    guard: phase_model_policy.json must match saved automation readback before implementation
+  filesystem_sandboxing:
+    parity_level: required_parity
+    status: host_provided
+    guard: preserve unrelated worktree changes and stop for permission-gated writes
+  approval_boundaries:
+    parity_level: required_parity
+    status: enforced_by_skill_rules
+    protected_operations:
+      - publication
+      - promotion
+      - destructive_git
+      - credentials
+      - installed_skill_sync
+  mcp_or_tool_integration:
+    parity_level: host_specific_enhancement
+    status: supported_when_tools_are_available
+    fallback: file-backed inspection and local CLI validation

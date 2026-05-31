@@ -162,9 +162,8 @@ committed package drifts from those inputs.
 - `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`:
   delivered framework hardening roadmap for the canonical core, schemas, shared
   library, CLI, generated Codex adapter, CI, privacy, release, and closeout.
-- `roadmaps/not_started_multi_host_adapter_and_claude_plugin_roadmap.md`:
-  companion roadmap for generated host adapters and Claude packaging. It can
-  start after the framework automation pause decision is handled.
+- `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`:
+  active companion roadmap for generated host adapters and Claude packaging.
 
 ## Operating Model
 
