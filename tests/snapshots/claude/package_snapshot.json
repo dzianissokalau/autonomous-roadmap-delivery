@@ -8,8 +8,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "f0ee96d9b407d58de8df86af3a7c3caa4fd486ae052729b1192c792d14861afb",
-      "size": 734
+      "sha256": "d1051c2271635b8747e272c50678cbc464250e631f2bffbb4d47a9e8d7f2d632",
+      "size": 798
     },
     {
       "path": "skills/roadmap-delivery-skill/SKILL.md",
@@ -20,6 +20,17 @@
       "path": "agents/reviewer.md",
       "sha256": "b62712bb5971d9c56548613ba77a7d0273b32845a0f54651b41c19ddc84684b6",
       "size": 2426
+    },
+    {
+      "path": "hooks/hooks.json",
+      "sha256": "34a29f5fef722aab496f1edcb814965940ae1cdd0ade3b8101fe9c35508bd7a8",
+      "size": 1442
+    },
+    {
+      "mode": "0755",
+      "path": "hooks/roadmap_delivery_safety.py",
+      "sha256": "5c9304e9629b1079a11b9f79dd3d6b5301b5776f815870694b5f85aa30674ad1",
+      "size": 8143
     },
     {
       "core_sha256": "a9472b51a34bfee6d12860d0966c0c9a5917e77d92e8e4ce46b2e1406d3e482c",

@@ -27,7 +27,8 @@ README = """# Roadmap Delivery Claude Adapter
 This is a generated Claude Code plugin package for Roadmap Delivery Skill.
 
 It includes the main roadmap delivery skill, canonical workflow references,
-and a read-only reviewer agent pattern for phase-gated review.
+a read-only reviewer agent pattern for phase-gated review, and conservative
+Claude hook guards for roadmap delivery safety reminders.
 
 ## Draft Local Test
 
@@ -39,7 +40,7 @@ and a read-only reviewer agent pattern for phase-gated review.
    `/roadmap-delivery:roadmap-delivery-skill <roadmap path or automation id>`.
 
 This package does not claim live runtime support yet. Later roadmap phases add
-hooks, provider-neutral model-role mapping, smoke tests, and release artifacts.
+provider-neutral model-role mapping, smoke tests, and release artifacts.
 """
 
 
@@ -66,6 +67,12 @@ def adapter_metadata(repo_root: Path) -> AdapterMetadata:
                 template="templates/skills/roadmap-delivery-skill/SKILL.md",
             ),
             FileSpec(output="agents/reviewer.md", template="templates/agents/reviewer.md"),
+            FileSpec(output="hooks/hooks.json", template="templates/hooks/hooks.json"),
+            FileSpec(
+                output="hooks/roadmap_delivery_safety.py",
+                template="templates/hooks/roadmap_delivery_safety.py",
+                mode=0o755,
+            ),
             *reference_files,
         ],
     )

@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
 Status: Active
-Current phase: Phase 5 - Claude Hooks And Safety Guards
+Current phase: Phase 6 - Provider-Neutral Model Role Config
 Last updated: 2026-05-31
-Next action: Deliver Phase 5 with the configured phase-gated automation.
+Next action: Deliver Phase 6 with the configured phase-gated automation.
 Blocked by: None.
 
 ## Purpose
@@ -404,6 +404,8 @@ python3 -m unittest discover -s tests -v
 - Stop if reviewer agent needs write permissions to perform its role.
 
 ## Phase 5 - Claude Hooks And Safety Guards
+
+Delivery status: Delivered 2026-05-31.
 
 ### Objective
 

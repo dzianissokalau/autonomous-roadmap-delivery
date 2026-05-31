@@ -56,6 +56,31 @@ file-backed state, validation, review artifacts, and release privacy gates. It
 is a best-effort target for host-specific scheduling, hooks, subagents, and
 approval UX until the Claude plugin phases prove the exact runtime surfaces.
 
+## Claude Hook Safety Boundary
+
+The generated Claude plugin now includes `hooks/hooks.json` plus a small
+command helper that reinforces the roadmap delivery contract where Claude Code
+plugin hooks support it:
+
+- `PreToolUse` on `Bash` asks for confirmation before destructive git commands,
+  broad git staging, publication commands, branch promotion, and package
+  upload commands.
+- `UserPromptSubmit` injects Blocked Remediation Mode context when a matching
+  repository delivery state is blocked.
+- `UserPromptSubmit` blocks matching phase-delivery prompts when the delivery
+  state is completed, `completed_pending_pause`, or `all_phases_complete`.
+- `UserPromptSubmit` injects a privacy/release reminder when the user prompt
+  asks for publication, promotion, package, or release work.
+- `Stop` blocks a delivered-phase claim that lacks verification evidence and a
+  delivered review verdict in the final response.
+
+Unsupported behavior is explicit: these hooks are not a live Claude runtime
+smoke test, do not replace repository validators, do not bypass Claude
+permissions, do not install or sync any plugin globally, do not provide a
+custom MCP server, and do not perform an exhaustive secret scan. Protected
+operations still require human approval, and release privacy checks remain the
+authoritative gate.
+
 ## Human-Approved Operations
 
 The following operations are intentionally outside automatic delivery:

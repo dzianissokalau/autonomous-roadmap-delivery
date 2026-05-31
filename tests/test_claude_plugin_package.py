@@ -12,6 +12,8 @@ PLUGIN_MANIFEST = DIST_ROOT / ".claude-plugin" / "plugin.json"
 SKILL_ROOT = DIST_ROOT / "skills" / "roadmap-delivery-skill"
 SKILL_FILE = SKILL_ROOT / "SKILL.md"
 REVIEWER_AGENT = DIST_ROOT / "agents" / "reviewer.md"
+HOOK_CONFIG = DIST_ROOT / "hooks" / "hooks.json"
+HOOK_SCRIPT = DIST_ROOT / "hooks" / "roadmap_delivery_safety.py"
 REFERENCE_ROOT = SKILL_ROOT / "references"
 CORE_REFERENCE_ROOT = REPO_ROOT / "core" / "references"
 SNAPSHOT = REPO_ROOT / "tests" / "snapshots" / "claude" / "package_snapshot.json"
@@ -87,6 +89,8 @@ class ClaudePluginPackageTests(unittest.TestCase):
         self.assertIn(".claude-plugin/plugin.json", files)
         self.assertIn("skills/roadmap-delivery-skill/SKILL.md", files)
         self.assertIn("agents/reviewer.md", files)
+        self.assertIn("hooks/hooks.json", files)
+        self.assertIn("hooks/roadmap_delivery_safety.py", files)
         for name in CORE_REFERENCES:
             with self.subTest(reference=name):
                 output = f"skills/roadmap-delivery-skill/references/{name}"
@@ -124,6 +128,21 @@ class ClaudePluginPackageTests(unittest.TestCase):
         self.assertIn("`blocked`", agent)
         self.assertNotIn("Edit", agent)
         self.assertNotIn("Write", agent)
+
+    def test_hook_files_reinforce_core_safety_rules(self):
+        self.run_build_check()
+        hooks = json.loads(HOOK_CONFIG.read_text(encoding="utf-8"))
+        script = HOOK_SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("Roadmap Delivery safety hooks", hooks["description"])
+        self.assertIn("PreToolUse", hooks["hooks"])
+        self.assertIn("UserPromptSubmit", hooks["hooks"])
+        self.assertIn("Stop", hooks["hooks"])
+        self.assertIn("destructive git reset", script)
+        self.assertIn("broad git staging", script)
+        self.assertIn("Blocked Remediation Mode", script)
+        self.assertIn("Roadmap Delivery hard stop", script)
+        self.assertIn("privacy reminder", script)
 
     def test_rendered_package_matches_snapshot(self):
         _, claude = self.run_build_check()

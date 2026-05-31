@@ -1,0 +1,54 @@
+{
+  "description": "Roadmap Delivery safety hooks. These conservative guards reinforce the workflow contract but do not replace repository validation, Claude permissions, or human approval for protected operations.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/roadmap_delivery_safety.py",
+              "guard-bash"
+            ],
+            "timeout": 10,
+            "statusMessage": "Checking roadmap delivery shell safety"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/roadmap_delivery_safety.py",
+              "remind-prompt"
+            ],
+            "timeout": 5,
+            "statusMessage": "Checking roadmap delivery state"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/roadmap_delivery_safety.py",
+              "guard-stop"
+            ],
+            "timeout": 5,
+            "statusMessage": "Checking roadmap delivery completion guard"
+          }
+        ]
+      }
+    ]
+  }
+}
