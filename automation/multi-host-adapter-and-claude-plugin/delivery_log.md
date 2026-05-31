@@ -371,3 +371,64 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-5`
 
 - Phase 6 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-6`.
+
+## Phase 6 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-6`
+
+### Scope
+
+- Added provider-neutral model-role configuration for executor, reviewer,
+  inspector, finalizer, and repairer roles.
+- Added schema validation for provider-role config and role-to-provider
+  mappings.
+- Updated Codex and Claude adapter guidance to explain role config while
+  preserving strict runner readback boundaries.
+
+### Changes
+
+- Added `config/providers.example.yaml` with JSON-compatible YAML role
+  mappings for Codex and Claude.
+- Added `schemas/provider_config.schema.json`.
+- Added `tests/test_provider_config.py` covering valid config, invalid config,
+  current phase-policy mapping, Claude unsupported reasoning control, and
+  generated adapter guidance.
+- Updated core and Codex model-policy references with provider-role config
+  guidance.
+- Updated Claude adapter README generation and regenerated committed Codex and
+  Claude outputs plus snapshots.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_provider_config -v`: passed, 6 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 116 tests.
+- `python3 scripts/build_adapters.py --check`: passed for Codex and Claude,
+  0 diffs and 0 errors.
+- `git diff --check`: passed.
+- `python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root "$PWD" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 6 - Provider-Neutral Model Role Config" --json`:
+  passed; Phase 7 uses policy defaults and needs no automation config retarget.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-6-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- Provider-role config is an example policy and does not integrate with live
+  provider APIs.
+- Claude model readback and live runtime behavior remain future smoke-test
+  work.
+- Same-context review was used because subagent delegation was not explicitly
+  authorized in this run.
+
+### Next Action
+
+- Phase 7 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-7`.

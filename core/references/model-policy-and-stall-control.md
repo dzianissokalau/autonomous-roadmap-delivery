@@ -45,6 +45,32 @@ Minimum structure:
 Allowed reasoning effort values are `minimal`, `low`, `medium`, `high`, and
 `xhigh`.
 
+## Provider Role Config
+
+Provider-role config is an optional, host-neutral input that describes which
+model policy should be used for workflow roles such as executor, reviewer,
+inspector, finalizer, and repairer.
+
+Repository examples live at:
+
+```text
+config/providers.example.yaml
+schemas/provider_config.schema.json
+```
+
+The provider-role config maps each role to:
+
+- the `phase_model_policy.json` field names it can populate (`model` and
+  `reasoning_effort`)
+- provider-specific model names
+- whether the provider supports an explicit reasoning-effort control
+- runner config field names when a host exposes them
+
+`phase_model_policy.json` remains the durable start-run gate for a roadmap
+phase. A provider-role config can be used to prepare or explain policy values,
+but it does not prove the active runner is configured with those values. The
+start-run gate still needs trusted runner readback before phase-owned edits.
+
 ## Start-Run Gate
 
 Before implementation:
@@ -84,5 +110,7 @@ and must fail safe to the local alert file.
 ## Host Adapter Boundary
 
 The core defines policy fields, comparison rules, stall counters, and alert
-requirements. Host adapters own concrete model names, runner readback, and
-runner update mechanisms.
+requirements. Host adapters own concrete model names, provider-role guidance,
+runner readback, and runner update mechanisms. If a host cannot prove or set a
+role's model or reasoning value, the adapter must record that limitation rather
+than claiming unsupported control.

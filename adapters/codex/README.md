@@ -9,6 +9,9 @@ with Codex-specific templates. Reference entries in the manifest point to their
 matching `core/references/` source so package generation fails if a canonical
 workflow source is missing. The Codex templates preserve the current installed
 skill behavior while ownership moves out of the installed-skill snapshot.
+Provider-role guidance is kept in the Codex model-policy reference so role
+names map to Codex `model` and `reasoning_effort` runner fields without
+claiming prompt-only control.
 
 Check generated output with:
 

@@ -28,7 +28,9 @@ This is a generated Claude Code plugin package for Roadmap Delivery Skill.
 
 It includes the main roadmap delivery skill, canonical workflow references,
 a read-only reviewer agent pattern for phase-gated review, and conservative
-Claude hook guards for roadmap delivery safety reminders.
+Claude hook guards for roadmap delivery safety reminders. It also includes
+provider-neutral model-role guidance that records when a host cannot prove or
+set a reasoning-effort value.
 
 ## Draft Local Test
 
@@ -40,7 +42,7 @@ Claude hook guards for roadmap delivery safety reminders.
    `/roadmap-delivery:roadmap-delivery-skill <roadmap path or automation id>`.
 
 This package does not claim live runtime support yet. Later roadmap phases add
-provider-neutral model-role mapping, smoke tests, and release artifacts.
+smoke tests and release artifacts.
 """
 
 

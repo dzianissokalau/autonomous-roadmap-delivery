@@ -8,8 +8,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "d1051c2271635b8747e272c50678cbc464250e631f2bffbb4d47a9e8d7f2d632",
-      "size": 798
+      "sha256": "167bf86ce3f49a91c97bad8756732c662f4c95a06990cbae757ef51df36c1e31",
+      "size": 885
     },
     {
       "path": "skills/roadmap-delivery-skill/SKILL.md",
@@ -41,12 +41,12 @@
       "size": 2620
     },
     {
-      "core_sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
-      "core_size": 2692,
+      "core_sha256": "ded558eb2093df154ce5d0e192e502254a735c221b91e96d2a15791794ca8a95",
+      "core_size": 3790,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "skills/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
-      "sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
-      "size": 2692
+      "sha256": "ded558eb2093df154ce5d0e192e502254a735c221b91e96d2a15791794ca8a95",
+      "size": 3790
     },
     {
       "core_sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",

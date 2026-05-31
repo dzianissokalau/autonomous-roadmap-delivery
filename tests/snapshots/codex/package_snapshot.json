@@ -21,12 +21,12 @@
       "size": 7637
     },
     {
-      "core_sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
-      "core_size": 2692,
+      "core_sha256": "ded558eb2093df154ce5d0e192e502254a735c221b91e96d2a15791794ca8a95",
+      "core_size": 3790,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "references/model-policy-and-stall-control.md",
-      "sha256": "f0a7354533671b4e00ef945c122cc0112d931ea5d465d0271fe403843cb835a6",
-      "size": 11737
+      "sha256": "c9b2b88276fb91f61c9f4d1cb476527dfa0ffddf485a0357ced09e969cc7fd07",
+      "size": 13782
     },
     {
       "core_sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",

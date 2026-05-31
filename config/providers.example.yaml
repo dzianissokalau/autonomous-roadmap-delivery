@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "description": "Example provider-neutral model-role mapping for roadmap delivery runners. This file is JSON-compatible YAML so it can be parsed without optional YAML dependencies.",
+  "roles": {
+    "executor": {
+      "purpose": "Implement one current roadmap phase and run required verification.",
+      "policy": "high_reasoning",
+      "phase_model_policy": {
+        "model_field": "model",
+        "reasoning_effort_field": "reasoning_effort"
+      },
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "model": "gpt-5.5",
+          "supports_reasoning_effort": true,
+          "reasoning_effort": "xhigh",
+          "config_fields": {
+            "model": "model",
+            "reasoning_effort": "reasoning_effort"
+          }
+        },
+        "claude": {
+          "provider": "claude",
+          "model": "claude-opus-4-1",
+          "supports_reasoning_effort": false,
+          "config_fields": {
+            "model": "model"
+          },
+          "notes": "Record the model readback when the runner exposes it; do not claim reasoning-effort control unless the runner supports it."
+        }
+      }
+    },
+    "reviewer": {
+      "purpose": "Skeptically review delivered phase evidence before advancement.",
+      "policy": "high_reasoning",
+      "phase_model_policy": {
+        "model_field": "model",
+        "reasoning_effort_field": "reasoning_effort"
+      },
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "model": "gpt-5.5",
+          "supports_reasoning_effort": true,
+          "reasoning_effort": "xhigh",
+          "config_fields": {
+            "model": "model",
+            "reasoning_effort": "reasoning_effort"
+          }
+        },
+        "claude": {
+          "provider": "claude",
+          "model": "claude-opus-4-1",
+          "supports_reasoning_effort": false,
+          "config_fields": {
+            "model": "model"
+          },
+          "notes": "Use a read-only reviewer agent when available; record same-context review limitations when it is not."
+        }
+      }
+    },
+    "inspector": {
+      "purpose": "Inspect state, logs, status, and generated artifacts without editing phase-owned files.",
+      "policy": "low_cost",
+      "phase_model_policy": {
+        "model_field": "model",
+        "reasoning_effort_field": "reasoning_effort"
+      },
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "model": "gpt-5.5-mini",
+          "supports_reasoning_effort": true,
+          "reasoning_effort": "low",
+          "config_fields": {
+            "model": "model",
+            "reasoning_effort": "reasoning_effort"
+          }
+        },
+        "claude": {
+          "provider": "claude",
+          "model": "claude-sonnet-4-5",
+          "supports_reasoning_effort": false,
+          "config_fields": {
+            "model": "model"
+          },
+          "notes": "Use for read-only status and artifact inspection when the host runner supports model selection."
+        }
+      }
+    },
+    "finalizer": {
+      "purpose": "Run final verification, completion alert checks, and promotion-readiness review.",
+      "policy": "high_reasoning",
+      "phase_model_policy": {
+        "model_field": "model",
+        "reasoning_effort_field": "reasoning_effort"
+      },
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "model": "gpt-5.5",
+          "supports_reasoning_effort": true,
+          "reasoning_effort": "xhigh",
+          "config_fields": {
+            "model": "model",
+            "reasoning_effort": "reasoning_effort"
+          }
+        },
+        "claude": {
+          "provider": "claude",
+          "model": "claude-opus-4-1",
+          "supports_reasoning_effort": false,
+          "config_fields": {
+            "model": "model"
+          },
+          "notes": "Finalization still requires explicit human approval for publication, promotion, and runner changes."
+        }
+      }
+    },
+    "repairer": {
+      "purpose": "Repair local or already-authorized automation blockers before phase delivery resumes.",
+      "policy": "high_reasoning",
+      "phase_model_policy": {
+        "model_field": "model",
+        "reasoning_effort_field": "reasoning_effort"
+      },
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "model": "gpt-5.5",
+          "supports_reasoning_effort": true,
+          "reasoning_effort": "xhigh",
+          "config_fields": {
+            "model": "model",
+            "reasoning_effort": "reasoning_effort"
+          }
+        },
+        "claude": {
+          "provider": "claude",
+          "model": "claude-opus-4-1",
+          "supports_reasoning_effort": false,
+          "config_fields": {
+            "model": "model"
+          },
+          "notes": "Never repair credentials, publication, destructive git, or unapproved runner configuration from role config alone."
+        }
+      }
+    }
+  },
+  "policies": {
+    "high_reasoning": {
+      "description": "Use for implementation, review, remediation, and finalization phases where quality risk is higher.",
+      "roles": [
+        "executor",
+        "reviewer",
+        "finalizer",
+        "repairer"
+      ]
+    },
+    "low_cost": {
+      "description": "Use for read-only inspection and status reporting when the roadmap does not require a stronger model.",
+      "roles": [
+        "inspector"
+      ]
+    }
+  }
+}

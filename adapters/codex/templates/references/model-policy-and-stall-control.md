@@ -60,6 +60,48 @@ Allowed `reasoning_effort` values:
 - `high`
 - `xhigh`
 
+## Provider Role Config
+
+Provider-role config lets the package describe reusable model choices for
+workflow roles without replacing `phase_model_policy.json`.
+
+Repository examples live at:
+
+```text
+config/providers.example.yaml
+schemas/provider_config.schema.json
+```
+
+The standard roles are:
+
+- `executor`: implement one current phase and run verification
+- `reviewer`: perform the skeptical phase-gate review
+- `inspector`: inspect state, logs, branches, and generated artifacts
+- `finalizer`: run final verification and completion checks
+- `repairer`: repair local or already-authorized blockers
+
+The config maps each role to the current phase model-policy fields:
+
+```json
+{
+  "phase_model_policy": {
+    "model_field": "model",
+    "reasoning_effort_field": "reasoning_effort"
+  }
+}
+```
+
+For Codex, role mappings may name the Codex runner fields `model` and
+`reasoning_effort`. Those values are only proposed or documented until the
+Codex app automation config, CLI flags, profile, or another trusted runner
+source reads back matching values. A provider-role config does not prove the
+active runner is configured correctly.
+
+For Claude or other hosts, role mappings may name a model field but must not
+claim explicit reasoning-effort control unless that runner exposes and reads
+back such a field. Record unsupported controls as host limitations and keep the
+start-run gate strict.
+
 ## Migrating Existing Automations
 
 Existing roadmap delivery automations can adopt model policy without rewriting
@@ -121,6 +163,8 @@ automation is saved or activated. Setup must collect or confirm:
 - finalization model and reasoning effort
 - `max_stalled_runs`
 - notification mode and fallback
+- optional provider-role config path and selected role when the workflow uses
+  `config/providers.example.yaml` or a project-specific equivalent
 
 Use defaults for ordinary phases and add numbered overrides only when the
 roadmap or operator has a concrete reason. Documentation-only or status-only
@@ -136,6 +180,10 @@ Read back the saved config before reporting success. If readback differs from
 policy, correct it only when the automation-config surface is approved; if it
 cannot be corrected, leave the automation paused or blocked and record the
 mismatch.
+
+When setup uses provider-role config, copy the selected role's model and
+reasoning values into `phase_model_policy.json` first, then apply the same
+readback gate. Do not treat the role file itself as runner readback.
 
 Activation is not allowed until:
 
@@ -192,6 +240,11 @@ For Codex app automations, update the saved automation configuration so
 `model = "<required-model>"` and
 `reasoning_effort = "<required-reasoning-effort>"`, then read the config back.
 If readback does not match, keep or set state blocked and write a local alert.
+
+If a provider-role config exists, it may explain why the current phase uses an
+executor, reviewer, inspector, finalizer, or repairer model. It does not loosen
+the start-run gate: required values still come from `phase_model_policy.json`,
+and configured values still come from runner readback.
 
 The gate treats these as stop-before-delivery conditions:
 
