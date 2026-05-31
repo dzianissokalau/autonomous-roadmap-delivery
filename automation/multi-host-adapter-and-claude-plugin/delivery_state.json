@@ -2,48 +2,43 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md",
   "roadmap_slug": "multi-host-adapter-and-claude-plugin",
-  "current_phase": "Phase 1 - Adapter Build System",
-  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-1",
+  "current_phase": "Phase 2 - Codex Generated Package Baseline",
+  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-2",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 0 - Host Capability Contract",
-    "completed_at": "2026-05-31T19:06:38Z",
+    "phase": "Phase 1 - Adapter Build System",
+    "completed_at": "2026-05-31T19:23:00Z",
     "status": "passed",
     "checks": [
       {
-        "command": "manual inspection of compatibility docs against current core behavior",
+        "command": "python3 scripts/build_adapters.py --check",
         "status": "passed"
+      },
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "Ran 90 tests."
+      },
+      {
+        "command": "python3 -m unittest tests.test_adapter_build_system -v",
+        "status": "passed",
+        "details": "Ran 3 focused adapter build-system tests."
       },
       {
         "command": "git diff --check",
         "status": "passed"
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli validate --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --strict --allow-warning current_branch_name_mismatch --allow-warning worktree_dirty --json",
-        "status": "passed",
-        "details": "Validation reported no errors; expected pre-commit warnings were current branch handoff to Phase 1 and dirty worktree."
-      },
-      {
-        "command": "python3 -m roadmap_delivery.cli inspect --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json",
-        "status": "passed_with_expected_warnings",
-        "details": "Inspection confirmed ACTIVE automation, gpt-5.5/xhigh model policy match, active roadmap path, Phase 1 handoff, and no blocker."
-      },
-      {
-        "command": "rg -n <old multi-host not_started roadmap path> . /Users/dzianissokalau/.codex/automations/multi-host-adapter-and-claude-plugin/automation.toml",
-        "status": "passed",
-        "details": "No stale lifecycle path references remain."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 0 - Host Capability Contract",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-0-review-iteration-1.md",
+    "phase": "Phase 1 - Adapter Build System",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-1-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-31T19:06:38Z"
+    "reviewed_at": "2026-05-31T19:23:00Z"
   },
-  "last_delivered_phase": "Phase 0 - Host Capability Contract",
+  "last_delivered_phase": "Phase 1 - Adapter Build System",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -60,13 +55,13 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-31T19:06:03Z"
+    "readback_at": "2026-05-31T19:23:00Z"
   },
-  "run_count": 1,
+  "run_count": 2,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
   "last_progress_signature": null,
-  "last_progress_at": "2026-05-31T19:06:38Z",
+  "last_progress_at": "2026-05-31T19:23:00Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
@@ -76,5 +71,5 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-05-31T19:06:38Z"
+  "updated_at": "2026-05-31T19:23:00Z"
 }

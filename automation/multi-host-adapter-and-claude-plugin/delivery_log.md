@@ -81,3 +81,58 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-0`
 
 - Phase 1 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-1`.
+
+## Phase 1 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-1`
+
+### Scope
+
+- Built the shared host adapter renderer for deterministic package output.
+- Added Codex and Claude adapter metadata modules.
+- Added the unified adapter build script and focused adapter build-system tests.
+
+### Changes
+
+- Added `src/roadmap_delivery/rendering.py` with adapter metadata, rendering,
+  output comparison, writing, and report helpers.
+- Added `adapters/codex/package.py` to load the existing Codex manifest through
+  the shared renderer.
+- Added `adapters/claude/package.py` for a minimal non-installable Claude
+  render target backed by the Claude capability file and one canonical core
+  reference.
+- Added `scripts/build_adapters.py` with `--check`, `--write`, and
+  `--output-root` support.
+- Added `tests/test_adapter_build_system.py` covering Codex and Claude render
+  checks, deterministic snapshot output, and stale-output failure behavior.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --check`: passed.
+- `python3 -m unittest tests.test_adapter_build_system -v`: passed, 3 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 90 tests.
+- `git diff --check`: passed.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-1-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- Claude output is intentionally render-only and not an installable plugin until
+  later Claude package phases.
+- The legacy `scripts/build_codex_package.py` remains in place for compatibility
+  until the Codex generated baseline phase replaces that surface.
+- Same-context review was used for this phase.
+
+### Next Action
+
+- Phase 2 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-2`.

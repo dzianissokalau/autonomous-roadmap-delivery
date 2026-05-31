@@ -1,0 +1,95 @@
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+BUILD_SCRIPT = REPO_ROOT / "scripts" / "build_adapters.py"
+
+
+class AdapterBuildSystemTests(unittest.TestCase):
+    maxDiff = None
+
+    def run_build(self, *args, allowed_returncodes=(0,)):
+        proc = subprocess.run(
+            [sys.executable, str(BUILD_SCRIPT), "--repo-root", str(REPO_ROOT), *args],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertIn(proc.returncode, allowed_returncodes, proc.stderr or proc.stdout)
+        return json.loads(proc.stdout)
+
+    def report_for(self, report, adapter):
+        return next(item for item in report["reports"] if item["adapter"] == adapter)
+
+    def test_check_renders_codex_and_claude_without_host_apps(self):
+        report = self.run_build("--check", "--json")
+
+        self.assertEqual(report["status"], "ok")
+        self.assertEqual(report["adapters"], ["codex", "claude"])
+
+        codex = self.report_for(report, "codex")
+        self.assertEqual(codex["status"], "ok")
+        self.assertEqual(codex["check_mode"], "output")
+        self.assertEqual(codex["diffs"], [])
+        self.assertEqual(codex["capability_file"], "host-capabilities/codex.yaml")
+        self.assertGreater(codex["file_count"], 5)
+
+        claude = self.report_for(report, "claude")
+        self.assertEqual(claude["status"], "ok")
+        self.assertEqual(claude["check_mode"], "render_only")
+        self.assertEqual(claude["capability_file"], "host-capabilities/claude.yaml")
+        self.assertEqual(
+            [item["path"] for item in claude["files"]],
+            [
+                "README.md",
+                "core/references/phase-loop.md",
+                "host-capabilities/claude.yaml",
+            ],
+        )
+
+    def test_output_root_snapshot_write_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            first = self.run_build("--write", "--output-root", tmp, "--json")
+            second = self.run_build("--write", "--output-root", tmp, "--json")
+
+            self.assertEqual(first["status"], "ok")
+            self.assertEqual(second["status"], "ok")
+            for adapter in ("codex", "claude"):
+                with self.subTest(adapter=adapter):
+                    first_files = self.report_for(first, adapter)["files"]
+                    second_files = self.report_for(second, adapter)["files"]
+                    self.assertEqual(first_files, second_files)
+                    self.assertTrue((Path(tmp) / adapter).is_dir())
+
+    def test_check_fails_when_generated_snapshot_output_is_stale(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.run_build("--adapter", "claude", "--write", "--output-root", tmp, "--json")
+            stale_file = Path(tmp) / "claude" / "README.md"
+            stale_file.write_text("stale\n", encoding="utf-8")
+
+            report = self.run_build(
+                "--adapter",
+                "claude",
+                "--check",
+                "--output-root",
+                tmp,
+                "--json",
+                allowed_returncodes=(1,),
+            )
+
+        claude = self.report_for(report, "claude")
+        self.assertEqual(report["status"], "drift")
+        self.assertEqual(claude["status"], "drift")
+        self.assertEqual(claude["diffs"][0]["kind"], "content")
+        self.assertEqual(claude["diffs"][0]["path"], "README.md")
+
+
+if __name__ == "__main__":
+    unittest.main()

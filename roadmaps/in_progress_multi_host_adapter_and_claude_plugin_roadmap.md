@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
 Status: Active
-Current phase: Phase 1 - Adapter Build System
+Current phase: Phase 2 - Codex Generated Package Baseline
 Last updated: 2026-05-31
-Next action: Deliver Phase 1 with the configured phase-gated automation.
+Next action: Deliver Phase 2 with the configured phase-gated automation.
 Blocked by: None.
 
 ## Purpose
@@ -185,6 +185,8 @@ git diff --check
 - Stop if the support promise for Claude is undecided.
 
 ## Phase 1 - Adapter Build System
+
+Delivery status: Delivered 2026-05-31.
 
 ### Objective
 
