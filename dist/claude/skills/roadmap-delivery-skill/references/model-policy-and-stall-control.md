@@ -1,0 +1,88 @@
+# Model Policy And Stall Control Reference
+
+Use this reference when a roadmap automation has phase-specific model
+requirements, reasoning requirements, stalled-run thresholds, or operator
+alerts.
+
+## Core Contract
+
+Model and reasoning selection belong to the runner. The workflow may read
+policy, compare required and configured values, update durable state, write
+retarget plans, and request or perform approved runner updates. Prompt text
+alone does not prove the active model or reasoning effort.
+
+## Policy Shape
+
+Policy lives with automation artifacts:
+
+```text
+automation/<roadmap-slug>/phase_model_policy.json
+```
+
+Minimum structure:
+
+```json
+{
+  "schema_version": 1,
+  "max_stalled_runs": 3,
+  "notification": {
+    "mode": "alert_file",
+    "fallback": "alert_file"
+  },
+  "defaults": {
+    "model": "<default-model>",
+    "reasoning_effort": "<default-reasoning-effort>"
+  },
+  "phases": {
+    "finalization": {
+      "model": "<finalization-model>",
+      "reasoning_effort": "<finalization-reasoning-effort>"
+    }
+  }
+}
+```
+
+Allowed reasoning effort values are `minimal`, `low`, `medium`, `high`, and
+`xhigh`.
+
+## Start-Run Gate
+
+Before implementation:
+
+1. Resolve current phase from delivery state.
+2. Resolve required model and reasoning from numbered policy override or
+   defaults.
+3. Read configured runner model and reasoning from a trusted config or readback
+   source.
+4. Stop before phase-owned edits if required and configured values differ or
+   cannot be proven.
+
+Retarget runner configuration only when that surface is already approved. After
+retargeting, read back the saved config and stop so a later run starts with the
+right settings.
+
+## End-Run Retargeting
+
+After a delivered review verdict, resolve the next phase's model and reasoning,
+update durable state, compare against runner readback, and retarget only with
+approval. If readback fails or mismatches, keep or set blocked state, write an
+alert, and do not start the next phase.
+
+## Progress And Stall Control
+
+Use durable progress signatures from state, latest review, verification, git
+head, delivery log hash/size, and blocker reason. Reset stalled count when the
+signature changes. Increment it when the signature repeats. At threshold, keep
+or set blocked state and write an operator alert.
+
+## Alerts
+
+Local alert files are the durable fallback for `stalled`, `completed`,
+`blocked`, and `retarget-failed` states. External notifications are optional
+and must fail safe to the local alert file.
+
+## Host Adapter Boundary
+
+The core defines policy fields, comparison rules, stall counters, and alert
+requirements. Host adapters own concrete model names, runner readback, and
+runner update mechanisms.

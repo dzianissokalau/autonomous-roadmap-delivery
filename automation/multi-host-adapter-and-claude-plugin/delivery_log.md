@@ -197,3 +197,59 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-2`
 
 - Phase 3 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-3`.
+
+## Phase 3 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-3`
+
+### Scope
+
+- Created a deterministic Claude Code plugin skeleton from the adapter system.
+- Added a generated manifest, generated Claude skill package, bundled core
+  references, and package-local draft install/test notes.
+- Added local package validation tests for manifest shape, skill/reference
+  generation, safety-rule preservation, and absence of Codex-only runtime paths.
+
+### Changes
+
+- Added `adapters/claude/plugin.json.template`.
+- Updated `adapters/claude/package.py` so the Claude adapter now produces
+  committed output under `dist/claude`.
+- Generated `dist/claude/.claude-plugin/plugin.json`,
+  `dist/claude/README.md`, and
+  `dist/claude/skills/roadmap-delivery-skill/` with core references.
+- Added `tests/test_claude_plugin_package.py`.
+- Updated `tests/test_adapter_build_system.py` for the committed Claude plugin
+  output surface.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --adapter claude --check`: passed.
+- `python3 -m unittest tests.test_claude_plugin_package -v`: passed, 5 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 97 tests.
+- `git diff --check`: passed.
+- `python3 scripts/build_adapters.py --check`: passed for Codex and Claude.
+- `python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root "$PWD" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 3 - Claude Plugin Skeleton" --json`:
+  passed; Phase 4 uses policy defaults and needs no automation config retarget.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-3-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- Live Claude runtime validation and smoke tests remain future-phase work.
+- Same-context review was used for this phase because no independent delegated
+  reviewer was available in the current workflow.
+
+### Next Action
+
+- Phase 4 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-4`.

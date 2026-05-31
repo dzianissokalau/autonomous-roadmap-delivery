@@ -43,14 +43,21 @@ class AdapterBuildSystemTests(unittest.TestCase):
 
         claude = self.report_for(report, "claude")
         self.assertEqual(claude["status"], "ok")
-        self.assertEqual(claude["check_mode"], "render_only")
+        self.assertEqual(claude["check_mode"], "output")
         self.assertEqual(claude["capability_file"], "host-capabilities/claude.yaml")
         self.assertEqual(
             [item["path"] for item in claude["files"]],
             [
+                ".claude-plugin/plugin.json",
                 "README.md",
-                "core/references/phase-loop.md",
-                "host-capabilities/claude.yaml",
+                "skills/roadmap-delivery-skill/SKILL.md",
+                "skills/roadmap-delivery-skill/references/finalization-and-promotion.md",
+                "skills/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
+                "skills/roadmap-delivery-skill/references/phase-loop.md",
+                "skills/roadmap-delivery-skill/references/review-and-fix.md",
+                "skills/roadmap-delivery-skill/references/setup-automation.md",
+                "skills/roadmap-delivery-skill/references/state-log-and-branches.md",
+                "skills/roadmap-delivery-skill/references/troubleshooting.md",
             ],
         )
 
