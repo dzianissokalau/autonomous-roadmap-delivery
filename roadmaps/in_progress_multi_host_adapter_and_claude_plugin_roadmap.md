@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
 Status: Active
-Current phase: Phase 2 - Codex Generated Package Baseline
+Current phase: Phase 3 - Claude Plugin Skeleton
 Last updated: 2026-05-31
-Next action: Deliver Phase 2 with the configured phase-gated automation.
+Next action: Deliver Phase 3 with the configured phase-gated automation.
 Blocked by: None.
 
 ## Purpose
@@ -239,6 +239,8 @@ python3 -m unittest discover -s tests -v
 - Stop if adapter output cannot be made deterministic.
 
 ## Phase 2 - Codex Generated Package Baseline
+
+Delivery status: Delivered 2026-05-31.
 
 ### Objective
 
