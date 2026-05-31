@@ -21,6 +21,76 @@ Key docs:
 
 ## Quickstart
 
+### Install In Codex
+
+The installable Codex skill package is committed in this repository:
+
+```text
+skill/roadmap-delivery-skill/
+```
+
+Install it from inside Codex first:
+
+1. Open Codex and ask:
+
+   ```text
+   Install the Codex skill from GitHub repo dzianissokalau/roadmap-delivery-skill at path skill/roadmap-delivery-skill
+   ```
+
+2. Approve the install if Codex asks for confirmation.
+3. Restart Codex if prompted.
+
+If your Codex build has a Skills or Plugins import screen, use the same values:
+
+- Repository: `dzianissokalau/roadmap-delivery-skill`
+- Skill path: `skill/roadmap-delivery-skill`
+
+This repository ships the generated skill package, so users do not need to run
+the renderer before installing it.
+
+After restart, try:
+
+```text
+$roadmap-delivery-skill inspect this roadmap automation state
+```
+
+### CLI Install Fallback
+
+If the in-Codex install path is unavailable or you are scripting setup, use
+Codex's bundled skill installer:
+
+```bash
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+  --repo dzianissokalau/roadmap-delivery-skill \
+  --path skill/roadmap-delivery-skill
+```
+
+This installs to:
+
+```text
+${CODEX_HOME:-$HOME/.codex}/skills/roadmap-delivery-skill
+```
+
+Restart Codex after installation so the skill is picked up.
+
+Manual fallback:
+
+```bash
+git clone git@github.com:dzianissokalau/roadmap-delivery-skill.git /tmp/roadmap-delivery-skill
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R /tmp/roadmap-delivery-skill/skill/roadmap-delivery-skill \
+  "${CODEX_HOME:-$HOME/.codex}/skills/"
+```
+
+To verify the generated package before installing:
+
+```bash
+python3 scripts/build_codex_package.py --check
+python3 -m unittest tests.test_adapter_codex -v
+```
+
+### Developer Setup
+
 Run the framework from a checkout:
 
 ```bash
@@ -48,10 +118,6 @@ script during development:
 python3 -m pip install -e .
 roadmap-delivery version
 ```
-
-The installable Codex skill package lives at
-`skill/roadmap-delivery-skill/`. The generated package is committed so Codex
-users can install it without running the renderer first.
 
 ## Architecture
 
@@ -275,46 +341,6 @@ checksum file together, rebuild from that commit, and reinstall the prior
 `skill/roadmap-delivery-skill/` package if an operator needs to revert a local
 Codex installation. Do not publish GitHub Releases, PyPI packages, Homebrew
 formulae, or other external artifacts without explicit approval.
-
-## Install The Codex Skill
-
-The installable skill lives at:
-
-```text
-skill/roadmap-delivery-skill/
-```
-
-Install it with Codex's skill installer:
-
-```bash
-python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --repo dzianissokalau/roadmap-delivery-skill \
-  --path skill/roadmap-delivery-skill
-```
-
-This installs to:
-
-```text
-${CODEX_HOME:-$HOME/.codex}/skills/roadmap-delivery-skill
-```
-
-Restart Codex after installation so the skill is picked up.
-
-Manual fallback:
-
-```bash
-git clone git@github.com:dzianissokalau/roadmap-delivery-skill.git /tmp/roadmap-delivery-skill
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-cp -R /tmp/roadmap-delivery-skill/skill/roadmap-delivery-skill \
-  "${CODEX_HOME:-$HOME/.codex}/skills/"
-```
-
-To verify the generated package before installing:
-
-```bash
-python3 scripts/build_codex_package.py --check
-python3 -m unittest tests.test_adapter_codex -v
-```
 
 ## Contributor Workflow
 
