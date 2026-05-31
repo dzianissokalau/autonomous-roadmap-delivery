@@ -16,7 +16,7 @@ actually support it.
 - Expected branch shape: the review branch is based on `main` and contains the
   completed roadmap delivery artifacts plus the repository skill snapshot.
 - Roadmap:
-  `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+  `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 - Delivery state:
   `automation/autonomous-roadmap-delivery-skill/delivery_state.json`
 - Delivery log:
@@ -224,9 +224,8 @@ Treat these as explicit review questions, not automatic failures:
 - The saved Codex automation currently reads back as `PAUSED`, but its prompt
   may still lack an explicit `all_phases_complete` or
   `completed_pending_pause` hard-stop guard.
-- The roadmap filename is still
-  `autonomous-roadmap-delivery-skill-phased-roadmap.md`, not a `delivered_`
-  lifecycle filename.
+- The roadmap filename has been reconciled to
+  `delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`.
 - The GitHub branch includes a repository skill snapshot; if local access is
   available, compare it with the installed skill directory before publication.
 - A review-branch push has happened, but no PR, merge, promotion to `main`, or

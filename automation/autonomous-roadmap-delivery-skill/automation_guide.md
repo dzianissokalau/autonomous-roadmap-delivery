@@ -2,7 +2,7 @@
 
 Status: Delivered
 Created: 2026-05-20
-Primary roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Primary roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 
 ## Purpose
 
@@ -24,7 +24,7 @@ advance to the next roadmap phase
 ## Configuration
 
 ```text
-ROADMAP_PATH=roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md
+ROADMAP_PATH=roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md
 ROADMAP_SLUG=autonomous-roadmap-delivery-skill
 CURRENT_PHASE=Complete
 CURRENT_STATUS=completed
@@ -423,7 +423,7 @@ the installed skill target.
 ## Delivery Agent Prompt
 
 ```text
-Deliver Phase N of roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md.
+Deliver Phase N of roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md.
 
 Use this phase-gated delivery template:
 automation/codex_phase_gated_delivery_automation_template.md
@@ -453,7 +453,7 @@ At the end:
 
 ```text
 Review the delivered Phase N changes against
-roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md.
+roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md.
 
 Take a skeptical code-review stance. Lead with findings.
 

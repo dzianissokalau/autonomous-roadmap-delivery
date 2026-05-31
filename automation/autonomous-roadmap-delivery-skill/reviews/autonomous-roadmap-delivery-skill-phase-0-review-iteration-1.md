@@ -2,7 +2,7 @@
 
 Verdict: blocked
 Date: 2026-05-20
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
 
 ## Findings
@@ -10,9 +10,9 @@ Branch: `main`
 1. [P0] Install target write verification fails in the current automation environment.
    Phase 0 requires confirming that the target directory can be created or
    updated before advancement
-   (`roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md:179`) and
+   (`roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md:179`) and
    says to stop if the install target requires approval that is not granted
-   (`roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md:191`). In
+   (`roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md:191`). In
    this fresh run,
    `test -d $CODEX_HOME/skills && test -w $CODEX_HOME/skills`
    exited 1. Follow-up checks showed the directory exists and is owned by the

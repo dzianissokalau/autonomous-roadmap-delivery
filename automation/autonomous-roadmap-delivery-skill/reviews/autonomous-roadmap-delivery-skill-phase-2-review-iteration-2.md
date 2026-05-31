@@ -1,6 +1,6 @@
 # Phase 2 Review Iteration 2
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: `Phase 2 - Core Skill Instructions`
 Review completed: 2026-05-20T15:25:12Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-2`

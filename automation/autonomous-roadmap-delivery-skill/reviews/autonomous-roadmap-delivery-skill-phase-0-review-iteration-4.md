@@ -2,7 +2,7 @@
 
 Verdict: delivered
 Date: 2026-05-20
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Branch: `main`
 
 ## Findings

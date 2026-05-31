@@ -1,6 +1,6 @@
 # Phase 7 Review - Iteration 1
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 7 - Automation Setup, Pause, And Repair Workflows
 Reviewed at: 2026-05-20T22:29:31Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-7`

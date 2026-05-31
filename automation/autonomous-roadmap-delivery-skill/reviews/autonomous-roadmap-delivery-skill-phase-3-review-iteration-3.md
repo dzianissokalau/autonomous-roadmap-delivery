@@ -1,6 +1,6 @@
 # Phase 3 Review - Iteration 3
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 3 - Reference Pack
 Reviewed at: 2026-05-20T17:41:08Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-3`

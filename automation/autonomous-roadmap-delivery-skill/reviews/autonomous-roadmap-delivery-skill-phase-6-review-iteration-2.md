@@ -1,6 +1,6 @@
 # Phase 6 Review - Iteration 2
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 6 - Artifact Validator
 Reviewed at: 2026-05-20T21:26:11Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-6`

@@ -1,7 +1,7 @@
 # Autonomous Roadmap Delivery Skill Review/Fix Log
 
 Status: Delivered
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 State file: `automation/autonomous-roadmap-delivery-skill/review_fix_state.json`
 
 The fresh-context review history is recorded below.

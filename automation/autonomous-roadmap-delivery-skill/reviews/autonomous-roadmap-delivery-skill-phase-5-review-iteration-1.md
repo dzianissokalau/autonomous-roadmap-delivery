@@ -1,6 +1,6 @@
 # Phase 5 Review - Iteration 1
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 5 - Validation And Pilot Smoke
 Reviewed at: 2026-05-20T19:31:19Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-5`

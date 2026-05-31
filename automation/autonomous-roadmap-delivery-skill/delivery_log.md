@@ -1,7 +1,7 @@
 # Autonomous Roadmap Delivery Skill Delivery Log
 
 Status: Delivered
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Automation template: `automation/codex_phase_gated_delivery_automation_template.md`
 State file: `automation/autonomous-roadmap-delivery-skill/delivery_state.json`
 Review directory: `automation/autonomous-roadmap-delivery-skill/reviews`
@@ -88,7 +88,7 @@ Automation: `autonomous-roadmap-delivery-skill`
 
 - Saved status: `ACTIVE`
 - Saved cwd: `$ROADMAP_REPO_ROOT`
-- Saved prompt uses `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+- Saved prompt uses `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 - Saved prompt keeps state, logs, and reviews under `automation/autonomous-roadmap-delivery-skill/`
 - Saved prompt forbids GitHub push, `main` promotion, automation config edits, and destructive git operations without explicit human approval
 

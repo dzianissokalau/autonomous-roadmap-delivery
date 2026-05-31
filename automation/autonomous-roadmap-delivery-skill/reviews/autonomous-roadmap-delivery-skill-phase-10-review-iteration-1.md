@@ -1,6 +1,6 @@
 # Phase 10 Review - Iteration 1
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 10 - Operational Hardening And Maintenance
 Reviewed at: 2026-05-20T23:30:41Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-10`

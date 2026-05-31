@@ -88,7 +88,7 @@ committed package drifts from those inputs.
 
 ## Roadmaps
 
-- `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`: delivered
+- `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`: delivered
   original Codex roadmap and repository skill snapshot.
 - `roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md`:
   delivered model-aware automation retargeting, stalled-run handling, and local

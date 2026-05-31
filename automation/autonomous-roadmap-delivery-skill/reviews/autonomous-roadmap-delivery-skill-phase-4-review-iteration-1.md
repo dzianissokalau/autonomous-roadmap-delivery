@@ -1,6 +1,6 @@
 # Phase 4 Review - Iteration 1
 
-Roadmap: `roadmaps/autonomous-roadmap-delivery-skill-phased-roadmap.md`
+Roadmap: `roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 Phase: Phase 4 - Read-Only Status Script
 Reviewed at: 2026-05-20T18:23:15Z
 Branch: `codex/autonomous-roadmap-delivery-skill-phase-4`
