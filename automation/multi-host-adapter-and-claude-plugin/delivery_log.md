@@ -253,3 +253,61 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-3`
 
 - Phase 4 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-4`.
+
+## Phase 4 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-4`
+
+### Scope
+
+- Added Claude template-backed main skill instructions.
+- Added a read-only Claude reviewer agent pattern for the phase review gate.
+- Added Claude snapshot and prompt-drift coverage for generated skill and
+  reviewer prompts.
+
+### Changes
+
+- Moved the generated Claude skill body into
+  `adapters/claude/templates/skills/roadmap-delivery-skill/SKILL.md`.
+- Added `adapters/claude/templates/agents/reviewer.md` and generated
+  `dist/claude/agents/reviewer.md`.
+- Updated Claude adapter metadata to render the main skill from templates and
+  include the reviewer agent in package output.
+- Updated Claude package tests to assert reviewer-agent presence, read-only
+  tool declaration, verdict vocabulary, Claude permission notes, and snapshot
+  parity.
+- Added `tests/snapshots/claude/package_snapshot.json`.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --adapter claude --check`: passed.
+- `python3 -m unittest tests.test_claude_plugin_package -v`: passed, 7 tests.
+- `python3 -m unittest tests.test_adapter_build_system -v`: passed, 3 tests.
+- `python3 -m unittest discover -s tests -v`: passed, 99 tests.
+- `git diff --check`: passed.
+- `python3 scripts/build_adapters.py --check`: passed for Codex and Claude.
+- `python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root "$PWD" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 4 - Claude Skills And Reviewer Agent" --json`:
+  passed; Phase 5 uses policy defaults and needs no automation config retarget.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-4-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- The reviewer agent is package/template verified, not live-tested in Claude.
+- Live Claude runtime validation remains future-phase work.
+- Same-context review was used because no explicit delegated-review operator
+  permission was available in the current run.
+
+### Next Action
+
+- Phase 5 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-5`.

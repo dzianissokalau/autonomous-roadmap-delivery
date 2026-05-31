@@ -51,6 +51,7 @@ class AdapterBuildSystemTests(unittest.TestCase):
                 ".claude-plugin/plugin.json",
                 "README.md",
                 "skills/roadmap-delivery-skill/SKILL.md",
+                "agents/reviewer.md",
                 "skills/roadmap-delivery-skill/references/finalization-and-promotion.md",
                 "skills/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
                 "skills/roadmap-delivery-skill/references/phase-loop.md",

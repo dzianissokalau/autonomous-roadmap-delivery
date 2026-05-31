@@ -1,0 +1,82 @@
+{
+  "adapter": "claude",
+  "files": [
+    {
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "b4b5836c6c282f9f7053834df9f780f0c63bf779ac26826ff24c7d0dee71f1ad",
+      "size": 328
+    },
+    {
+      "path": "README.md",
+      "sha256": "f0ee96d9b407d58de8df86af3a7c3caa4fd486ae052729b1192c792d14861afb",
+      "size": 734
+    },
+    {
+      "path": "skills/roadmap-delivery-skill/SKILL.md",
+      "sha256": "5dedf68dee1a684aa4e283d61407a45da1f36ec0c248c02f58e15ed24b8b8f8d",
+      "size": 3644
+    },
+    {
+      "path": "agents/reviewer.md",
+      "sha256": "b62712bb5971d9c56548613ba77a7d0273b32845a0f54651b41c19ddc84684b6",
+      "size": 2426
+    },
+    {
+      "core_sha256": "a9472b51a34bfee6d12860d0966c0c9a5917e77d92e8e4ce46b2e1406d3e482c",
+      "core_size": 2620,
+      "core_source": "core/references/finalization-and-promotion.md",
+      "path": "skills/roadmap-delivery-skill/references/finalization-and-promotion.md",
+      "sha256": "a9472b51a34bfee6d12860d0966c0c9a5917e77d92e8e4ce46b2e1406d3e482c",
+      "size": 2620
+    },
+    {
+      "core_sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
+      "core_size": 2692,
+      "core_source": "core/references/model-policy-and-stall-control.md",
+      "path": "skills/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
+      "sha256": "a1c3c8645c2d6f186e764ade6d01216e1a107826578caf06500d8cda1b4bd626",
+      "size": 2692
+    },
+    {
+      "core_sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",
+      "core_size": 3198,
+      "core_source": "core/references/phase-loop.md",
+      "path": "skills/roadmap-delivery-skill/references/phase-loop.md",
+      "sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",
+      "size": 3198
+    },
+    {
+      "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
+      "core_size": 2595,
+      "core_source": "core/references/review-and-fix.md",
+      "path": "skills/roadmap-delivery-skill/references/review-and-fix.md",
+      "sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
+      "size": 2595
+    },
+    {
+      "core_sha256": "852166c6f94a5d8ee564fe3babde6193e24a594be7b3fb0761c4c38386cdfc6b",
+      "core_size": 2808,
+      "core_source": "core/references/setup-automation.md",
+      "path": "skills/roadmap-delivery-skill/references/setup-automation.md",
+      "sha256": "852166c6f94a5d8ee564fe3babde6193e24a594be7b3fb0761c4c38386cdfc6b",
+      "size": 2808
+    },
+    {
+      "core_sha256": "f229ca35d7d06062513156987eefb3ff5ee42a823190b5963f7c1bcfd4a6e422",
+      "core_size": 2466,
+      "core_source": "core/references/state-log-and-branches.md",
+      "path": "skills/roadmap-delivery-skill/references/state-log-and-branches.md",
+      "sha256": "f229ca35d7d06062513156987eefb3ff5ee42a823190b5963f7c1bcfd4a6e422",
+      "size": 2466
+    },
+    {
+      "core_sha256": "b28a6c0e656aff6ca81b93ee4909acd33f2238fcd1c0d773c6aaa2a9b4b41d9e",
+      "core_size": 2493,
+      "core_source": "core/references/troubleshooting.md",
+      "path": "skills/roadmap-delivery-skill/references/troubleshooting.md",
+      "sha256": "b28a6c0e656aff6ca81b93ee4909acd33f2238fcd1c0d773c6aaa2a9b4b41d9e",
+      "size": 2493
+    }
+  ],
+  "schema_version": 1
+}

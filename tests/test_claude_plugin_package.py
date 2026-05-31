@@ -11,8 +11,10 @@ DIST_ROOT = REPO_ROOT / "dist" / "claude"
 PLUGIN_MANIFEST = DIST_ROOT / ".claude-plugin" / "plugin.json"
 SKILL_ROOT = DIST_ROOT / "skills" / "roadmap-delivery-skill"
 SKILL_FILE = SKILL_ROOT / "SKILL.md"
+REVIEWER_AGENT = DIST_ROOT / "agents" / "reviewer.md"
 REFERENCE_ROOT = SKILL_ROOT / "references"
 CORE_REFERENCE_ROOT = REPO_ROOT / "core" / "references"
+SNAPSHOT = REPO_ROOT / "tests" / "snapshots" / "claude" / "package_snapshot.json"
 
 CORE_REFERENCES = (
     "finalization-and-promotion.md",
@@ -84,6 +86,7 @@ class ClaudePluginPackageTests(unittest.TestCase):
 
         self.assertIn(".claude-plugin/plugin.json", files)
         self.assertIn("skills/roadmap-delivery-skill/SKILL.md", files)
+        self.assertIn("agents/reviewer.md", files)
         for name in CORE_REFERENCES:
             with self.subTest(reference=name):
                 output = f"skills/roadmap-delivery-skill/references/{name}"
@@ -103,6 +106,40 @@ class ClaudePluginPackageTests(unittest.TestCase):
         self.assertIn("Run required verification before claiming delivery.", skill)
         self.assertIn("Require a fresh review verdict before phase advancement.", skill)
         self.assertIn("Do not promote, merge, push, publish", skill)
+        self.assertIn("## Claude Tool Permission Notes", skill)
+        self.assertIn("Use the `roadmap-delivery-reviewer` agent for the review gate", skill)
+
+    def test_reviewer_agent_is_read_only_and_enforces_review_gate(self):
+        self.run_build_check()
+        agent = REVIEWER_AGENT.read_text(encoding="utf-8")
+
+        self.assertIn("name: roadmap-delivery-reviewer", agent)
+        self.assertIn("tools: Read, Glob, Grep", agent)
+        self.assertIn("Do not edit files", agent)
+        self.assertIn("acceptance criteria", agent)
+        self.assertIn("If you find a problem, report it", agent)
+        self.assertIn("executor", agent)
+        self.assertIn("`delivered`", agent)
+        self.assertIn("`needs-fix`", agent)
+        self.assertIn("`blocked`", agent)
+        self.assertNotIn("Edit", agent)
+        self.assertNotIn("Write", agent)
+
+    def test_rendered_package_matches_snapshot(self):
+        _, claude = self.run_build_check()
+        snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+
+        self.assertEqual(snapshot["schema_version"], 1)
+        self.assertEqual(snapshot["adapter"], "claude")
+        actual = [
+            {
+                key: value
+                for key, value in item.items()
+                if key in {"path", "sha256", "size", "mode", "core_source", "core_sha256", "core_size"}
+            }
+            for item in claude["files"]
+        ]
+        self.assertEqual(snapshot["files"], actual)
 
     def test_generated_claude_files_have_no_codex_only_runtime_paths(self):
         self.run_build_check()

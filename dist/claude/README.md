@@ -1,6 +1,9 @@
 # Roadmap Delivery Claude Adapter
 
-This is a generated Claude Code plugin skeleton for Roadmap Delivery Skill.
+This is a generated Claude Code plugin package for Roadmap Delivery Skill.
+
+It includes the main roadmap delivery skill, canonical workflow references,
+and a read-only reviewer agent pattern for phase-gated review.
 
 ## Draft Local Test
 
@@ -11,6 +14,5 @@ This is a generated Claude Code plugin skeleton for Roadmap Delivery Skill.
 3. Invoke the skill as
    `/roadmap-delivery:roadmap-delivery-skill <roadmap path or automation id>`.
 
-This skeleton does not claim runtime support yet. Later roadmap phases add
-reviewer agents, hooks, provider-neutral model-role mapping, smoke tests, and
-release artifacts.
+This package does not claim live runtime support yet. Later roadmap phases add
+hooks, provider-neutral model-role mapping, smoke tests, and release artifacts.

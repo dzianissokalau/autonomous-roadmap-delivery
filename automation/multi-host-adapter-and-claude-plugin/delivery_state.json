@@ -2,29 +2,35 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md",
   "roadmap_slug": "multi-host-adapter-and-claude-plugin",
-  "current_phase": "Phase 4 - Claude Skills And Reviewer Agent",
-  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-4",
+  "current_phase": "Phase 5 - Claude Hooks And Safety Guards",
+  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-5",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 3 - Claude Plugin Skeleton",
-    "completed_at": "2026-05-31T20:00:47Z",
+    "phase": "Phase 4 - Claude Skills And Reviewer Agent",
+    "completed_at": "2026-05-31T20:12:14Z",
     "status": "passed",
     "checks": [
       {
         "command": "python3 scripts/build_adapters.py --adapter claude --check",
-        "status": "passed"
+        "status": "passed",
+        "details": "Claude generated package reported 11 files, no diffs, and no errors."
       },
       {
         "command": "python3 -m unittest tests.test_claude_plugin_package -v",
         "status": "passed",
-        "details": "Ran 5 focused Claude plugin package tests."
+        "details": "Ran 7 focused Claude plugin package tests."
+      },
+      {
+        "command": "python3 -m unittest tests.test_adapter_build_system -v",
+        "status": "passed",
+        "details": "Ran 3 adapter build-system tests."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Ran 97 tests."
+        "details": "Ran 99 tests."
       },
       {
         "command": "git diff --check",
@@ -36,19 +42,19 @@
         "details": "Codex and Claude adapter outputs both reported no drift."
       },
       {
-        "command": "python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 3 - Claude Plugin Skeleton\" --json",
+        "command": "python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 4 - Claude Skills And Reviewer Agent\" --json",
         "status": "passed",
-        "details": "Phase 4 uses policy defaults; no automation config retarget required."
+        "details": "Phase 5 uses policy defaults; no automation config retarget required."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 3 - Claude Plugin Skeleton",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-3-review-iteration-1.md",
+    "phase": "Phase 4 - Claude Skills And Reviewer Agent",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-4-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-31T20:00:47Z"
+    "reviewed_at": "2026-05-31T20:12:14Z"
   },
-  "last_delivered_phase": "Phase 3 - Claude Plugin Skeleton",
+  "last_delivered_phase": "Phase 4 - Claude Skills And Reviewer Agent",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -65,13 +71,13 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-31T20:00:47Z"
+    "readback_at": "2026-05-31T20:12:14Z"
   },
-  "run_count": 4,
+  "run_count": 5,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
   "last_progress_signature": null,
-  "last_progress_at": "2026-05-31T20:00:47Z",
+  "last_progress_at": "2026-05-31T20:12:14Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
@@ -81,5 +87,5 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-05-31T20:00:47Z"
+  "updated_at": "2026-05-31T20:12:14Z"
 }
