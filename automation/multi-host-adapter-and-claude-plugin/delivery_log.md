@@ -549,3 +549,65 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-8`
 
 - Phase 9 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-9`.
+
+## Phase 9 - 2026-05-31 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-9`
+
+### Scope
+
+- Added a documentation-only generic adapter render target for future host
+  planning.
+- Added generic host capability metadata and adapter implementation guidance.
+- Kept Codex and Claude as the default concrete adapter build set.
+
+### Changes
+
+- Added `host-capabilities/generic.yaml` with an explicit documentation-only
+  support boundary and no named-host support claim.
+- Added `adapters/generic/package.py` plus README, CLI install, and
+  future-adapter checklist templates for a markdown workflow/schema pack.
+- Added `docs/adapters.md` to document current adapters, generic pack
+  generation, and the checklist for adding a future host.
+- Updated `scripts/build_adapters.py` so `generic` is an explicit adapter
+  choice while the default adapters remain `codex` and `claude`.
+- Updated `tests/test_adapter_build_system.py` with generic render-only and
+  output-root generation coverage.
+- Updated the roadmap to mark Phase 9 delivered and advance to Phase 10.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --adapter generic --check`: passed;
+  generic rendered 16 files in render-only check mode with no diffs or errors.
+- `python3 -m unittest tests.test_adapter_build_system -v`: passed, 5 tests.
+- `python3 scripts/build_adapters.py --check`: passed for Codex and Claude,
+  0 diffs and 0 errors.
+- `python3 -m unittest discover -s tests -v`: passed, 130 tests with 1
+  expected skip because the `claude` binary is not installed.
+- `git diff --check`: passed.
+- `PYTHONPATH=src python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root "$PWD" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 9 - Generic Adapter Preparation" --json`:
+  passed; Phase 10 uses policy defaults and needs no automation config
+  retarget.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-9-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- The generic pack is documentation-only and not committed under
+  `dist/generic`; release artifact bundling remains Phase 10 work.
+- Same-context review was used because no independent delegated reviewer was
+  authorized in this run.
+
+### Next Action
+
+- Phase 10 is ready to start on
+  `codex/multi-host-adapter-and-claude-plugin-phase-10`.

@@ -100,6 +100,38 @@ class AdapterBuildSystemTests(unittest.TestCase):
         self.assertEqual(claude["diffs"][0]["kind"], "content")
         self.assertEqual(claude["diffs"][0]["path"], "README.md")
 
+    def test_explicit_generic_adapter_renders_documentation_pack(self):
+        report = self.run_build("--adapter", "generic", "--check", "--json")
+
+        self.assertEqual(report["status"], "ok")
+        self.assertEqual(report["adapters"], ["generic"])
+        generic = self.report_for(report, "generic")
+        self.assertEqual(generic["status"], "ok")
+        self.assertFalse(generic["output_committed"])
+        self.assertEqual(generic["check_mode"], "render_only")
+        self.assertEqual(generic["capability_file"], "host-capabilities/generic.yaml")
+        self.assertEqual(generic["diffs"], [])
+        self.assertEqual(generic["errors"], [])
+        self.assertIn("README.md", {item["path"] for item in generic["files"]})
+        self.assertIn("cli/install.md", {item["path"] for item in generic["files"]})
+        self.assertIn("checklists/future-adapter.md", {item["path"] for item in generic["files"]})
+        self.assertIn("schemas/delivery_state.schema.json", {item["path"] for item in generic["files"]})
+        self.assertIn("workflow/phase-loop.md", {item["path"] for item in generic["files"]})
+
+    def test_generic_output_root_generation_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            first = self.run_build("--adapter", "generic", "--write", "--output-root", tmp, "--json")
+            second = self.run_build("--adapter", "generic", "--check", "--output-root", tmp, "--json")
+
+            self.assertEqual(first["status"], "ok")
+            self.assertEqual(second["status"], "ok")
+            first_generic = self.report_for(first, "generic")
+            second_generic = self.report_for(second, "generic")
+            self.assertEqual(first_generic["files"], second_generic["files"])
+            self.assertEqual(second_generic["diffs"], [])
+            self.assertTrue((Path(tmp) / "generic" / "README.md").is_file())
+            self.assertTrue((Path(tmp) / "generic" / "schemas" / "delivery_state.schema.json").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,25 +2,30 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md",
   "roadmap_slug": "multi-host-adapter-and-claude-plugin",
-  "current_phase": "Phase 9 - Generic Adapter Preparation",
-  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-9",
+  "current_phase": "Phase 10 - Compatibility Docs And Release Artifacts",
+  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-10",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 8 - Install And Runtime Smoke Tests",
-    "completed_at": "2026-05-31T21:57:07Z",
+    "phase": "Phase 9 - Generic Adapter Preparation",
+    "completed_at": "2026-05-31T22:56:07Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 -m unittest tests.test_install_smoke -v",
+        "command": "python3 scripts/build_adapters.py --adapter generic --check",
         "status": "passed",
-        "details": "Ran 5 install smoke tests with 1 expected skip because the claude binary is not installed."
+        "details": "Generic documentation adapter rendered 16 files in render-only check mode with no diffs or errors."
+      },
+      {
+        "command": "python3 -m unittest tests.test_adapter_build_system -v",
+        "status": "passed",
+        "details": "Ran 5 adapter build-system tests including generic adapter generation coverage."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Ran 128 tests with 1 expected skip."
+        "details": "Ran 130 tests with 1 expected skip."
       },
       {
         "command": "python3 scripts/build_adapters.py --check",
@@ -32,19 +37,19 @@
         "status": "passed"
       },
       {
-        "command": "python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 8 - Install And Runtime Smoke Tests\" --json",
+        "command": "PYTHONPATH=src python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 9 - Generic Adapter Preparation\" --json",
         "status": "passed",
-        "details": "Phase 9 uses policy defaults; no automation config retarget required."
+        "details": "Phase 10 uses policy defaults; no automation config retarget required."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 8 - Install And Runtime Smoke Tests",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-8-review-iteration-1.md",
+    "phase": "Phase 9 - Generic Adapter Preparation",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-9-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-31T21:57:07Z"
+    "reviewed_at": "2026-05-31T22:56:07Z"
   },
-  "last_delivered_phase": "Phase 8 - Install And Runtime Smoke Tests",
+  "last_delivered_phase": "Phase 9 - Generic Adapter Preparation",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -61,13 +66,13 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-31T21:57:07Z"
+    "readback_at": "2026-05-31T22:56:07Z"
   },
-  "run_count": 9,
+  "run_count": 10,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:fceb1995156349c970c99d7c39a958fe6c65441612c5e2ae6617c80f0d6ea401",
-  "last_progress_at": "2026-05-31T21:57:07Z",
+  "last_progress_signature": "sha256:986a2bfbc37d75688ff5984733e5de3c01957be54e12b59c50a6e6b7400d226d",
+  "last_progress_at": "2026-05-31T22:57:49Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
@@ -77,5 +82,5 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-05-31T21:57:07Z"
+  "updated_at": "2026-05-31T22:57:49Z"
 }

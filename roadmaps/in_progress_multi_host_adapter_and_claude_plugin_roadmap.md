@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
 Status: Active
-Current phase: Phase 9 - Generic Adapter Preparation
+Current phase: Phase 10 - Compatibility Docs And Release Artifacts
 Last updated: 2026-05-31
-Next action: Deliver Phase 9 with the configured phase-gated automation.
+Next action: Deliver Phase 10 with the configured phase-gated automation.
 Blocked by: None.
 
 ## Purpose
@@ -635,6 +635,8 @@ trigger blocked-remediation fixture
 - Stop if smoke tests need unreproducible local state.
 
 ## Phase 9 - Generic Adapter Preparation
+
+Delivery status: Delivered 2026-05-31.
 
 ### Objective
 

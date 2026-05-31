@@ -1,0 +1,49 @@
+schema_version: 1
+host: generic
+updated: 2026-05-31
+support_status: documentation_template
+parity_role: future_adapter_template
+contract:
+  supported_means:
+    - The generic adapter renders documentation for future host adapter work.
+    - It is not a runtime integration for Continue, Cline, Roo Code, OpenHands, or any other named host.
+    - Host-specific support requires a future capability file, adapter package, tests, smoke checks, and release notes.
+  parity_target: future_work
+capabilities:
+  skill_instruction_packaging:
+    parity_level: future_work
+    status: template_only
+    fallback: render the generic markdown workflow pack for adapter planning
+  agent_or_subagent_support:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    fallback: same-context review or external review prompt until a host adapter proves an agent surface
+  hooks_or_guards:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    fallback: repository validators, blocked state, and local alert files
+  recurring_automation:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    fallback: manual or separately scheduled CLI execution against repository artifacts
+  model_selection:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    guard: do not claim model or reasoning readback until the host runner can prove it
+  filesystem_sandboxing:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    guard: preserve unrelated worktree changes and stop for permission-gated writes
+  approval_boundaries:
+    parity_level: required_parity
+    status: required_for_future_adapters
+    protected_operations:
+      - publication
+      - promotion
+      - destructive_git
+      - credentials
+      - installed_adapter_sync
+  mcp_or_tool_integration:
+    parity_level: future_work
+    status: host_specific_adapter_required
+    fallback: file-backed inspection and local CLI validation

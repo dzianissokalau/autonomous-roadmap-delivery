@@ -29,6 +29,7 @@ from roadmap_delivery.rendering import (  # noqa: E402
 
 
 DEFAULT_ADAPTERS = ("codex", "claude")
+AVAILABLE_ADAPTERS = (*DEFAULT_ADAPTERS, "generic")
 
 
 def load_adapter_metadata(repo_root: Path, adapter: str) -> AdapterMetadata:
@@ -151,8 +152,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--adapter",
         action="append",
-        choices=DEFAULT_ADAPTERS,
-        help="Adapter to render. May be repeated. Defaults to all adapters.",
+        choices=AVAILABLE_ADAPTERS,
+        help="Adapter to render. May be repeated. Defaults to supported runtime adapters.",
     )
     parser.add_argument("--check", action="store_true", help="Check generated output when the adapter has committed output.")
     parser.add_argument("--write", action="store_true", help="Write rendered output to each adapter output directory.")
