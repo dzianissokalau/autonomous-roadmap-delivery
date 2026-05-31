@@ -2,25 +2,25 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md",
   "roadmap_slug": "multi-host-adapter-and-claude-plugin",
-  "current_phase": "Phase 7 - Adapter Parity And Snapshot Tests",
-  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-7",
+  "current_phase": "Phase 8 - Install And Runtime Smoke Tests",
+  "branch": "codex/multi-host-adapter-and-claude-plugin-phase-8",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 6 - Provider-Neutral Model Role Config",
-    "completed_at": "2026-05-31T20:39:33Z",
+    "phase": "Phase 7 - Adapter Parity And Snapshot Tests",
+    "completed_at": "2026-05-31T20:52:03Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 -m unittest tests.test_provider_config -v",
+        "command": "python3 -m unittest tests.test_adapter_parity -v",
         "status": "passed",
-        "details": "Ran 6 focused provider config tests."
+        "details": "Ran 7 focused adapter parity tests."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Ran 116 tests."
+        "details": "Ran 123 tests."
       },
       {
         "command": "python3 scripts/build_adapters.py --check",
@@ -32,19 +32,19 @@
         "status": "passed"
       },
       {
-        "command": "python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 6 - Provider-Neutral Model Role Config\" --json",
+        "command": "python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root \"$PWD\" --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 7 - Adapter Parity And Snapshot Tests\" --json",
         "status": "passed",
-        "details": "Phase 7 uses policy defaults; no automation config retarget required."
+        "details": "Phase 8 uses policy defaults; no automation config retarget required."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 6 - Provider-Neutral Model Role Config",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-6-review-iteration-1.md",
+    "phase": "Phase 7 - Adapter Parity And Snapshot Tests",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-7-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-05-31T20:39:33Z"
+    "reviewed_at": "2026-05-31T20:52:03Z"
   },
-  "last_delivered_phase": "Phase 6 - Provider-Neutral Model Role Config",
+  "last_delivered_phase": "Phase 7 - Adapter Parity And Snapshot Tests",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -61,13 +61,13 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-05-31T20:39:33Z"
+    "readback_at": "2026-05-31T20:52:03Z"
   },
-  "run_count": 7,
+  "run_count": 8,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:6f52f8906d937e1d1ed7480f45f584168912c7e163c1c7288b2e22daaf79f4f4",
-  "last_progress_at": "2026-05-31T20:41:00Z",
+  "last_progress_signature": "sha256:9572891578101cd8c981ee23065a3a91979778192f752c03a469b1f6aa3e64ff",
+  "last_progress_at": "2026-05-31T20:52:03Z",
   "last_operator_alert": null,
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
@@ -77,5 +77,5 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-05-31T20:41:00Z"
+  "updated_at": "2026-05-31T20:52:03Z"
 }
