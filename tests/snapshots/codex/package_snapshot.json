@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "adapter": "codex",
   "files": [
     {
@@ -29,12 +28,12 @@
       "size": 13782
     },
     {
-      "core_sha256": "fab06541b0b47e6a3c45089017a13adc1122a26818955c312c74affa5187966a",
-      "core_size": 3198,
+      "core_sha256": "1b4d19782f4bdd2827984ec828b2fcdf98b5657f45643e681839a47c7451aebe",
+      "core_size": 3694,
       "core_source": "core/references/phase-loop.md",
       "path": "references/phase-loop.md",
-      "sha256": "44723bbb08f2c0abb6d94da3886bd778e7480d628bffe54cdfc19bd2ef584bf5",
-      "size": 11031
+      "sha256": "34116d64b3c4282d2d231db3cbb4283100381e9cccbf69985f500e1b15546e84",
+      "size": 11553
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -45,28 +44,28 @@
       "size": 5619
     },
     {
-      "core_sha256": "852166c6f94a5d8ee564fe3babde6193e24a594be7b3fb0761c4c38386cdfc6b",
-      "core_size": 2808,
+      "core_sha256": "89d7ab3c1991227d26a2f4b0f26c2bfe8557d67a1350b6377e0a34a8d6c39ddc",
+      "core_size": 3172,
       "core_source": "core/references/setup-automation.md",
       "path": "references/setup-automation.md",
-      "sha256": "951ca73857130c67c04b1e65b4e0b2876b32635cc55e3549b34ccb01d515e1aa",
-      "size": 15297
+      "sha256": "b7385a1de2e334407c9e57d333a81704ba0a131fc721e5ebfe9cae10a41d1e45",
+      "size": 15693
     },
     {
-      "core_sha256": "f229ca35d7d06062513156987eefb3ff5ee42a823190b5963f7c1bcfd4a6e422",
-      "core_size": 2466,
+      "core_sha256": "600e5a2f1e53c9269ca51af3258bc6083cf9ad63d93a130ad9f7592142738001",
+      "core_size": 3187,
       "core_source": "core/references/state-log-and-branches.md",
       "path": "references/state-log-and-branches.md",
-      "sha256": "fa141901ff27419cec420a9c1511c2cbd3f2e838060ad598b0d7ad72fac44a5a",
-      "size": 10626
+      "sha256": "0e8b7b8161c2b13ca6503dec15b24cde54a9b41e85ed5d5347c5983956f46993",
+      "size": 10919
     },
     {
-      "core_sha256": "b28a6c0e656aff6ca81b93ee4909acd33f2238fcd1c0d773c6aaa2a9b4b41d9e",
-      "core_size": 2493,
+      "core_sha256": "2ab6b1fb1aec135080be2803fa37e04bf333c6c8d070dc3225869404f36ec2d3",
+      "core_size": 3650,
       "core_source": "core/references/troubleshooting.md",
       "path": "references/troubleshooting.md",
-      "sha256": "20fec2e5d9789beea01f34c9a15aa31ef6ded4b946486f23e14169e8d6e40581",
-      "size": 15121
+      "sha256": "f68763b0ae91fe039193df985285d0ff0102bd764ad9556ff0804ad710dd0272",
+      "size": 15666
     },
     {
       "mode": "0644",
@@ -98,5 +97,6 @@
       "sha256": "01450f5c42d5f6fa025d317c3fb0cbfa53da899997699ea7bf4cf6fdef775f4f",
       "size": 11093
     }
-  ]
+  ],
+  "schema_version": 1
 }

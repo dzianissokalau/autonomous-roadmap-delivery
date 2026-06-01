@@ -21,6 +21,7 @@ Recommended fields:
   "last_delivered_phase": null,
   "blocked_reason": null,
   "last_blocker_repair": null,
+  "last_activation": null,
   "required_model": null,
   "required_reasoning_effort": null,
   "configured_automation_model": null,
@@ -52,6 +53,11 @@ passes, and return the current phase to `not_started`, `delivering`, or
 `fixing` as appropriate. A previous blocked review is historical evidence; it
 does not prevent delivery when a later repair is recorded and reconciliation
 passes.
+
+When setup recorded PAUSED but the saved automation now reads ACTIVE because of
+operator/manual activation, record `last_activation` with the accepted
+readback, acceptance source, and timestamp. Update the guide, log, and state to
+ACTIVE before phase work resumes.
 
 ## Setup State Fields
 

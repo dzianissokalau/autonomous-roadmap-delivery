@@ -21,6 +21,7 @@ configuration changes.
 - Latest review verdict is invalid or does not match state.
 - Required model/reasoning and configured runner values mismatch.
 - Automation prompt references a stale roadmap path.
+- Saved runner is ACTIVE while setup artifacts still say PAUSED.
 - Completed state would keep running without a hard-stop guard.
 - Dirty worktree includes unexplained current-phase owned files.
 - Branch exists with unexpected base or unexplained changes.
@@ -48,6 +49,29 @@ On a blocked run:
 
 Do not write another blocked review for the same issue until remediation
 classification has been attempted.
+
+## Manual Activation Reconciliation
+
+If setup expected the runner to stay PAUSED but readback now says ACTIVE, first
+check whether that ACTIVE state is an operator/manual activation rather than an
+unexplained runner mutation.
+
+Treat the mismatch as repairable activation acceptance when all are true:
+
+- ACTIVE/PAUSED status drift is the only blocker.
+- Required and configured model/reasoning values match or are not model-strict.
+- Roadmap path, prompt, cwd, branch, and hard-stop/blocked-remediation guards
+  are still valid.
+- The roadmap is not already complete.
+- Operator action or the current instruction clearly accepts active delivery.
+
+In that case, do not pause the runner and do not keep blocking phase delivery.
+Update durable guide/log/state surfaces to ACTIVE, record `last_activation` and
+`last_blocker_repair`, clear `blocked_reason` only after validation/readback
+passes, reset stalled counters, and resume the current phase.
+
+If ACTIVE was not intended, or any other runner field mismatches, keep state
+blocked and ask for the missing runner repair or operator decision.
 
 ## Completed-State Issues
 

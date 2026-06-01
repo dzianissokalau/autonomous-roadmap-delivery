@@ -21,6 +21,7 @@ State must record:
 - latest verification and review evidence
 - last delivered phase
 - blocker and blocker repair evidence
+- manual activation evidence when setup PAUSED is reconciled to ACTIVE
 - required and configured model/reasoning values
 - run/stall counters and progress signature
 - operator alert evidence
@@ -29,6 +30,18 @@ State must record:
 Status values are `not_started`, `delivering`, `verifying`, `reviewing`,
 `fixing`, `delivered`, and `blocked`. Blocked is a remediation state, not a
 retry loop.
+
+When a blocked run becomes repairable, record the repair in
+`last_blocker_repair`, clear `blocked_reason` only after validation/readback
+passes, and return the current phase to `not_started`, `delivering`, or
+`fixing` as appropriate. A previous blocked review is historical evidence; it
+does not prevent delivery when a later repair is recorded and reconciliation
+passes.
+
+When a manually activated runner resolves a setup PAUSED/ACTIVE mismatch, also
+record `last_activation` with the accepted readback, source of acceptance, and
+timestamp. The delivery log and automation guide must then agree that the
+runner is ACTIVE before phase work resumes.
 
 ## Delivery Log
 

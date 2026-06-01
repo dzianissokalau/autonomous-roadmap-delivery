@@ -48,6 +48,11 @@ PARITY_RULES = {
         "all phases",
         "start another phase",
     ),
+    "manual activation reconciliation": (
+        "manual activation",
+        "last_activation",
+        "active",
+    ),
     "human approval for risky actions": (
         "explicit human approval",
         "destructive",

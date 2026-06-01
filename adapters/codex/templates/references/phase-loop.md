@@ -47,6 +47,14 @@ repair the blocker first, rerun reconciliation and artifact validation, record
 the repair in state/log, clear `blocked_reason`, reset stalled counters when
 progress is real, and only then resume the current phase.
 
+If the only blocker is that setup artifacts expected PAUSED while the saved
+Codex automation now reads ACTIVE, treat clear operator/manual activation as an
+already-authorized status decision when model/reasoning, prompt path, cwd,
+hard-stop guard, and blocked-remediation guard all still match. Reconcile
+durable guide/log/state to ACTIVE, record `last_activation` and
+`last_blocker_repair`, clear `blocked_reason` after validation, and resume the
+current phase rather than looping on the same automation-config blocker.
+
 For `permission-gated`, `external-decision`, or `destructive-risk` blockers,
 keep state blocked, record the missing human action, and stop. Do not count a
 successful blocker repair as a delivered phase.

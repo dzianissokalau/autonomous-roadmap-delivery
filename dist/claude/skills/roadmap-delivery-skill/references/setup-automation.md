@@ -32,6 +32,12 @@ log, review state, automation guide, and saved runner prompt. If a lifecycle
 rename changes the roadmap filename, repair all durable references before
 delivery continues.
 
+If the operator manually activates a runner that setup originally recorded as
+paused, the next run must reconcile the durable artifacts instead of treating
+ACTIVE as a permanent setup failure. Accept ACTIVE only when readback proves the
+model/reasoning, prompt, cwd, and safety guards still match, then update
+guide/log/state to ACTIVE and record the activation.
+
 ## Required Initial Artifacts
 
 The initial state must identify the roadmap, slug, current phase, phase branch

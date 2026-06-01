@@ -12,6 +12,7 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 Key docs:
 
 - Architecture: `docs/architecture.md`
+- Autonomy and approval policy: `docs/autonomy-and-approval-policy.md`
 - Compatibility: `docs/compatibility.md`
 - Contributor workflow: `docs/contributor-workflow.md`
 - Migration guide: `docs/migration-guide.md`
@@ -165,9 +166,10 @@ committed package drifts from those inputs.
 - `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`:
   completed companion roadmap for generated host adapters and Claude packaging;
   the saved automation is paused.
-- `roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
-  planned roadmap for autonomy modes, adaptive model escalation, and automatic
-  pause behavior.
+- `roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
+  in-progress roadmap for autonomy modes, adaptive model escalation, and
+  automatic pause behavior; Phase 0 policy contract delivered, Phase 1
+  schema/setup work is next.
 
 ## Operating Model
 

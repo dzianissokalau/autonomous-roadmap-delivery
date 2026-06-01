@@ -497,6 +497,9 @@ class HelperScriptTests(unittest.TestCase):
     def error_codes(self, report):
         return {item["code"] for item in report.get("errors", [])}
 
+    def info_codes(self, report):
+        return {item["code"] for item in report.get("info", [])}
+
     def test_progress_signature_first_run_records_state_and_log(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, write_model_policy=True)
@@ -776,6 +779,63 @@ class HelperScriptTests(unittest.TestCase):
 
             self.assertIn("roadmap_lifecycle_filename_mismatch", self.warning_codes(inspect))
             self.assertIn("roadmap_lifecycle_filename_mismatch", self.error_codes(validate))
+
+    def test_phase_zero_not_started_lifecycle_filename_is_clean(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="not_started_eval_fixture_roadmap.md",
+                current_phase="Phase 0 - Fixture",
+                roadmap_status="Not Started",
+                state_status="not_started",
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertNotIn("roadmap_lifecycle_filename_mismatch", self.warning_codes(inspect))
+            self.assertNotIn("roadmap_lifecycle_filename_mismatch", self.error_codes(validate))
+
+    def test_phase_zero_delivering_with_not_started_header_is_inspection_clean(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="not_started_eval_fixture_roadmap.md",
+                current_phase="Phase 0 - Fixture",
+                roadmap_status="Not Started",
+                state_status="delivering",
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertNotIn("roadmap_lifecycle_filename_mismatch", self.warning_codes(inspect))
+            self.assertNotIn("roadmap_lifecycle_filename_mismatch", self.error_codes(validate))
+
+    def test_manual_activation_reconciliation_is_reported_for_paused_active_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="not_started_eval_fixture_roadmap.md",
+                current_phase="Phase 0 - Fixture",
+                roadmap_status="Not Started",
+                state_status="blocked",
+                review_verdict="blocked",
+                write_model_policy=True,
+                automation_status="ACTIVE",
+            )
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["blocked_reason"] = "automation-config drift: setup expected PAUSED but saved automation read back ACTIVE"
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertTrue(inspect["activation_reconciliation"]["available"])
+            self.assertTrue(validate["activation_reconciliation"]["available"])
+            self.assertIn("manual_activation_reconciliation_available", self.info_codes(validate))
+            self.assertNotIn("blocked_state_active_without_remediation_guard", self.error_codes(validate))
 
     def test_missing_automation_config_is_warning_for_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:

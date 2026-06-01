@@ -1,7 +1,7 @@
 # Autonomous Operation Modes And Adaptive Control Automation Guide
 
-Status: Paused
-Roadmap: `roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md`
+Status: Active
+Roadmap: `roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`
 Roadmap slug: `autonomous-operation-modes-and-adaptive-control`
 State file: `automation/autonomous-operation-modes-and-adaptive-control/delivery_state.json`
 Delivery log: `automation/autonomous-operation-modes-and-adaptive-control/delivery_log.md`
@@ -12,6 +12,7 @@ Cadence: hourly
 Model: `gpt-5.5`
 Reasoning effort: `xhigh`
 Execution environment: local
+Activation accepted: 2026-06-01T11:51:39Z (operator/manual activation)
 
 ## Operating Policy
 
@@ -33,11 +34,14 @@ Execution environment: local
   commands without explicit human approval.
 - Keep this automation configured as `gpt-5.5` with `xhigh` reasoning unless a
   delivered phase changes the model policy and retarget flow.
+- Manual activation has been accepted for this run. Treat the saved ACTIVE
+  status as intentional while model/reasoning, prompt path, cwd, and safety
+  guards continue to read back cleanly.
 
 ## Next Run Prompt
 
 Run the next safe phase-gated delivery step for
-`roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
+`roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
 
 Use the installed `roadmap-delivery-skill` and read these files before acting:
 

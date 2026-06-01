@@ -27,6 +27,7 @@ from .policy import (
     COMPLETED_STATUSES,
     has_blocked_remediation_guard,
     has_hard_stop_guard,
+    manual_activation_reconciliation,
     normalized,
     phase_number,
 )
@@ -1180,6 +1181,21 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, errors, warnings)
     final_deep_review = validate_final_deep_review_gate(repo_root, state_dir, state, complete, errors, warnings)
     deep_review_prompt = Path(str(final_deep_review["prompt"])) if final_deep_review.get("prompt") else None
+    activation_reconciliation = manual_activation_reconciliation(
+        state,
+        automation_status,
+        model_policy,
+        blocked_remediation_guard=blocked_remediation_guard,
+        hard_stop_guard=hard_stop_guard,
+        complete=complete,
+    )
+    if activation_reconciliation.get("available"):
+        add(
+            info,
+            "manual_activation_reconciliation_available",
+            "Saved automation is ACTIVE while blocked reason records PAUSED/ACTIVE drift; this can be repaired by recording accepted activation.",
+            automation_toml,
+        )
 
     if complete and str(automation_status).upper() == "ACTIVE":
         if hard_stop_guard:
@@ -1213,6 +1229,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "automation_roadmap_references": [str(path) for path in automation_refs],
         "hard_stop_guard": hard_stop_guard,
         "blocked_remediation_guard": blocked_remediation_guard,
+        "activation_reconciliation": activation_reconciliation,
         "model_policy": model_policy or None,
         "schema_validation": {
             "schema_paths": schema_paths,
@@ -1254,6 +1271,7 @@ def print_text(report: Dict[str, Any]) -> None:
         "state_status",
         "state_current_phase",
         "all_phases_complete",
+        "activation_reconciliation",
         "current_branch",
         "expected_branch",
         "worktree_dirty",

@@ -140,11 +140,19 @@ outside the repository.
 Read back the saved automation config. If it is active and the setup contract
 required paused:
 
-- record the drift in state/log
-- pause only if the user approves or the setup flow explicitly authorized it
-- rerun readback
-- do not begin delivery until status matches the contract or the operator
-  accepts the active state
+- if operator/manual activation is clear and ACTIVE is the only drift, accept
+  the active state instead of blocking delivery
+- require model/reasoning, prompt path, cwd, hard-stop guard, and
+  blocked-remediation guard to read back cleanly before accepting ACTIVE
+- update `automation_guide.md`, `delivery_log.md`, and `delivery_state.json`
+  so durable artifacts agree with ACTIVE
+- record `last_activation` and `last_blocker_repair`, clear
+  `blocked_reason` only after validation/readback passes, reset stalled
+  counters, and resume the current phase
+- pause only if the user wants PAUSED or if ACTIVE was not an intentional
+  operator action
+- if any other automation field mismatches, keep state blocked and ask for the
+  missing runner repair or operator decision
 
 ## Status-Only Automation Update Rejected
 

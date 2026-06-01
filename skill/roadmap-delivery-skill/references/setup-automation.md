@@ -55,6 +55,12 @@ automation/<roadmap-slug>/
 Keep app automation config outside the repository unless the user explicitly
 asks to edit it. Keep the automation `cwd` rooted at the repository root.
 
+If the operator manually activates an automation that setup originally recorded
+as paused, the next run should reconcile that accepted ACTIVE state when it is
+the only drift. Read back model/reasoning, prompt path, cwd, hard-stop guard,
+and blocked-remediation guard first; if they are clean, update guide/log/state
+to ACTIVE and record `last_activation` instead of leaving the roadmap blocked.
+
 ## Initial State JSON
 
 Start with this shape and fill in concrete values. Resolve the first phase's

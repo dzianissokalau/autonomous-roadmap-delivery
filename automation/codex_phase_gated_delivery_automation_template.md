@@ -191,6 +191,12 @@ Blocked Remediation Mode:
   permission-gated, external-decision, or destructive-risk
 - repair local-repairable blockers and already-authorized automation-config
   blockers before retrying phase delivery
+- if setup expected PAUSED but saved automation now reads ACTIVE, accept that
+  as operator/manual activation when it is the only drift and model/reasoning,
+  prompt path, cwd, hard-stop guard, and blocked-remediation guard all match;
+  then record `last_activation` and `last_blocker_repair`, update durable
+  status surfaces to ACTIVE, clear `blocked_reason` after validation, and
+  resume the current phase
 - rerun reconciliation and validation after repair
 - clear `blocked_reason` only after the repair is verified
 - keep state blocked and ask for the missing human action when credentials,

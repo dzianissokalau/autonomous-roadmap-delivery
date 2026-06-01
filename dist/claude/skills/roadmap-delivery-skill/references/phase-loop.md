@@ -32,6 +32,14 @@ Repair only local or already-approved runner configuration blockers. Rerun
 reconciliation after repair, clear `blocked_reason` only after validation
 passes, then resume the current phase.
 
+When the only blocker is saved runner ACTIVE versus setup artifacts that still
+say PAUSED, treat a clear operator/manual activation as an already-approved
+runner status decision if model/reasoning, prompt path, cwd, hard-stop guard,
+and blocked-remediation guard all read back cleanly. Reconcile durable
+guide/log/state to ACTIVE, record `last_activation` and `last_blocker_repair`,
+clear `blocked_reason` after validation, and continue the current phase instead
+of looping on the same blocker.
+
 ## Phase Contract
 
 Extract only the current phase:

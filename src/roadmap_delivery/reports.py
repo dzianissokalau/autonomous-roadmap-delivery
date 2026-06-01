@@ -22,7 +22,9 @@ from .policy import (
     ACTIVE_STATUSES,
     ALLOWED_REASONING_EFFORTS,
     COMPLETED_STATUSES,
+    has_hard_stop_guard,
     has_blocked_remediation_guard,
+    manual_activation_reconciliation,
     normalized,
     phase_number,
 )
@@ -64,6 +66,7 @@ FINAL_DEEP_REVIEW_WAIVER_REASON_KEYS = (
     "final_review_waiver_reason",
     "deep_review_waiver_reason",
 )
+LIFECYCLE_ACTIVE_STATE_STATUSES = {"active", "in progress", "in-progress"}
 
 
 def add_warning(warnings: List[Dict[str, str]], code: str, message: str) -> None:
@@ -183,18 +186,35 @@ def warn_lifecycle_filename_drift(
     roadmap_path: Optional[Path],
     state_status: Any,
     current_phase: Any,
+    roadmap_status: Any,
     warnings: List[Dict[str, str]],
 ) -> None:
     if not roadmap_path or not roadmap_path.name.startswith("not_started_"):
         return
     phase = phase_number(current_phase)
     phase_started = phase is not None and int(phase) >= 1
-    if normalized(state_status) in ACTIVE_STATUSES or phase_started:
+    if normalized(state_status) in LIFECYCLE_ACTIVE_STATE_STATUSES or normalized(roadmap_status) in ACTIVE_STATUSES or phase_started:
         add_warning(
             warnings,
             "roadmap_lifecycle_filename_mismatch",
             f"Active roadmap or Phase 1+ roadmap still uses a not_started_ lifecycle filename: {roadmap_path}",
         )
+
+
+def read_roadmap_header(roadmap_path: Optional[Path], warnings: List[Dict[str, str]]) -> Dict[str, str]:
+    if not roadmap_path or not roadmap_path.exists() or not roadmap_path.is_file():
+        return {}
+    try:
+        text = roadmap_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        add_warning(warnings, "roadmap_unreadable", f"Cannot read roadmap file: {roadmap_path}: {exc}")
+        return {}
+    header: Dict[str, str] = {}
+    for line in text.splitlines()[:80]:
+        match = re.match(r"^(Status|Current phase|Last completed phase|Next action):\s*(.+?)\s*$", line)
+        if match:
+            header[match.group(1).lower()] = match.group(2)
+    return header
 
 
 def is_complete_state(state: Optional[Dict[str, Any]]) -> bool:
@@ -458,6 +478,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     automation_roadmap_references: List[str] = []
     automation_data: Dict[str, Any] = {}
     blocked_remediation_guard = False
+    hard_stop_guard = False
     if automation_id:
         automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
         if not automation_toml.exists():
@@ -466,6 +487,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
             automation_data = parse_minimal_toml(automation_toml)
             automation_status = automation_data.get("status")
             automation_prompt = str(automation_data.get("prompt") or "")
+            hard_stop_guard = has_hard_stop_guard(automation_prompt)
             blocked_remediation_guard = has_blocked_remediation_guard(automation_prompt)
             automation_roadmap_references = [
                 str(path)
@@ -581,7 +603,9 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         add_warning(warnings, "invalid_delivery_state_schema_version", "Delivery state schema_version must be 1.")
     last_delivered_phase = state.get("last_delivered_phase") if state else None
     blocked_reason = state.get("blocked_reason") if state else None
-    warn_lifecycle_filename_drift(roadmap_path, state_status, current_phase, warnings)
+    roadmap_header = read_roadmap_header(roadmap_path, warnings)
+    roadmap_status = roadmap_header.get("status")
+    warn_lifecycle_filename_drift(roadmap_path, state_status, current_phase, roadmap_status, warnings)
     state_dir = state_file.parent if state_file else None
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy = inspect_model_policy(policy_path, state, automation_data, warnings)
@@ -602,6 +626,14 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     all_phases_complete = is_complete_state(state)
     completion_alert = inspect_completion_alert(repo_root, state, warnings)
     final_deep_review = inspect_final_deep_review(repo_root, state_file, forms, state, all_phases_complete, warnings)
+    activation_reconciliation = manual_activation_reconciliation(
+        state,
+        automation_status,
+        model_policy,
+        blocked_remediation_guard=blocked_remediation_guard,
+        hard_stop_guard=hard_stop_guard,
+        complete=all_phases_complete,
+    )
     completion_pause_required = all_phases_complete and str(automation_status).upper() == "ACTIVE"
     automation_should_be_paused = all_phases_complete and str(automation_status).upper() != "PAUSED"
     if all_phases_complete and str(automation_status).upper() == "ACTIVE":
@@ -619,6 +651,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "roadmap_path": str(roadmap_path) if roadmap_path else None,
         "state_file": str(state_file) if state_file else None,
         "state_status": state_status,
+        "roadmap_status": roadmap_status,
         "state_schema_version": state_schema_version,
         "current_phase": current_phase,
         "last_delivered_phase": last_delivered_phase,
@@ -626,6 +659,8 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "last_blocker_repair": state.get("last_blocker_repair") if state else None,
         "blocked_remediation_required": blocked_remediation_required,
         "blocked_remediation_guard": blocked_remediation_guard,
+        "hard_stop_guard": hard_stop_guard,
+        "activation_reconciliation": activation_reconciliation,
         "required_model": model_policy.get("required_model"),
         "required_reasoning_effort": model_policy.get("required_reasoning_effort"),
         "configured_automation_model": model_policy.get("configured_model"),
@@ -691,6 +726,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "automation_status",
             "roadmap_path",
             "state_file",
+            "roadmap_status",
             "state_status",
             "state_schema_version",
             "current_phase",
@@ -698,6 +734,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             "blocked_reason",
             "blocked_remediation_required",
             "blocked_remediation_guard",
+            "hard_stop_guard",
+            "activation_reconciliation",
             "required_model",
             "required_reasoning_effort",
             "configured_automation_model",
