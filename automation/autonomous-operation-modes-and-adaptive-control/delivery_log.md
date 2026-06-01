@@ -893,3 +893,71 @@ Remote: `origin`
 - Pull request creation, promotion to `main`, release publication, package
   publication, installed-skill synchronization, and automation pause remain
   separate human-approved actions.
+
+## Operator Alert - 2026-06-01T18:39:20Z - Completed
+
+- Alert file: `automation/autonomous-operation-modes-and-adaptive-control/alerts/2026-06-01T18-39-20Z-completed.md`
+- Reason: All roadmap phases, finalization, branch publication, and external deep-review repairs are complete; saved Codex automation is PAUSED and prompt references the delivered roadmap path.
+- Notification sink: `alert_file`
+- Notification status: `local_alert_only`
+
+## External Deep Review Fixes - 2026-06-01
+
+Status: completed
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-7`
+
+### Scope
+
+- Address the operator-provided external review at
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-final-deep-review.md`.
+- Repair the completed-run saved automation state and stale prompt path.
+- Keep promotion to `main`, release/package publication, installed-skill
+  synchronization, destructive git, and branch deletion out of scope.
+
+### Finding Disposition
+
+- HIGH active saved automation: fixed. The saved Codex automation now reads
+  back `PAUSED`.
+- HIGH stale saved prompt path: fixed. The saved automation prompt now
+  references
+  `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
+- MEDIUM same-session self-review provenance: fixed for closeout by archiving
+  the operator-provided external review under the roadmap review directory and
+  recording `final_deep_review_status: review-complete`.
+- MEDIUM saved automation evidence boundary: mitigated with current local
+  readback evidence in state/log; this remains an operator-local config
+  boundary and is not claimed as a branch artifact.
+- LOW stale `review_fix_state.json` timestamp: fixed.
+- LOW branch push commit ambiguity: fixed by separating
+  `initial_branch_push_commit` from `branch_publication_audit_commit` and
+  documenting that current branch tip verification should use GitHub or
+  `git ls-remote`.
+- LOW verification skip wording: fixed by rerunning the local suite and
+  recording the optional host-binary skip explicitly.
+- INFO recommended core-file consolidation: dispositioned as a non-acceptance
+  suggestion; the existing docs and generated package checks remain the
+  closeout evidence.
+
+### Tests And Verification
+
+- `python3 -m unittest discover -s tests -v`:
+  passed, 162 tests with 1 optional host-binary smoke skip.
+- `python3 scripts/build_adapters.py --check`:
+  passed; Codex and Claude generated package outputs had no drift.
+- `python3 scripts/build_codex_package.py --check`:
+  passed; committed Codex skill package had no drift.
+- `python3 scripts/build_release.py --check`:
+  passed; release artifacts were reproducible for version 0.1.0.
+- `python3 scripts/check_release_privacy.py --repo-root .`:
+  passed; scanned 117 release-bound files with no findings or errors.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected uncommitted-worktree warning during the repair.
+- `python3 -m roadmap_delivery.cli inspect --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected uncommitted-worktree warning during the repair.
+- `git diff --check`: passed.
+
+### Protected Operations
+
+- No promotion to `main`, release publication, package publication,
+  installed-skill synchronization, destructive git operation, branch deletion,
+  or force push was performed.

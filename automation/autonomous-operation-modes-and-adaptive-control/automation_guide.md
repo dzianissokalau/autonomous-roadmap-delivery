@@ -1,6 +1,6 @@
 # Autonomous Operation Modes And Adaptive Control Automation Guide
 
-Status: Completed Pending Pause
+Status: Completed
 Roadmap: `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`
 Roadmap slug: `autonomous-operation-modes-and-adaptive-control`
 State file: `automation/autonomous-operation-modes-and-adaptive-control/delivery_state.json`
@@ -34,9 +34,9 @@ Activation accepted: 2026-06-01T11:51:39Z (operator/manual activation)
   commands without explicit human approval.
 - Keep this automation configured as `gpt-5.5` with `xhigh` reasoning unless a
   delivered phase changes the model policy and retarget flow.
-- Manual activation has been accepted for this run. Treat the saved ACTIVE
-  status as intentional while model/reasoning, prompt path, cwd, and safety
-  guards continue to read back cleanly.
+- Manual activation was accepted during delivery. Completion closeout later
+  paused the saved automation and repaired its prompt path to the delivered
+  roadmap.
 
 ## Next Run Prompt
 
@@ -77,11 +77,8 @@ For the current terminal state only:
 
 - confirm final verification, final review evidence, completed alert, and
   final deep-review prompt evidence
-- confirm the saved automation config readback and the approval-policy pause
-  decision
-- if the saved automation remains ACTIVE and pause is not explicitly approved,
-  keep `completed_pending_pause`, preserve the hard-stop guard, and ask for
-  the pause decision
+- confirm the saved automation config remains `PAUSED`, points at the delivered
+  roadmap path, and keeps the completed-state hard-stop guard
 
 Do not start another phase. Do not push, merge, promote to `main`, delete
 branches, edit app automation config beyond approved pause flows, install/sync

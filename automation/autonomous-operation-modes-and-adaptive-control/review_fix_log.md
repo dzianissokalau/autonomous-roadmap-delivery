@@ -1,6 +1,6 @@
 # Autonomous Operation Modes And Adaptive Control Review/Fix Log
 
-Status: Completed Pending Pause
+Status: Completed
 Roadmap: `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`
 State file: `automation/autonomous-operation-modes-and-adaptive-control/review_fix_state.json`
 
@@ -147,3 +147,47 @@ Review file: `automation/autonomous-operation-modes-and-adaptive-control/reviews
 
 - Review/fix state is complete with `completed_pending_pause`; pause the saved
   automation or explicitly keep the completed-state hard-stop guard active.
+
+## External Deep Review Fixes - 2026-06-01
+
+Status: delivered
+Review file: `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-final-deep-review.md`
+
+### Findings
+
+- External review HIGH: saved automation remained active on a completed
+  roadmap.
+- External review HIGH: saved automation prompt referenced the old
+  `in_progress_` roadmap path.
+- External review MEDIUM: final acceptance relied on same-session review
+  evidence.
+- External review LOW: closeout metadata was stale or ambiguous in
+  `review_fix_state.json` and branch publication fields.
+
+### Fixes
+
+- Saved automation readback is now `PAUSED`.
+- Saved automation prompt now references
+  `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
+- External review was archived under the roadmap review directory with a
+  machine-readable `Verdict: delivered` and schema-valid metadata.
+- `delivery_state.json`, `delivery_log.md`, and `review_fix_state.json` now
+  record final deep-review completion, current verification, prompt repair,
+  pause readback, and branch-publication commit semantics.
+
+### Verification
+
+- `python3 -m unittest discover -s tests -v`: passed, 162 tests with 1 optional
+  skip.
+- `python3 scripts/build_adapters.py --check`: passed.
+- `python3 scripts/build_codex_package.py --check`: passed.
+- `python3 scripts/build_release.py --check`: passed.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed.
+- Strict validation and inspection passed with only the expected
+  uncommitted-worktree warning during the repair.
+- `git diff --check`: passed.
+
+### Next Action
+
+- Review branch remains ready for human merge review. Promotion, publication,
+  and installed-skill synchronization remain separate approvals.

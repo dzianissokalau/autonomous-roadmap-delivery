@@ -3,8 +3,8 @@
 Status: Completed
 Current phase: Complete
 Last updated: 2026-06-01
-Next action: Pause the saved Codex automation or explicitly keep the hard-stop guard active; promotion and publication remain separate approvals.
-Blocked by: Completion pause approval for the still-ACTIVE saved automation.
+Next action: Human merge review; promotion and publication remain separate approvals.
+Blocked by: None.
 
 ## Purpose
 
