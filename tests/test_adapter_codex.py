@@ -90,6 +90,17 @@ class CodexAdapterGenerationTests(unittest.TestCase):
         self.assertEqual(files["scripts/plan_automation_retarget.py"]["mode"], "0755")
         self.assertEqual(files["scripts/validate_delivery_artifacts.py"]["mode"], "0755")
 
+    def test_skill_top_level_policy_gates_are_packaged(self):
+        self.run_build_check()
+        skill = (REPO_ROOT / "skill" / "roadmap-delivery-skill" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Policy Gates", skill)
+        self.assertIn("approval_policy.json", skill)
+        self.assertIn("adaptive_model_policy", skill)
+        self.assertIn("pause_automation_on_completion", skill)
+        self.assertIn("pause_automation_on_stall", skill)
+        self.assertIn("completed_pending_pause", skill)
+
     def test_output_root_regeneration_is_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
             write_report, write_codex = self.run_build("--write", "--output-root", tmp)

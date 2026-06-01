@@ -22,6 +22,7 @@ CORE_REFERENCES = (
 )
 
 SCHEMA_FILES = (
+    "approval_policy.schema.json",
     "automation_run_log.schema.json",
     "delivery_state.schema.json",
     "phase_model_policy.schema.json",

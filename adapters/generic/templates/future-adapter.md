@@ -10,6 +10,10 @@ Use this checklist before adding support for a new host.
   forking workflow rules.
 - Add generated package checks, snapshot coverage, and drift diagnostics that
   identify the failing adapter.
+- Include `approval_policy.json`, adaptive run-quality, and completion/stall
+  self-pause guidance from the core workflow sources.
+- Document unsupported model/reasoning readback, recurring automation, and
+  status-only pause surfaces with conservative fallbacks.
 - Add install or runtime smoke checks that do not require credentials for the
   default test path.
 - Update compatibility and install documentation to distinguish supported,

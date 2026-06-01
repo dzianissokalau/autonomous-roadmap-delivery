@@ -9,13 +9,13 @@
     },
     {
       "path": "README.md",
-      "sha256": "f81a761b7bc366e91644089836184fefc6457853e43a77dfcdbc859b30ffd9a7",
-      "size": 1042
+      "sha256": "f6a4518a4ae19f009582bcd60e92b1eedf6d7d3ebe30834df6922088309fce66",
+      "size": 1447
     },
     {
       "path": "skills/roadmap-delivery-skill/SKILL.md",
-      "sha256": "5dedf68dee1a684aa4e283d61407a45da1f36ec0c248c02f58e15ed24b8b8f8d",
-      "size": 3644
+      "sha256": "ce21bdea7f89c7527965f0135ddde2940f469e0af478b5ba371bdf5118052490",
+      "size": 4828
     },
     {
       "path": "agents/reviewer.md",

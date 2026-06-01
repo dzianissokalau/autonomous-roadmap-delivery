@@ -113,6 +113,26 @@ class ClaudePluginPackageTests(unittest.TestCase):
         self.assertIn("## Claude Tool Permission Notes", skill)
         self.assertIn("Use the `roadmap-delivery-reviewer` agent for the review gate", skill)
 
+    def test_skill_and_readme_package_policy_fallbacks(self):
+        self.run_build_check()
+        skill = SKILL_FILE.read_text(encoding="utf-8")
+        readme = (DIST_ROOT / "README.md").read_text(encoding="utf-8")
+
+        for term in (
+            "## Policy Gates",
+            "approval_policy.json",
+            "adaptive_model_policy",
+            "pause_automation_on_completion",
+            "pause_automation_on_stall",
+            "completed_pending_pause",
+        ):
+            with self.subTest(term=term):
+                self.assertIn(term, skill)
+
+        self.assertIn("conservative fallbacks", readme)
+        self.assertIn("status-only pause surfaces", readme)
+        self.assertIn("local alerts", readme)
+
     def test_reviewer_agent_is_read_only_and_enforces_review_gate(self):
         self.run_build_check()
         agent = REVIEWER_AGENT.read_text(encoding="utf-8")

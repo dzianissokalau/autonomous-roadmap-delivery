@@ -58,6 +58,21 @@ PARITY_RULES = {
         "destructive",
         "credentials",
     ),
+    "approval policy gate": (
+        "approval_policy.json",
+        "`allowed`",
+        "`forbidden`",
+    ),
+    "adaptive next-run model policy": (
+        "adaptive_model_policy",
+        "run quality",
+        "next run",
+    ),
+    "completion and stall self-pause": (
+        "pause_automation_on_completion",
+        "pause_automation_on_stall",
+        "completed_pending_pause",
+    ),
 }
 
 CORE_PROMPT_COVERAGE = {

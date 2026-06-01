@@ -49,6 +49,23 @@ branch and commit history, verification output, and runner configuration.
 - Do not promote, merge, push, publish, install global packages, use
   credentials, or change runner configuration without explicit human approval.
 
+## Policy Gates
+
+- Read `approval_policy.json` when present. Missing policy means conservative
+  legacy behavior: phase-owned edits, state/log/review writes, branch creation,
+  and verification can proceed, while commits, pushes, runner retargets,
+  runner pauses, publication, promotion, credentials, destructive git, and
+  installed plugin sync still require approval or remain forbidden.
+- Treat `phase_model_policy.json` and `adaptive_model_policy` as next-run
+  controls. A non-flawless run may update durable state and propose an
+  approved runner retarget, but it does not change the active model inside the
+  current session.
+- Completion and stall self-pause require `pause_saved_automation`,
+  `pause_automation_on_completion`, `pause_automation_on_stall`, or explicit
+  approval plus trusted runner readback. If pause approval or readback is
+  unavailable, write the local alert and keep the state in the appropriate
+  blocked or `completed_pending_pause` form.
+
 ## Claude Tool Permission Notes
 
 - Use read-only tools first to inspect roadmap, state, log, review, policy,
@@ -70,5 +87,8 @@ branch and commit history, verification output, and runner configuration.
   roadmap artifacts and host runner readback supplied by the operator.
 - Treat recurring automation as a host-runner concern; the repository state,
   logs, reviews, and alerts remain authoritative.
+- Do not assume Claude Code exposes a status-only recurring automation pause
+  API. Use local alerts and `completed_pending_pause` evidence unless a trusted
+  runner pause surface reads back the paused status.
 - Host capability differences must be recorded as compatibility notes or
   residual risks instead of hidden in prompts.

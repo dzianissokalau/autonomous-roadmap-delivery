@@ -36,6 +36,24 @@ Use this skill for file-backed, phase-gated roadmap delivery workflows. Keep wor
 - Do not force-push.
 - Do not promote to `main`, merge, push, or change Codex app automation config without explicit human approval.
 
+## Policy Gates
+
+- Read `approval_policy.json` when present. Missing policy means conservative
+  legacy behavior: phase-owned edits, state/log/review writes, branch creation,
+  and verification can proceed, while commits, pushes, saved automation
+  retargets, saved automation pauses, publication, promotion, credentials,
+  destructive git, and installed skill sync still require approval or remain
+  forbidden.
+- Treat `phase_model_policy.json` and `adaptive_model_policy` as next-run
+  controls. A non-flawless run may update durable state and propose or perform
+  an approved saved automation retarget, but it does not change the active
+  model inside the current session.
+- Completion and stall self-pause require `pause_saved_automation`,
+  `pause_automation_on_completion`, `pause_automation_on_stall`, or explicit
+  approval plus saved automation readback. If pause approval or readback is
+  missing, write the local alert and keep the state in the appropriate blocked
+  or `completed_pending_pause` form.
+
 ## Stop Conditions
 
 Stop and report clearly when required files are missing, state surfaces disagree, verification cannot run, review/fix iterations reach their limit, credentials or approval are needed, the phase scope is ambiguous, destructive git operations would be required, or the requested work expands beyond the current roadmap phase.

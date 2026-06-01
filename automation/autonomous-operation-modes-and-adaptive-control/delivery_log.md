@@ -607,3 +607,79 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-5`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-6` and start
   Phase 6 - Adapter Package Propagation.
+
+## Phase 6 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-6`
+
+### Scope
+
+- Propagate approval, adaptive model, and completion/stall self-pause behavior
+  into generated Codex, Claude, and generic adapter packages.
+- Add adapter parity and package tests so the policy text cannot drift by host.
+- Keep package publication, installed skill/plugin sync, and live host
+  execution out of scope.
+
+### Changes
+
+- Added top-level policy gates to the Codex skill template and regenerated
+  `skill/roadmap-delivery-skill/SKILL.md`.
+- Added Claude policy gates and fallback notes for unsupported recurring
+  automation, model/reasoning readback, and status-only pause surfaces, then
+  regenerated `dist/claude/README.md` and
+  `dist/claude/skills/roadmap-delivery-skill/SKILL.md`.
+- Added `schemas/approval_policy.schema.json` to the generic render-only
+  package and documented approval, adaptive model, and self-pause fallback
+  requirements in generic README/install/checklist templates.
+- Added `tests/test_generic_adapter_package.py` and strengthened adapter
+  parity/Codex/Claude package tests for approval, adaptive, and self-pause
+  coverage.
+- Refreshed Codex and Claude package snapshots after generated output changed.
+- Advanced the roadmap header and delivery state to Phase 7 after the
+  delivered review verdict. The Phase 6 to Phase 7 retarget plan classified
+  the run as `flawless`; adaptive action was `none`, and the saved automation
+  already matched `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --check`:
+  passed; Codex and Claude committed package output had no generated drift.
+- `python3 scripts/build_codex_package.py --check`:
+  passed; committed Codex skill package had no generated drift.
+- `python3 -m unittest tests.test_adapter_codex tests.test_adapter_parity tests.test_claude_plugin_package tests.test_generic_adapter_package -v`:
+  passed, 26 tests.
+- `python3 -m unittest discover -s tests -v`:
+  passed, 162 tests with 1 skipped optional Claude binary smoke test.
+- `python3 scripts/build_adapters.py --adapter generic --check --json`:
+  passed; generic render-only output included the approval policy schema and
+  policy fallback documentation.
+- `git diff --check`:
+  passed.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 6 - Adapter Package Propagation' --json`:
+  passed; Phase 7 uses policy defaults, run quality is `flawless`, adaptive
+  action is `none`, and no retarget was needed.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-6-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- The generic adapter remains a render-only documentation package; release
+  artifacts generate `dist/generic` content on demand.
+- This automation still has no `approval_policy.json`; conservative fallback
+  remains intentional until an explicit policy opt-in.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-7` and start
+  Phase 7 - Documentation, Demo, And Closeout.
