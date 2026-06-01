@@ -5,6 +5,7 @@ from pathlib import Path
 
 from roadmap_delivery.approval import (
     approval_decision_for_operation,
+    approval_decision_for_pause_context,
     approved_operation_names,
     approved_operations_for_mode,
     default_approval_policy,
@@ -32,6 +33,8 @@ class ApprovalPolicyTests(unittest.TestCase):
         self.assertTrue(delegated_local["pause_saved_automation"])
         self.assertFalse(delegated_local["push_current_phase_branch"])
         self.assertTrue(delegated_delivery["push_current_phase_branch"])
+        self.assertFalse(default_approval_policy("conservative")["pause_automation_on_completion"])
+        self.assertTrue(default_approval_policy("delegated_local")["pause_automation_on_completion"])
 
     def test_operation_resolver_distinguishes_allowed_ask_and_forbidden(self):
         conservative = approved_operations_for_mode("conservative")
@@ -43,6 +46,20 @@ class ApprovalPolicyTests(unittest.TestCase):
         )
         self.assertEqual(
             approval_decision_for_operation(conservative, "retarget_saved_automation")["decision"],
+            "ask",
+        )
+        self.assertEqual(
+            approval_decision_for_pause_context(
+                {"operations": conservative, "pause_automation_on_completion": True},
+                "completion",
+            )["decision"],
+            "allowed",
+        )
+        self.assertEqual(
+            approval_decision_for_pause_context(
+                {"operations": conservative, "pause_automation_on_stall": False},
+                "stall",
+            )["decision"],
             "ask",
         )
         destructive = approval_decision_for_operation(delegated_local, "destructive_git")

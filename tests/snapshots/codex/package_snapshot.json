@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "adapter": "codex",
   "files": [
     {
@@ -12,20 +13,20 @@
       "size": 217
     },
     {
-      "core_sha256": "ac7ae838f373e5b544778a234da2e9659113c5a53568de2ccea203c51563b98b",
-      "core_size": 2860,
+      "core_sha256": "1332711bdfd345da77b49ed5f6564d6ac4b8ad8ca499b81d8c73238d7b94d0b9",
+      "core_size": 3262,
       "core_source": "core/references/finalization-and-promotion.md",
       "path": "references/finalization-and-promotion.md",
-      "sha256": "64d278d1d534e4cd84362feb7631885a86f2f12976437d1c401bedf8b7ab5b2f",
-      "size": 8037
+      "sha256": "b38963686f67086c47d7a77f9e200691862dece3ece4cab865769063a34f2288",
+      "size": 8441
     },
     {
-      "core_sha256": "114ddcf9fabb04cdb361eaed2fd4c6bae35e8338dc428b55e994ce127db98e12",
-      "core_size": 6143,
+      "core_sha256": "9d7036205b53f9e05c0c8a14e89658c730f88e073114b2674879d3aa621e1b7c",
+      "core_size": 6942,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "references/model-policy-and-stall-control.md",
-      "sha256": "5fe77f3f97bdf3fc7783206f7bed40c9cf244f5158dcd380fb58c68310d6f6b9",
-      "size": 15732
+      "sha256": "f033c822f27a30150c9a3e1d3899da0dbe9680d49e81a903ce90c186caa8458d",
+      "size": 16013
     },
     {
       "core_sha256": "8ab02081fe709944cc4175fa197ed656f8d4749eaca01b11056b6e5e93798fe8",
@@ -60,18 +61,18 @@
       "size": 10919
     },
     {
-      "core_sha256": "d91f49d08b4faf05dd8f85bfbab7097b95971189bc210e1458be5eae6d9f59e5",
-      "core_size": 4508,
+      "core_sha256": "c4f6e2c775a178579e3fe79c7508d4583dde4c65fb0111ed143769c1734ed355",
+      "core_size": 4878,
       "core_source": "core/references/troubleshooting.md",
       "path": "references/troubleshooting.md",
-      "sha256": "eed66f395f925f87e7a1069d81719d361a28d51e0fae480fede33c1068a4da6d",
-      "size": 16609
+      "sha256": "b156e09ee8dc0e70553b41e193f46abf45150a7ec20863545dbb4a9e7421d27f",
+      "size": 17038
     },
     {
       "mode": "0644",
       "path": "scripts/compute_progress_signature.py",
-      "sha256": "41d208975a47ce1f71a0f61d07e812662d05b57790707a258053afadb9fd544a",
-      "size": 14167
+      "sha256": "3a6397e6c14fbbddb5ed22983b345e24b304c8c4a681233f04229463a7ff478b",
+      "size": 885
     },
     {
       "mode": "0755",
@@ -94,9 +95,8 @@
     {
       "mode": "0644",
       "path": "scripts/write_operator_alert.py",
-      "sha256": "01450f5c42d5f6fa025d317c3fb0cbfa53da899997699ea7bf4cf6fdef775f4f",
-      "size": 11093
+      "sha256": "fa3a3f665b0195a6c5633f99e3077752a3760be3d8268f49cf6bad3d902c154a",
+      "size": 881
     }
-  ],
-  "schema_version": 1
+  ]
 }

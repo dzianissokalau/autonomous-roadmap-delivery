@@ -10,7 +10,7 @@ import sys
 from typing import Any, Dict, List, Optional
 
 from .adaptive import adaptive_target_from_state, validate_adaptive_model_policy
-from .approval import read_approval_policy
+from .approval import approval_decision_for_pause_context, read_approval_policy
 from .git import run_git
 from .paths import (
     automation_dir_candidates,
@@ -664,6 +664,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         hard_stop_guard=hard_stop_guard,
         complete=all_phases_complete,
     )
+    completion_pause_decision = approval_decision_for_pause_context(approval_policy or {}, "completion")
     completion_pause_required = all_phases_complete and str(automation_status).upper() == "ACTIVE"
     automation_should_be_paused = all_phases_complete and str(automation_status).upper() != "PAUSED"
     if all_phases_complete and str(automation_status).upper() == "ACTIVE":
@@ -719,7 +720,9 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "completion_alert_kind": completion_alert["completion_alert_kind"],
         "completion_alert_file": completion_alert["completion_alert_file"],
         "completion_pause_required": completion_pause_required,
+        "completion_pause_decision": completion_pause_decision,
         "automation_should_be_paused": automation_should_be_paused,
+        "last_automation_pause": state.get("last_automation_pause") if state else None,
         "final_deep_review_status": final_deep_review["status"],
         "final_deep_review_prompt": final_deep_review["prompt"],
         "final_deep_review_prompt_prepared": final_deep_review["prompt_prepared"],

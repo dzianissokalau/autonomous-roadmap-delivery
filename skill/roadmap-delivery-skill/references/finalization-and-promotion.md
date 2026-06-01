@@ -85,8 +85,9 @@ any further delivery extraction:
    explicitly approved before attempting it.
 6. Set `all_phases_complete` or an equivalent completed status in state.
 7. Write a `completed` operator alert before any optional notification sink.
-8. Pause the automation when `pause_saved_automation` is `allowed` or
-   explicitly approved, then read back status.
+8. Pause the automation when `pause_saved_automation` is `allowed`,
+   `pause_automation_on_completion` explicitly allows the completion safety
+   context, or the pause is explicitly approved, then read back status.
 9. If pause approval or tooling is unavailable, record
    `completed_pending_pause`, keep the hard-stop guard active, and ask the
    operator to pause the automation.
@@ -98,6 +99,11 @@ artifact or waiver is recorded. Validation treats that as a closeout blocker.
 Completed state must not start another phase. A later run that sees completed
 state should only verify the pause/alert evidence or ask for the missing pause
 action.
+
+Set `status: completed` only after completed alert evidence exists and pause
+readback reports `PAUSED` when policy allowed an automatic completion pause. If
+pause approval or readback is missing, use `status: completed_pending_pause`,
+keep the hard-stop guard active, and make the pause action explicit.
 
 ## Final Branch
 

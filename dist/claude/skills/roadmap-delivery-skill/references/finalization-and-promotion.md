@@ -31,11 +31,17 @@ When all phases are complete, do not extract or start another phase. Instead:
    sinks.
 5. Set completed state or completed-pending-pause state.
 6. Pause the runner only when the approval-policy decision for
-   `pause_saved_automation` is `allowed` or explicit human approval is present,
-   then read back the paused runner status.
+   `pause_saved_automation` is `allowed`, `pause_automation_on_completion`
+   explicitly allows the completion safety context, or explicit human approval
+   is present, then read back the paused runner status.
 7. If pause approval is unavailable, record the required human pause action.
 
 Completed state is a hard stop for future scheduled runs.
+
+Set `status: completed` only after the completed alert exists and pause
+readback reports `PAUSED` when policy allowed an automatic completion pause. If
+pause approval or readback is missing, use `status: completed_pending_pause`,
+keep the hard-stop guard active, and make the pause action explicit.
 
 Do not set `all_phases_complete: true` or a completed-pending-pause status
 until the final deep-review prompt/artifact exists or the human waiver is
@@ -58,5 +64,6 @@ must record a blocker when the decision is `forbidden`.
 
 ## Host Adapter Boundary
 
-The core defines completion gates, alert requirements, and promotion separation.
-Host adapters own concrete pause, publication, and runner status mechanisms.
+The core defines completion gates, alert requirements, pause evidence, and
+promotion separation. Host adapters own concrete pause, publication, and runner
+status mechanisms.

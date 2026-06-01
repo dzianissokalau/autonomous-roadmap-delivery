@@ -97,6 +97,12 @@ If completed state is detected, do not start phase work. Confirm completed alert
 evidence, confirm pause status or record pause-required action, and preserve the
 final verification record.
 
+If policy allowed a completion or stall pause but runner readback is not
+`PAUSED`, classify the issue as an automation-config blocker. Keep or set
+`completed_pending_pause` for completion closeout, keep the local alert, and ask
+for the smallest runner repair or pause approval needed. Do not convert the
+state to `completed` until readback proves the runner is paused.
+
 ## Host Adapter Boundary
 
 The core defines classifications and repair rules. Host adapters own concrete

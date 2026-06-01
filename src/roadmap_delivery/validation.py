@@ -11,7 +11,7 @@ import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 from .adaptive import adaptive_target_from_state, validate_adaptive_model_policy
-from .approval import read_approval_policy
+from .approval import approval_decision_for_pause_context, read_approval_policy
 from .git import run_git
 from .paths import (
     extract_roadmap_references,
@@ -887,17 +887,45 @@ def validate_completion_flow(
     complete: bool,
     operator_alert: Optional[Dict[str, Any]],
     automation_status: Optional[str],
+    approval_policy: Optional[Dict[str, Any]],
     errors: List[Finding],
     warnings: List[Finding],
 ) -> Dict[str, Any]:
+    completion_pause_decision = approval_decision_for_pause_context(approval_policy or {}, "completion")
+    last_pause = state.get("last_automation_pause")
     result: Dict[str, Any] = {
         "complete": complete,
         "completion_alert_present": False,
         "completion_pause_required": complete and str(automation_status).upper() == "ACTIVE",
         "automation_should_be_paused": complete and str(automation_status).upper() != "PAUSED",
+        "completion_pause_decision": completion_pause_decision,
+        "last_automation_pause": last_pause,
     }
     if not complete:
         return result
+
+    state_status = normalized(state.get("status"))
+    automation_is_active = str(automation_status).upper() == "ACTIVE"
+    if (
+        automation_is_active
+        and state_status != "completed-pending-pause"
+        and completion_pause_decision.get("decision") == "allowed"
+    ):
+        add(
+            errors,
+            "completed_state_pause_readback_missing",
+            "Completion pause is allowed by policy, but completed state does not read back a PAUSED automation.",
+        )
+    if isinstance(last_pause, dict):
+        pause_result = last_pause.get("result") if isinstance(last_pause.get("result"), dict) else {}
+        readback_status = last_pause.get("readback_status") or pause_result.get("readback_status")
+        result_status = last_pause.get("status")
+        if result_status in {"paused", "already_paused"} and str(readback_status or "").upper() != "PAUSED":
+            add(
+                errors,
+                "automation_pause_readback_mismatch",
+                "State records a successful automation pause but readback_status is not PAUSED.",
+            )
 
     last_alert = state.get("last_operator_alert")
     if not isinstance(last_alert, dict):
@@ -1205,7 +1233,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     progress_tracking = validate_progress_tracking(repo_root, state_file, state, errors, warnings) if state_file else None
     run_log_schema_report = validate_run_log_schema(state_file, schemas.get("automation_run_log"), errors) if state_file else None
     operator_alert = validate_operator_alert(repo_root, state_dir, state, errors, warnings) if state_dir else None
-    completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, errors, warnings)
+    completion_flow = validate_completion_flow(repo_root, state, complete, operator_alert, automation_status, approval_policy, errors, warnings)
     final_deep_review = validate_final_deep_review_gate(repo_root, state_dir, state, complete, errors, warnings)
     deep_review_prompt = Path(str(final_deep_review["prompt"])) if final_deep_review.get("prompt") else None
     activation_reconciliation = manual_activation_reconciliation(

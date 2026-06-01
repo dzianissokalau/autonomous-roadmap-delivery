@@ -24,7 +24,10 @@ record the blocker and stop before delivery work.
 
 If state is blocked, enter Blocked Remediation Mode before normal delivery.
 Hard stop before delivery if all phases are complete, status is completed, or
-status is completed_pending_pause.
+status is completed_pending_pause. For completed or stalled states, pause the
+saved runner only when `pause_saved_automation` is allowed, a context-specific
+pause flag allows it, or explicit human approval is present; always record
+pause readback evidence.
 
 For the current phase only, extract objective, owned files, implementation
 steps, acceptance criteria, required verification, non-goals, and stop

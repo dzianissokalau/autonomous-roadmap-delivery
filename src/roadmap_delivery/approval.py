@@ -22,6 +22,11 @@ OPERATIONS = (
     "push_current_phase_branch",
 )
 
+SAFETY_PAUSE_FLAGS = (
+    "pause_automation_on_completion",
+    "pause_automation_on_stall",
+)
+
 BASE_LOCAL_OPERATIONS = frozenset(
     {
         "edit_phase_owned_files",
@@ -147,15 +152,65 @@ def approval_decisions_for_operations(operations: Dict[str, bool]) -> Dict[str, 
     }
 
 
+def pause_flags_for_operations(operations: Dict[str, bool]) -> Dict[str, bool]:
+    pause_allowed = operations.get("pause_saved_automation") is True
+    return {
+        "pause_automation_on_completion": pause_allowed,
+        "pause_automation_on_stall": pause_allowed,
+    }
+
+
 def default_approval_policy(
     mode: str = "conservative",
     custom_operations: Optional[Dict[str, bool]] = None,
 ) -> Dict[str, Any]:
+    operations = approved_operations_for_mode(mode, custom_operations)
     return {
         "schema_version": 1,
         "approval_mode": mode,
-        "operations": approved_operations_for_mode(mode, custom_operations),
+        "operations": operations,
+        **pause_flags_for_operations(operations),
         "never_auto": list(NEVER_AUTO_OPERATIONS),
+    }
+
+
+def approval_decision_for_pause_context(policy_report: Dict[str, Any], context: str) -> Dict[str, Any]:
+    """Return the approval decision for a completion or stall safety pause."""
+
+    normalized_context = str(context or "").strip().lower().replace("_", "-")
+    if normalized_context not in {"completion", "stall"}:
+        return {
+            "operation": "pause_saved_automation",
+            "context": context,
+            "decision": "forbidden",
+            "reason": "Unknown pause context cannot be classified safely.",
+            "source": "context",
+        }
+
+    operations = policy_report.get("operations") if isinstance(policy_report, dict) else {}
+    if not isinstance(operations, dict):
+        operations = {}
+    base_decision = approval_decision_for_operation(operations, "pause_saved_automation")
+    if base_decision["decision"] != "ask":
+        return {
+            **base_decision,
+            "context": normalized_context,
+            "source": "operation",
+        }
+
+    flag_name = f"pause_automation_on_{normalized_context}"
+    if policy_report.get(flag_name) is True:
+        return {
+            "operation": "pause_saved_automation",
+            "context": normalized_context,
+            "decision": "allowed",
+            "reason": f"Approval policy explicitly allows automation pause on {normalized_context}.",
+            "source": flag_name,
+        }
+    return {
+        **base_decision,
+        "context": normalized_context,
+        "source": flag_name,
     }
 
 
@@ -254,6 +309,10 @@ def validate_approval_policy(policy: Any, path: Optional[Path] = None) -> List[D
             if operation not in NEVER_AUTO_OPERATIONS:
                 errors.append(_finding("unknown_never_auto_operation", f"Unknown never-auto operation {operation!r}.", path))
 
+    for flag in SAFETY_PAUSE_FLAGS:
+        if flag in policy and not isinstance(policy.get(flag), bool):
+            errors.append(_finding("invalid_safety_pause_flag", f"{flag} must be boolean when present.", path))
+
     return errors
 
 
@@ -279,6 +338,8 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
             "approval_mode": "conservative",
             "approved_operations": approved_operation_names(operations),
             "operations": operations,
+            "pause_automation_on_completion": policy["pause_automation_on_completion"],
+            "pause_automation_on_stall": policy["pause_automation_on_stall"],
             "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [],
         }
@@ -295,6 +356,7 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
             "approval_mode": "conservative",
             "approved_operations": approved_operation_names(operations),
             "operations": operations,
+            **pause_flags_for_operations(operations),
             "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [_finding("invalid_approval_policy_json", f"Approval policy is invalid JSON: {exc}", path)],
         }
@@ -308,6 +370,7 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
             "approval_mode": "conservative",
             "approved_operations": approved_operation_names(operations),
             "operations": operations,
+            **pause_flags_for_operations(operations),
             "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [_finding("approval_policy_unreadable", f"Cannot read approval policy: {exc}", path)],
         }
@@ -323,12 +386,14 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
             "approval_mode": "conservative",
             "approved_operations": approved_operation_names(operations),
             "operations": operations,
+            **pause_flags_for_operations(operations),
             "operation_decisions": approval_decisions_for_operations(operations),
             "errors": errors,
         }
 
     mode = str(policy["approval_mode"])
     operations = approved_operations_for_mode(mode, policy.get("operations") if isinstance(policy.get("operations"), dict) else None)
+    pause_flags = pause_flags_for_operations(operations)
     return {
         "path": str(path),
         "present": True,
@@ -337,6 +402,8 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
         "approval_mode": mode,
         "approved_operations": approved_operation_names(operations),
         "operations": operations,
+        "pause_automation_on_completion": bool(policy.get("pause_automation_on_completion", pause_flags["pause_automation_on_completion"])),
+        "pause_automation_on_stall": bool(policy.get("pause_automation_on_stall", pause_flags["pause_automation_on_stall"])),
         "operation_decisions": approval_decisions_for_operations(operations),
         "errors": [],
     }

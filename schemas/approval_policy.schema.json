@@ -52,6 +52,12 @@
       },
       "additionalProperties": false
     },
+    "pause_automation_on_completion": {
+      "type": "boolean"
+    },
+    "pause_automation_on_stall": {
+      "type": "boolean"
+    },
     "never_auto": {
       "type": "array",
       "items": {

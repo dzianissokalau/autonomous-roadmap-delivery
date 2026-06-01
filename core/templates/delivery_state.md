@@ -30,6 +30,8 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
       "create_or_switch_phase_branch",
       "run_verification"
     ],
+    "pause_automation_on_completion": false,
+    "pause_automation_on_stall": false,
     "fallback_reason": null
   },
   "required_model": "<required-model-or-null>",
@@ -42,6 +44,7 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
   "last_progress_signature": null,
   "last_progress_at": null,
   "last_operator_alert": null,
+  "last_automation_pause": null,
   "last_run_quality": null,
   "last_adaptive_action": null,
   "model_history": [],

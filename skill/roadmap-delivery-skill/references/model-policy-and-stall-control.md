@@ -335,8 +335,10 @@ When the signature changes, reset `stalled_run_count` to `0`.
 
 When it does not change, increment `stalled_run_count`.
 
-When `stalled_run_count >= max_stalled_runs`, keep or set state blocked, pause
-or request pause for the automation, and write an operator alert.
+When `stalled_run_count >= max_stalled_runs`, keep or set state blocked, resolve
+the `pause_saved_automation` approval decision for the stall context, pause the
+automation when policy allows it, and write an operator alert. A pause attempt
+is valid only after saved automation readback reports `PAUSED`.
 
 ## Blocked Runs
 
@@ -419,7 +421,9 @@ When state has `all_phases_complete: true`, `status: completed`,
    roadmap requires one.
 4. Write a local `completed` alert with `write_operator_alert.py`.
 5. Attempt to pause the automation only when the pause surface is already
-   approved; otherwise record that pause is pending and ask the operator.
+   approved by `pause_saved_automation`, the context-specific
+   `pause_automation_on_completion` flag, or explicit human approval;
+   otherwise record that pause is pending and ask the operator.
 6. Read back the saved automation status after any pause attempt.
 7. Record alert path, notification status, and pause status in state/log.
 

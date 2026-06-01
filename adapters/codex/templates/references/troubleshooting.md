@@ -121,8 +121,9 @@ Repeated non-progress:
 
 - Compute or inspect the durable progress signature.
 - If the signature is unchanged, increment `stalled_run_count`.
-- At `max_stalled_runs`, keep state blocked, pause or request pause, and write
-  a stalled alert with `write_operator_alert.py`.
+- At `max_stalled_runs`, keep state blocked, resolve the stall pause approval
+  decision, pause or request pause, and write a stalled alert with
+  `write_operator_alert.py`.
 - Before counting another stall, run Blocked Run Remediation for any explicit
   blocker.
 
@@ -213,6 +214,12 @@ If state says the roadmap is complete and the automation is active:
 An active automation with a completed-state hard-stop guard is safer than one
 without the guard, but it is still not fully closed out. Pause remains the next
 operator action.
+
+If policy allowed a completion or stall pause but saved automation readback is
+not `PAUSED`, classify the issue as an automation-config blocker. Keep or set
+`completed_pending_pause` for completion closeout, keep the local alert, and
+ask for the smallest runner repair or pause approval needed. Do not convert the
+state to `completed` until readback proves the automation is paused.
 
 ## Completed State Missing Completed Alert
 

@@ -2,25 +2,25 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md",
   "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
-  "current_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
-  "branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-4",
+  "current_phase": "Phase 5 - Validation, Inspection, And Migration",
+  "branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-5",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
-    "completed_at": "2026-06-01T13:04:30Z",
+    "phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+    "completed_at": "2026-06-01T14:03:09Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 -m unittest tests.test_adaptive_model_policy tests.test_helper_scripts -v",
+        "command": "python3 -m unittest tests.test_completion_pause_policy tests.test_helper_scripts -v",
         "status": "passed",
-        "details": "Ran 53 adaptive model policy and helper-script tests successfully."
+        "details": "Ran 52 completion pause policy and helper-script tests successfully."
       },
       {
-        "command": "python3 -m unittest tests.test_schema_validation -v",
+        "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Ran 7 schema validation tests successfully."
+        "details": "Ran 155 tests successfully with 1 skipped optional Claude binary smoke test."
       },
       {
         "command": "python3 scripts/build_codex_package.py --check --json",
@@ -33,30 +33,25 @@
         "details": "Codex and Claude adapter checks reported status ok with no generated package diffs."
       },
       {
-        "command": "python3 -m unittest discover -s tests -v",
-        "status": "passed",
-        "details": "Ran 150 tests successfully with 1 skipped optional Claude binary smoke test."
-      },
-      {
         "command": "git diff --check",
         "status": "passed",
         "details": "No whitespace errors were found."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 3 - Run Quality Classification And Adaptive Model Policy' --json",
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 4 - Automation Self-Pause On Completion And Stall' --json",
         "status": "passed",
-        "details": "Next phase resolved to Phase 4 using policy defaults; run quality classified as flawless, adaptive action was none, saved automation already matches gpt-5.5/xhigh, so no retarget was needed."
+        "details": "Next phase resolved to Phase 5 using policy defaults; run quality classified as flawless, adaptive action was none, saved automation already matches gpt-5.5/xhigh, so no retarget was needed."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
-    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-3-review-iteration-1.md",
+    "phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-4-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-06-01T13:04:30Z",
-    "summary": "Phase 3 adaptive run-quality classification, policy caps, retarget planning, validation/inspection surfaces, and generated package updates were delivered after required verification."
+    "reviewed_at": "2026-06-01T14:03:09Z",
+    "summary": "Phase 4 completion/stall self-pause policy, pause readback, alert handling, validation/inspection surfaces, package propagation, and tests were delivered after required verification."
   },
-  "last_delivered_phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
+  "last_delivered_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
   "blocked_reason": null,
   "last_blocker_repair": {
     "repaired_at": "2026-06-01T11:51:32Z",
@@ -96,7 +91,7 @@
   "approval_policy_path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
   "approval_mode": "conservative",
   "last_approval_policy_readback": {
-    "read_at": "2026-06-01T13:04:30Z",
+    "read_at": "2026-06-01T14:03:09Z",
     "path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
     "status": "fallback",
     "approval_mode": "conservative",
@@ -116,73 +111,8 @@
       "pause_saved_automation": false,
       "push_current_phase_branch": false
     },
-    "operation_decisions": {
-      "commit_delivered_phase_locally": {
-        "operation": "commit_delivered_phase_locally",
-        "decision": "ask",
-        "reason": "Approval policy does not pre-approve this operation."
-      },
-      "create_or_switch_phase_branch": {
-        "operation": "create_or_switch_phase_branch",
-        "decision": "allowed",
-        "reason": "Approval policy pre-approves this operation."
-      },
-      "destructive_git": {
-        "operation": "destructive_git",
-        "decision": "forbidden",
-        "reason": "Destructive git operations are never automatic."
-      },
-      "edit_phase_owned_files": {
-        "operation": "edit_phase_owned_files",
-        "decision": "allowed",
-        "reason": "Approval policy pre-approves this operation."
-      },
-      "pause_saved_automation": {
-        "operation": "pause_saved_automation",
-        "decision": "ask",
-        "reason": "Approval policy does not pre-approve this operation."
-      },
-      "promote_to_main": {
-        "operation": "promote_to_main",
-        "decision": "forbidden",
-        "reason": "Merging or promoting work to main is never automatic."
-      },
-      "publish_release_or_package": {
-        "operation": "publish_release_or_package",
-        "decision": "forbidden",
-        "reason": "Publication to release or package registries is never automatic."
-      },
-      "push_current_phase_branch": {
-        "operation": "push_current_phase_branch",
-        "decision": "ask",
-        "reason": "Approval policy does not pre-approve this operation."
-      },
-      "retarget_saved_automation": {
-        "operation": "retarget_saved_automation",
-        "decision": "ask",
-        "reason": "Approval policy does not pre-approve this operation."
-      },
-      "run_verification": {
-        "operation": "run_verification",
-        "decision": "allowed",
-        "reason": "Approval policy pre-approves this operation."
-      },
-      "sync_installed_skill": {
-        "operation": "sync_installed_skill",
-        "decision": "forbidden",
-        "reason": "Installed skill or plugin synchronization is never automatic."
-      },
-      "use_credentials": {
-        "operation": "use_credentials",
-        "decision": "forbidden",
-        "reason": "Credential use requires explicit human approval and available credentials."
-      },
-      "write_state_log_review_artifacts": {
-        "operation": "write_state_log_review_artifacts",
-        "decision": "allowed",
-        "reason": "Approval policy pre-approves this operation."
-      }
-    },
+    "pause_automation_on_completion": false,
+    "pause_automation_on_stall": false,
     "fallback_reason": "missing_policy"
   },
   "required_model": "gpt-5.5",
@@ -199,7 +129,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-06-01T13:04:30Z",
+    "readback_at": "2026-06-01T14:03:09Z",
     "initial_active_drift_repaired": true,
     "activation_accepted_at": "2026-06-01T11:51:32Z",
     "drift_detected_at": "2026-06-01T09:12:07Z",
@@ -221,11 +151,11 @@
     ],
     "inspection_note": "At setup time, inspector reported a not_started_ lifecycle warning for setup state; validator accepted the roadmap as Not Started at Phase 0. This false-positive class is covered by the manual-activation framework fix."
   },
-  "run_count": 7,
+  "run_count": 8,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:da823d575faa19b62657784a5f419df6255366634fb19f57578435ec3a8851bd",
-  "last_progress_at": "2026-06-01T13:04:30Z",
+  "last_progress_signature": "sha256:f1a7f771ed7cd53e4dcfbbbe7e4d0a6fde079ebc47d84702094cf1dcb18e4ddb",
+  "last_progress_at": "2026-06-01T14:03:09Z",
   "last_operator_alert": {
     "kind": "blocked",
     "file": "automation/autonomous-operation-modes-and-adaptive-control/alerts/2026-06-01T09-12-07Z-blocked.md",
@@ -243,12 +173,12 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-06-01T13:04:30Z",
+  "updated_at": "2026-06-01T14:03:09Z",
   "last_run_quality": "flawless",
   "last_adaptive_action": {
     "action": "none",
     "run_quality": "flawless",
-    "target_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+    "target_phase": "Phase 5 - Validation, Inspection, And Migration",
     "target": {
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh"
@@ -264,7 +194,7 @@
   },
   "adaptive_escalation_count": 0,
   "adaptive_deescalation_count": 0,
-  "adaptive_flawless_streak": 1,
+  "adaptive_flawless_streak": 2,
   "model_history": [
     {
       "phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
@@ -272,6 +202,17 @@
       "run_quality": "flawless",
       "adaptive_action": "none",
       "target_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "target_source": "defaults",
+      "retarget_status": "not_needed"
+    },
+    {
+      "phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+      "completed_at": "2026-06-01T14:03:09Z",
+      "run_quality": "flawless",
+      "adaptive_action": "none",
+      "target_phase": "Phase 5 - Validation, Inspection, And Migration",
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh",
       "target_source": "defaults",

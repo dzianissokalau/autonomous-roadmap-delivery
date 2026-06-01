@@ -158,7 +158,22 @@ write an alert, and do not start the next phase.
 Use durable progress signatures from state, latest review, verification, git
 head, delivery log hash/size, and blocker reason. Reset stalled count when the
 signature changes. Increment it when the signature repeats. At threshold, keep
-or set blocked state and write an operator alert.
+or set blocked state, resolve the `pause_saved_automation` decision for the
+stall context, write an operator alert, and either pause the runner with
+readback evidence or record the required human pause action.
+
+## Self-Pause Policy
+
+`approval_policy.json` may include `pause_automation_on_completion` and
+`pause_automation_on_stall` as context-specific safety approvals. Delegated
+modes can allow the same behavior through `pause_saved_automation`; conservative
+mode can keep ordinary runner edits ask-first while explicitly allowing one
+safety pause context. A pause attempt is delivered only after trusted runner
+readback reports `PAUSED`.
+
+If pause approval is missing, record a pause-needed blocker or
+completed-pending-pause state with a local alert. If pause readback fails, do
+not claim the runner is paused.
 
 ## Alerts
 
@@ -168,9 +183,9 @@ and must fail safe to the local alert file.
 
 ## Host Adapter Boundary
 
-The core defines policy fields, comparison rules, stall counters, and alert
-requirements, including adaptive run quality and model-target decisions. Host
-adapters own concrete model names, provider-role guidance, runner readback, and
-runner update mechanisms. If a host cannot prove or set a role's model or
-reasoning value, the adapter must record that limitation rather than claiming
-unsupported control.
+The core defines policy fields, comparison rules, stall counters, pause
+decisions, and alert requirements, including adaptive run quality and
+model-target decisions. Host adapters own concrete model names, provider-role
+guidance, runner readback, and runner update mechanisms. If a host cannot prove
+or set a role's model, reasoning value, or paused status, the adapter must
+record that limitation rather than claiming unsupported control.

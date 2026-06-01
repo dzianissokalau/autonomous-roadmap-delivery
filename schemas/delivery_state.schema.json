@@ -207,6 +207,12 @@
         "null"
       ]
     },
+    "last_automation_pause": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
     "last_run_quality": {
       "type": [
         "string",

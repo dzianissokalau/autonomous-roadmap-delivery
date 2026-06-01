@@ -10,6 +10,9 @@ from pathlib import Path
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
+from .alerts import OperatorAlertError, write_alert
+from .approval import approval_decision_for_pause_context, read_approval_policy
+from .automation import automation_id_from_state, pause_saved_automation
 from .git import run_git
 from .paths import slug_forms, state_candidates as state_file_candidates
 from .state import JsonObjectError, load_json_object, write_json_object
@@ -223,7 +226,11 @@ def build_run_result(
         "run_log_entries": len(run_log_entries),
         "run_log_errors": run_log_errors,
         "signature_input": signature["signature_input"],
+        "stall_pause_decision": None,
     }
+    if threshold_reached:
+        approval_policy = read_approval_policy(repo_root, state_file, state)
+        result["stall_pause_decision"] = approval_decision_for_pause_context(approval_policy, "stall")
     return result
 
 
@@ -235,7 +242,13 @@ def append_run_log(run_log_path: Path, entry: Dict[str, Any]) -> None:
         raise ProgressSignatureError(f"Cannot append run log {run_log_path}: {exc}") from exc
 
 
-def record_run_result(repo_root: Path, state_file: Path, *, timestamp: Optional[str] = None) -> Dict[str, Any]:
+def record_run_result(
+    repo_root: Path,
+    state_file: Path,
+    *,
+    timestamp: Optional[str] = None,
+    automation_id: Optional[str] = None,
+) -> Dict[str, Any]:
     state = load_progress_json_object(state_file)
     result = build_run_result(repo_root, state_file, state, timestamp=timestamp)
     if result["run_log_errors"]:
@@ -251,8 +264,60 @@ def record_run_result(repo_root: Path, state_file: Path, *, timestamp: Optional[
     if result["threshold_reached"]:
         state["status"] = "blocked"
         state["blocked_reason"] = result["blocked_reason_after"]
+        pause_decision = result.get("stall_pause_decision") or {}
+        pause_record: Dict[str, Any] = {
+            "context": "stall",
+            "decided_at": result["timestamp"],
+            "approval_decision": pause_decision,
+            "status": "approval_required",
+            "result": None,
+        }
+        if pause_decision.get("decision") == "allowed":
+            resolved_automation_id = automation_id or automation_id_from_state(state)
+            pause_result = pause_saved_automation(
+                resolved_automation_id,
+                timestamp=result["timestamp"],
+                reason="Stall threshold reached; automation pause policy allows safety pause.",
+            )
+            pause_record["status"] = str(pause_result.get("status") or "unknown")
+            pause_record["result"] = pause_result
+            if pause_result.get("paused") is True:
+                state["configured_automation_status"] = "PAUSED"
+                automation = state.get("automation")
+                if isinstance(automation, dict):
+                    automation["status"] = "PAUSED"
+                    automation["readback_at"] = result["timestamp"]
+                state["blocked_reason"] = (
+                    f"Stalled after {result['stalled_run_count']} consecutive runs without durable progress "
+                    f"(threshold {result['max_stalled_runs']}); saved automation paused by policy."
+                )
+            else:
+                state["blocked_reason"] = (
+                    f"{state['blocked_reason']} Pause policy allowed automation pause, but readback did not confirm PAUSED."
+                )
+        elif pause_decision.get("decision") == "forbidden":
+            pause_record["status"] = "forbidden"
+            state["blocked_reason"] = f"{state['blocked_reason']} Automation pause is forbidden by approval policy."
+        else:
+            state["blocked_reason"] = f"{state['blocked_reason']} Automation pause requires human approval."
+        state["last_automation_pause"] = pause_record
+        result["stall_pause"] = pause_record
     state["updated_at"] = result["timestamp"]
     write_progress_json_object(state_file, state)
+
+    if result["threshold_reached"]:
+        next_action = "Inspect the stalled run, verify pause status, and repair the blocker before resuming."
+        try:
+            result["operator_alert"] = write_alert(
+                repo_root,
+                state_file,
+                kind="stalled",
+                reason=str(state.get("blocked_reason") or result["blocked_reason_after"]),
+                next_action=next_action,
+                timestamp=result["timestamp"],
+            )
+        except OperatorAlertError as exc:
+            raise ProgressSignatureError(f"Cannot write stalled operator alert: {exc}") from exc
 
     log_entry = {
         "timestamp": result["timestamp"],
@@ -268,6 +333,10 @@ def record_run_result(repo_root: Path, state_file: Path, *, timestamp: Optional[
         "threshold_reached": result["threshold_reached"],
         "phase_6_alert_required": result["phase_6_alert_required"],
     }
+    if result.get("stall_pause"):
+        log_entry["stall_pause_status"] = result["stall_pause"].get("status")
+    if result.get("operator_alert"):
+        log_entry["operator_alert_file"] = result["operator_alert"].get("alert_file_relative")
     append_run_log(Path(result["run_log_path"]), log_entry)
     result["recorded"] = True
     return result
@@ -298,6 +367,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--repo-root", required=True, help="Repository root.")
     parser.add_argument("--roadmap-slug", help="Roadmap slug, accepting hyphen or underscore form.")
     parser.add_argument("--state-file", help="Explicit delivery_state.json path.")
+    parser.add_argument("--automation-id", help="Saved automation id to pause if a stall policy allows it.")
     parser.add_argument("--record-run", action="store_true", help="Update delivery_state.json and append automation_run_log.jsonl.")
     parser.add_argument("--timestamp", help="Timestamp to write when recording, mainly for deterministic tests.")
     parser.add_argument("--json", action="store_true", help="Emit JSON output.")
@@ -315,7 +385,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     try:
         if args.record_run:
-            result = record_run_result(repo_root, state_file, timestamp=args.timestamp)
+            result = record_run_result(repo_root, state_file, timestamp=args.timestamp, automation_id=args.automation_id)
         else:
             result = build_run_result(repo_root, state_file, timestamp=args.timestamp)
             result["recorded"] = False

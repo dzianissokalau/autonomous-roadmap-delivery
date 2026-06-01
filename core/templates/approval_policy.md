@@ -16,6 +16,8 @@ Use this template for `automation/<roadmap-slug>/approval_policy.json`.
     "pause_saved_automation": false,
     "push_current_phase_branch": false
   },
+  "pause_automation_on_completion": false,
+  "pause_automation_on_stall": false,
   "never_auto": [
     "force_push",
     "git_reset_hard",
@@ -32,3 +34,8 @@ Use this template for `automation/<roadmap-slug>/approval_policy.json`.
 
 Missing approval policy files keep legacy conservative behavior. Invalid policy
 files must fail validation before delivery work relies on them.
+
+`pause_automation_on_completion` and `pause_automation_on_stall` are
+context-specific safety approvals. Delegated modes normally allow them through
+`pause_saved_automation`; conservative mode may set one of these flags to
+`true` as an explicit setup choice without approving unrelated runner edits.

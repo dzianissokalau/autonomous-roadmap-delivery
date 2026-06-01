@@ -454,3 +454,80 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-4`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-4` and start
   Phase 4 - Automation Self-Pause On Completion And Stall.
+
+## Phase 4 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-4`
+
+### Scope
+
+- Add completion and stall self-pause policy flags and context-specific pause
+  approval.
+- Add saved automation pause readback helper behavior.
+- Update completion validation/inspection and stall-threshold handling.
+- Keep deletion, publication, promotion, and unrelated automation edits out of
+  scope.
+
+### Changes
+
+- Added `src/roadmap_delivery/automation.py` for status-only saved automation
+  pause updates with `PAUSED` readback evidence.
+- Added `src/roadmap_delivery/alerts.py` as the shared operator-alert library
+  used by helper script wrappers and stall-threshold recording.
+- Extended approval policy support with `pause_automation_on_completion` and
+  `pause_automation_on_stall`, plus context-specific pause decisions.
+- Extended progress recording so stall thresholds resolve pause approval,
+  attempt allowed pauses, record `last_automation_pause`, and write a stalled
+  operator alert.
+- Extended validation and inspection so completion pause decisions and readback
+  evidence are visible, and policy-allowed completed ACTIVE readback is not
+  mistaken for fully paused completion.
+- Updated schemas, scaffold state, core templates, core references, Codex skill
+  references, Claude generated references, and package snapshots.
+- Advanced the roadmap header and delivery state to Phase 5 after the delivered
+  review verdict. The Phase 4 to Phase 5 retarget plan classified the run as
+  `flawless`; adaptive action was `none`, and the saved automation already
+  matched `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_completion_pause_policy tests.test_helper_scripts -v`:
+  passed, 52 tests.
+- `python3 -m unittest discover -s tests -v`:
+  passed, 155 tests with 1 skipped optional Claude binary smoke test.
+- `python3 scripts/build_codex_package.py --check --json`:
+  passed; status ok, 14 files, no diffs.
+- `python3 scripts/build_adapters.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --check --json`:
+  passed; Codex and Claude package reports were status ok with no generated
+  diffs.
+- `git diff --check`:
+  passed.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 4 - Automation Self-Pause On Completion And Stall' --json`:
+  passed; Phase 5 uses policy defaults, run quality is `flawless`, adaptive
+  action is `none`, and no retarget was needed.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-4-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- This automation still has no `approval_policy.json`; conservative fallback
+  means its own saved automation will not auto-pause on completion or stall
+  until Phase 5 migration or an explicit policy update creates that approval.
+- Live host-specific pause APIs remain adapter-owned; the local helper mutates
+  only status in the selected saved automation config and requires readback.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-5` and start
+  Phase 5 - Validation, Inspection, And Migration.

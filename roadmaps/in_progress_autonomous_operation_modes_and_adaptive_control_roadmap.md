@@ -1,9 +1,9 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
 Status: In Progress
-Current phase: Phase 4 - Automation Self-Pause On Completion And Stall
+Current phase: Phase 5 - Validation, Inspection, And Migration
 Last updated: 2026-06-01
-Next action: Deliver Phase 4 automation self-pause on completion and stall.
+Next action: Deliver Phase 5 validation, inspection, and migration surfaces.
 Blocked by: None.
 
 ## Purpose
