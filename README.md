@@ -165,6 +165,9 @@ committed package drifts from those inputs.
 - `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`:
   completed companion roadmap for generated host adapters and Claude packaging;
   the saved automation is paused.
+- `roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
+  planned roadmap for autonomy modes, adaptive model escalation, and automatic
+  pause behavior.
 
 ## Operating Model
 
