@@ -105,6 +105,33 @@ class SchemaValidationTests(unittest.TestCase):
 
             self.assertIn("automation_run_log_schema_error", self.error_codes(validate))
 
+    def test_run_log_schema_checks_run_quality_and_adaptive_decision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                run_log_text=json.dumps(
+                    {
+                        "timestamp": "2026-05-21T00:00:00Z",
+                        "current_phase": "Phase 1 - Fixture",
+                        "status": "not_started",
+                        "progress_signature": "sha256:fixture",
+                        "run_count": 1,
+                        "stalled_run_count": 0,
+                        "max_stalled_runs": 3,
+                        "threshold_reached": False,
+                        "phase_6_alert_required": False,
+                        "run_quality": "mystery",
+                        "adaptive_action": {"action": "none"},
+                    }
+                )
+                + "\n",
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("automation_run_log_schema_error", self.error_codes(validate))
+
     def test_review_artifact_schema_checks_required_metadata(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, write_model_policy=True)

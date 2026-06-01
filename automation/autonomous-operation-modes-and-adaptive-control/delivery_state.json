@@ -2,35 +2,40 @@
   "schema_version": 1,
   "roadmap": "roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md",
   "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
-  "current_phase": "Phase 5 - Validation, Inspection, And Migration",
-  "branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-5",
+  "current_phase": "Phase 6 - Adapter Package Propagation",
+  "branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-6",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
-    "completed_at": "2026-06-01T14:03:09Z",
+    "phase": "Phase 5 - Validation, Inspection, And Migration",
+    "completed_at": "2026-06-01T14:58:55Z",
     "status": "passed",
     "checks": [
       {
-        "command": "python3 -m unittest tests.test_completion_pause_policy tests.test_helper_scripts -v",
+        "command": "python3 -m unittest tests.test_schema_validation tests.test_quality_gates -v",
         "status": "passed",
-        "details": "Ran 52 completion pause policy and helper-script tests successfully."
+        "details": "Ran 13 schema validation and quality gate tests successfully."
+      },
+      {
+        "command": "python3 -m unittest tests.test_smoke_demo -v",
+        "status": "passed",
+        "details": "Ran 5 demo smoke tests successfully."
+      },
+      {
+        "command": "python3 -m unittest tests.test_helper_scripts -v",
+        "status": "passed",
+        "details": "Ran 48 helper-script tests successfully."
       },
       {
         "command": "python3 -m unittest discover -s tests -v",
         "status": "passed",
-        "details": "Ran 155 tests successfully with 1 skipped optional Claude binary smoke test."
+        "details": "Ran 157 tests successfully with 1 skipped optional Claude binary smoke test."
       },
       {
-        "command": "python3 scripts/build_codex_package.py --check --json",
+        "command": "python3 scripts/check_release_privacy.py --repo-root .",
         "status": "passed",
-        "details": "Codex package check reported status ok with 14 files and no diffs."
-      },
-      {
-        "command": "python3 scripts/build_adapters.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --check --json",
-        "status": "passed",
-        "details": "Codex and Claude adapter checks reported status ok with no generated package diffs."
+        "details": "Release privacy scan passed across 117 files with no findings."
       },
       {
         "command": "git diff --check",
@@ -38,20 +43,30 @@
         "details": "No whitespace errors were found."
       },
       {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 4 - Automation Self-Pause On Completion And Stall' --json",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json",
         "status": "passed",
-        "details": "Next phase resolved to Phase 5 using policy defaults; run quality classified as flawless, adaptive action was none, saved automation already matches gpt-5.5/xhigh, so no retarget was needed."
+        "details": "Validation passed with only the expected dirty-worktree warning during Phase 5 edits."
+      },
+      {
+        "command": "python3 -m roadmap_delivery.cli inspect --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json",
+        "status": "passed",
+        "details": "Inspection passed with only the expected dirty-worktree warning and surfaced autonomy, adaptive, and pause summaries."
+      },
+      {
+        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 5 - Validation, Inspection, And Migration' --json",
+        "status": "passed",
+        "details": "Next phase resolved to Phase 6 using policy defaults; run quality classified as flawless, adaptive action was none, saved automation already matches gpt-5.5/xhigh, so no retarget was needed."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
-    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-4-review-iteration-1.md",
+    "phase": "Phase 5 - Validation, Inspection, And Migration",
+    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-5-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-06-01T14:03:09Z",
-    "summary": "Phase 4 completion/stall self-pause policy, pause readback, alert handling, validation/inspection surfaces, package propagation, and tests were delivered after required verification."
+    "reviewed_at": "2026-06-01T14:57:50Z",
+    "summary": "Phase 5 validation, inspection, run-log schema, progress logging, migration guidance, and tests were delivered after required verification."
   },
-  "last_delivered_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+  "last_delivered_phase": "Phase 5 - Validation, Inspection, And Migration",
   "blocked_reason": null,
   "last_blocker_repair": {
     "repaired_at": "2026-06-01T11:51:32Z",
@@ -91,7 +106,7 @@
   "approval_policy_path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
   "approval_mode": "conservative",
   "last_approval_policy_readback": {
-    "read_at": "2026-06-01T14:03:09Z",
+    "read_at": "2026-06-01T14:58:55Z",
     "path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
     "status": "fallback",
     "approval_mode": "conservative",
@@ -151,11 +166,11 @@
     ],
     "inspection_note": "At setup time, inspector reported a not_started_ lifecycle warning for setup state; validator accepted the roadmap as Not Started at Phase 0. This false-positive class is covered by the manual-activation framework fix."
   },
-  "run_count": 8,
+  "run_count": 9,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:f1a7f771ed7cd53e4dcfbbbe7e4d0a6fde079ebc47d84702094cf1dcb18e4ddb",
-  "last_progress_at": "2026-06-01T14:03:09Z",
+  "last_progress_signature": "sha256:0806787889e62e91d4379bf20264cfe5f5cce509cd1ed5353fdabc17bb840a90",
+  "last_progress_at": "2026-06-01T14:58:55Z",
   "last_operator_alert": {
     "kind": "blocked",
     "file": "automation/autonomous-operation-modes-and-adaptive-control/alerts/2026-06-01T09-12-07Z-blocked.md",
@@ -173,12 +188,12 @@
   "final_deep_review_prompt_prepared": false,
   "final_deep_review_prompt_file": null,
   "final_deep_review_status": null,
-  "updated_at": "2026-06-01T14:03:09Z",
+  "updated_at": "2026-06-01T14:58:55Z",
   "last_run_quality": "flawless",
   "last_adaptive_action": {
     "action": "none",
     "run_quality": "flawless",
-    "target_phase": "Phase 5 - Validation, Inspection, And Migration",
+    "target_phase": "Phase 6 - Adapter Package Propagation",
     "target": {
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh"
@@ -194,7 +209,7 @@
   },
   "adaptive_escalation_count": 0,
   "adaptive_deescalation_count": 0,
-  "adaptive_flawless_streak": 2,
+  "adaptive_flawless_streak": 3,
   "model_history": [
     {
       "phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
@@ -213,6 +228,17 @@
       "run_quality": "flawless",
       "adaptive_action": "none",
       "target_phase": "Phase 5 - Validation, Inspection, And Migration",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "target_source": "defaults",
+      "retarget_status": "not_needed"
+    },
+    {
+      "phase": "Phase 5 - Validation, Inspection, And Migration",
+      "completed_at": "2026-06-01T14:58:55Z",
+      "run_quality": "flawless",
+      "adaptive_action": "none",
+      "target_phase": "Phase 6 - Adapter Package Propagation",
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh",
       "target_source": "defaults",

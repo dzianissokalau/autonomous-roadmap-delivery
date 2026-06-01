@@ -531,3 +531,79 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-4`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-5` and start
   Phase 5 - Validation, Inspection, And Migration.
+
+## Phase 5 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-5`
+
+### Scope
+
+- Make approval, adaptive model, self-pause, and run-log policy surfaces visible
+  in validation and inspection output.
+- Add migration guidance for existing automations to opt in per automation.
+- Keep automatic policy migration and adapter package propagation out of Phase
+  5 scope.
+
+### Changes
+
+- Added validation checks that fail unsafe delegated approval state when durable
+  state claims delegated approval but the current policy is missing or falling
+  back to conservative behavior.
+- Extended inspect output with `autonomy_mode`, `allowed_operations`,
+  `last_run_quality`, `adaptive_model_decision`, and `pause_status`.
+- Added `run_quality` and `adaptive_action` to new progress run-log entries and
+  extended `schemas/automation_run_log.schema.json` to validate those fields
+  when present.
+- Updated migration docs and the automation index with conservative legacy
+  fallback, per-automation policy opt-in, adaptive caps, and pause evidence.
+- Added targeted tests for approval-state mismatches, inspect summaries,
+  progress run-log entries, and run-log schema coverage.
+- Advanced the roadmap header and delivery state to Phase 6 after the delivered
+  review verdict. The Phase 5 to Phase 6 retarget plan classified the run as
+  `flawless`; adaptive action was `none`, and the saved automation already
+  matched `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_schema_validation tests.test_quality_gates -v`:
+  passed, 13 tests.
+- `python3 -m unittest tests.test_smoke_demo -v`:
+  passed, 5 tests.
+- `python3 -m unittest tests.test_helper_scripts -v`:
+  passed, 48 tests.
+- `python3 -m unittest discover -s tests -v`:
+  passed, 157 tests with 1 skipped optional Claude binary smoke test.
+- `python3 scripts/check_release_privacy.py --repo-root .`:
+  passed, scanned 117 files with no findings.
+- `git diff --check`:
+  passed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected dirty-worktree warning during Phase 5 edits.
+- `python3 -m roadmap_delivery.cli inspect --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json`:
+  passed with only the expected dirty-worktree warning during Phase 5 edits.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 5 - Validation, Inspection, And Migration' --json`:
+  passed; Phase 6 uses policy defaults and no retarget was needed.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-5-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Adapter package propagation is intentionally deferred to Phase 6.
+- This automation still has no `approval_policy.json`; conservative fallback
+  remains intentional until an explicit policy opt-in.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-6` and start
+  Phase 6 - Adapter Package Propagation.

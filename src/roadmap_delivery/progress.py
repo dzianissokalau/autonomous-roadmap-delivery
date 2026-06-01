@@ -225,6 +225,8 @@ def build_run_result(
         ),
         "run_log_entries": len(run_log_entries),
         "run_log_errors": run_log_errors,
+        "last_run_quality": state.get("last_run_quality"),
+        "last_adaptive_action": state.get("last_adaptive_action"),
         "signature_input": signature["signature_input"],
         "stall_pause_decision": None,
     }
@@ -324,6 +326,8 @@ def record_run_result(
         "current_phase": state.get("current_phase"),
         "status": state.get("status"),
         "last_delivered_phase": state.get("last_delivered_phase"),
+        "run_quality": state.get("last_run_quality") if isinstance(state.get("last_run_quality"), str) else None,
+        "adaptive_action": state.get("last_adaptive_action") if isinstance(state.get("last_adaptive_action"), dict) else None,
         "progress_signature": result["progress_signature"],
         "previous_progress_signature": result["previous_progress_signature"],
         "progress_detected": result["progress_detected"],

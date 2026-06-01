@@ -80,3 +80,29 @@ Review file: `automation/autonomous-operation-modes-and-adaptive-control/reviews
 ### Next Action
 
 - Review/fix state has advanced to Phase 4 with no active review file.
+
+## Phase 4 - 2026-06-01 - Review Iteration 1
+
+Status: delivered
+Review file: `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-4-review-iteration-1.md`
+
+### Findings
+
+- No findings.
+
+### Next Action
+
+- Review/fix state has advanced to Phase 5 with no active review file.
+
+## Phase 5 - 2026-06-01 - Review Iteration 1
+
+Status: delivered
+Review file: `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-5-review-iteration-1.md`
+
+### Findings
+
+- No findings.
+
+### Next Action
+
+- Review/fix state has advanced to Phase 6 with no active review file.

@@ -35,6 +35,12 @@
             "null"
           ]
         },
+        "run_quality": {
+          "$ref": "#/$defs/nullable_run_quality"
+        },
+        "adaptive_action": {
+          "$ref": "#/$defs/nullable_adaptive_action"
+        },
         "progress_signature": {
           "type": "string",
           "minLength": 1
@@ -107,6 +113,12 @@
             "null"
           ]
         },
+        "run_quality": {
+          "$ref": "#/$defs/nullable_run_quality"
+        },
+        "adaptive_action": {
+          "$ref": "#/$defs/nullable_adaptive_action"
+        },
         "progress": {
           "type": "string",
           "minLength": 1
@@ -120,5 +132,65 @@
       },
       "additionalProperties": true
     }
-  ]
+  ],
+  "$defs": {
+    "run_quality": {
+      "type": "string",
+      "enum": [
+        "flawless",
+        "delivered_with_fixes",
+        "verification_failed",
+        "review_needs_fix",
+        "blocked_local_repairable",
+        "blocked_human_required",
+        "stalled",
+        "retarget_failed",
+        "completion_closeout_failed"
+      ]
+    },
+    "nullable_run_quality": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "flawless",
+        "delivered_with_fixes",
+        "verification_failed",
+        "review_needs_fix",
+        "blocked_local_repairable",
+        "blocked_human_required",
+        "stalled",
+        "retarget_failed",
+        "completion_closeout_failed",
+        null
+      ]
+    },
+    "nullable_adaptive_action": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_quality": {
+          "$ref": "#/$defs/run_quality"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "target_changed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
 }

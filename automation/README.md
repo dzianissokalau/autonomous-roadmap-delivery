@@ -23,10 +23,14 @@ automation/
   roadmap_closeout_checklist.md
   <roadmap_slug>/
     automation_guide.md
+    approval_policy.json
     delivery_state.json
     delivery_log.md
     review_fix_state.json
     review_fix_log.md
+    phase_model_policy.json
+    automation_run_log.jsonl
+    alerts/
     reviews/
       ...
 ```
@@ -42,4 +46,14 @@ in the project root or `../roadmaps/`.
 | `../roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md` | Delivered | Complete | `phase-model-policy-and-stall-control` hourly, PAUSED | `phase-model-policy-and-stall-control/delivery_state.json` |
 | `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed | Complete | `framework-core-and-release-readiness` hourly, PAUSED | `framework-core-and-release-readiness/delivery_state.json` |
 | `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` | Completed | Complete | `multi-host-adapter-and-claude-plugin` hourly, PAUSED | `multi-host-adapter-and-claude-plugin/delivery_state.json` |
-| `../roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md` | In Progress | Phase 1 - Approval Policy Schema And Setup UX | `autonomous-operation-modes-and-adaptive-control` hourly, ACTIVE | `autonomous-operation-modes-and-adaptive-control/delivery_state.json` |
+| `../roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md` | In Progress | Phase 6 - Adapter Package Propagation | `autonomous-operation-modes-and-adaptive-control` hourly, ACTIVE | `autonomous-operation-modes-and-adaptive-control/delivery_state.json` |
+
+## Migration Notes
+
+Older automations without `approval_policy.json` remain valid in conservative
+fallback mode. Add the policy file per automation, validate it, and then opt in
+delegated operations only when the roadmap owner has approved that exact
+surface. Inspect and validate reports show the effective autonomy mode,
+approved operations, run quality, adaptive decision, and pause status so the
+operator can distinguish legacy conservative behavior from malformed delegated
+policy.

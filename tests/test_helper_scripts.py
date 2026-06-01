@@ -503,10 +503,21 @@ class HelperScriptTests(unittest.TestCase):
     def test_progress_signature_first_run_records_state_and_log(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, write_model_policy=True)
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["last_run_quality"] = "flawless"
+            state["last_adaptive_action"] = {
+                "action": "none",
+                "run_quality": "flawless",
+                "target": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                "target_changed": False,
+            }
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
             progress = self.run_progress(fixture, "--record-run", "--timestamp", "2026-05-21T12:00:00Z")
-            state = json.loads((fixture.state_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            state = json.loads(state_path.read_text(encoding="utf-8"))
             run_log = (fixture.state_dir / "automation_run_log.jsonl").read_text(encoding="utf-8").splitlines()
+            log_entry = json.loads(run_log[0])
 
             self.assertTrue(progress["progress_detected"])
             self.assertEqual(progress["run_count"], 1)
@@ -514,7 +525,9 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(state["last_progress_signature"], progress["progress_signature"])
             self.assertEqual(state["last_progress_at"], "2026-05-21T12:00:00Z")
             self.assertEqual(len(run_log), 1)
-            self.assertTrue(json.loads(run_log[0])["progress_detected"])
+            self.assertTrue(log_entry["progress_detected"])
+            self.assertEqual(log_entry["run_quality"], "flawless")
+            self.assertEqual(log_entry["adaptive_action"]["action"], "none")
 
     def test_progress_detected_resets_stall_count(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -738,6 +751,30 @@ class HelperScriptTests(unittest.TestCase):
                 decisions = report["approval_policy"]["operation_decisions"]
                 self.assertEqual(decisions["retarget_saved_automation"]["decision"], "ask")
                 self.assertEqual(decisions["promote_to_main"]["decision"], "forbidden")
+            self.assertEqual(inspect["autonomy_mode"], "conservative")
+            self.assertIn("run_verification", inspect["allowed_operations"])
+            self.assertEqual(inspect["pause_status"]["completion_pause_decision"]["decision"], "ask")
+            self.assertIsNone(inspect["last_run_quality"])
+            self.assertIsNone(inspect["adaptive_model_decision"]["run_quality"])
+
+    def test_validate_errors_on_delegated_state_without_policy_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp)
+            state_path = fixture.state_dir / "delivery_state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["approval_mode"] = "delegated_local"
+            state["last_approval_policy_readback"] = {
+                "status": "valid",
+                "approval_mode": "delegated_local",
+                "approved_operations": ["retarget_saved_automation"],
+            }
+            state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+            validate = self.run_validate(fixture)
+
+            codes = self.error_codes(validate)
+            self.assertIn("approval_policy_state_mismatch", codes)
+            self.assertIn("approval_policy_readback_stale", codes)
 
     def test_root_automation_layout_is_supported_by_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:

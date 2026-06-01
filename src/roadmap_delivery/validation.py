@@ -958,6 +958,83 @@ def validate_completion_flow(
     return result
 
 
+def validate_approval_policy_state(
+    state: Dict[str, Any],
+    approval_policy: Optional[Dict[str, Any]],
+    state_file: Path,
+    errors: List[Finding],
+    warnings: List[Finding],
+) -> Dict[str, Any]:
+    report: Dict[str, Any] = {
+        "state_approval_mode": state.get("approval_mode"),
+        "effective_approval_mode": approval_policy.get("approval_mode") if approval_policy else None,
+        "fallback_reason": approval_policy.get("fallback_reason") if approval_policy else None,
+        "last_readback_status": None,
+    }
+    if approval_policy is None:
+        return report
+
+    state_mode = state.get("approval_mode")
+    effective_mode = approval_policy.get("approval_mode")
+    fallback_reason = approval_policy.get("fallback_reason")
+    if isinstance(state_mode, str) and state_mode:
+        if fallback_reason == "missing_policy" and state_mode != "conservative":
+            add(
+                errors,
+                "approval_policy_state_mismatch",
+                f"State approval_mode {state_mode!r} requires an approval_policy.json, but validation fell back to conservative because the policy is missing.",
+                state_file,
+            )
+        elif effective_mode and state_mode != effective_mode:
+            add(
+                errors,
+                "approval_policy_state_mismatch",
+                f"State approval_mode {state_mode!r} differs from effective approval mode {effective_mode!r}.",
+                state_file,
+            )
+
+    readback = state.get("last_approval_policy_readback")
+    if readback is None:
+        return report
+    if not isinstance(readback, dict):
+        add(errors, "invalid_approval_policy_readback", "last_approval_policy_readback must be an object when present.", state_file)
+        return report
+
+    status = normalized(readback.get("status"))
+    report["last_readback_status"] = status
+    if status == "valid" and fallback_reason:
+        add(
+            errors,
+            "approval_policy_readback_stale",
+            f"State records a valid approval-policy readback, but current validation is using {fallback_reason!r} conservative fallback.",
+            state_file,
+        )
+    readback_mode = readback.get("approval_mode")
+    if isinstance(readback_mode, str) and effective_mode and readback_mode != effective_mode:
+        add(
+            errors,
+            "approval_policy_readback_stale",
+            f"Recorded approval-policy readback mode {readback_mode!r} differs from effective mode {effective_mode!r}.",
+            state_file,
+        )
+
+    readback_operations = readback.get("approved_operations")
+    if status == "valid" and isinstance(readback_operations, list):
+        recorded = {item for item in readback_operations if isinstance(item, str)}
+        effective = set(approval_policy.get("approved_operations") or [])
+        if recorded != effective:
+            add(
+                errors,
+                "approval_policy_readback_stale",
+                "Recorded approved operations differ from the effective approval policy.",
+                state_file,
+            )
+    elif status == "valid" and readback_operations is not None:
+        add(errors, "invalid_approval_policy_readback", "last_approval_policy_readback.approved_operations must be an array when present.", state_file)
+
+    return report
+
+
 def validate_final_deep_review_gate(
     repo_root: Path,
     state_dir: Optional[Path],
@@ -1225,6 +1302,13 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     approval_policy = read_approval_policy(repo_root, state_file, state) if state_file else None
     if approval_policy is not None:
         errors.extend(approval_policy.get("errors", []))
+    approval_policy_state = validate_approval_policy_state(
+        state,
+        approval_policy,
+        state_file,
+        errors,
+        warnings,
+    ) if state_file else None
 
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy: Dict[str, Any] = {}
@@ -1286,6 +1370,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "blocked_remediation_guard": blocked_remediation_guard,
         "activation_reconciliation": activation_reconciliation,
         "approval_policy": approval_policy,
+        "approval_policy_state": approval_policy_state,
         "model_policy": model_policy or None,
         "schema_validation": {
             "schema_paths": schema_paths,

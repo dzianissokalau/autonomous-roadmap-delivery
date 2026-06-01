@@ -466,6 +466,22 @@ def inspect_model_policy(
     return result
 
 
+def adaptive_model_decision_summary(state: Optional[Dict[str, Any]], model_policy: Dict[str, Any]) -> Dict[str, Any]:
+    if state and isinstance(state.get("last_adaptive_action"), dict):
+        return dict(state["last_adaptive_action"])
+    return {
+        "action": None,
+        "run_quality": state.get("last_run_quality") if state else None,
+        "target": {
+            "model": model_policy.get("required_model"),
+            "reasoning_effort": model_policy.get("required_reasoning_effort"),
+        },
+        "target_changed": False,
+        "source": model_policy.get("selection_source"),
+        "reason": model_policy.get("selection_reason"),
+    }
+
+
 def lifecycle_matches(repo_root: Path, forms: Dict[str, Optional[str]]) -> List[str]:
     roadmaps_dir = repo_root / "roadmaps"
     if not roadmaps_dir.is_dir():
@@ -667,6 +683,13 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     completion_pause_decision = approval_decision_for_pause_context(approval_policy or {}, "completion")
     completion_pause_required = all_phases_complete and str(automation_status).upper() == "ACTIVE"
     automation_should_be_paused = all_phases_complete and str(automation_status).upper() != "PAUSED"
+    pause_status = {
+        "automation_status": automation_status,
+        "completion_pause_required": completion_pause_required,
+        "completion_pause_decision": completion_pause_decision,
+        "automation_should_be_paused": automation_should_be_paused,
+        "last_automation_pause": state.get("last_automation_pause") if state else None,
+    }
     if all_phases_complete and str(automation_status).upper() == "ACTIVE":
         add_warning(
             warnings,
@@ -693,12 +716,16 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "hard_stop_guard": hard_stop_guard,
         "activation_reconciliation": activation_reconciliation,
         "approval_policy": approval_policy,
+        "autonomy_mode": approval_policy.get("approval_mode") if approval_policy else None,
+        "allowed_operations": approval_policy.get("approved_operations") if approval_policy else [],
         "required_model": model_policy.get("required_model"),
         "required_reasoning_effort": model_policy.get("required_reasoning_effort"),
         "configured_automation_model": model_policy.get("configured_model"),
         "configured_automation_reasoning_effort": model_policy.get("configured_reasoning_effort"),
         "model_mismatch": model_policy.get("model_mismatch"),
         "reasoning_mismatch": model_policy.get("reasoning_mismatch"),
+        "last_run_quality": state.get("last_run_quality") if state else None,
+        "adaptive_model_decision": adaptive_model_decision_summary(state, model_policy),
         "run_count": state.get("run_count") if state else None,
         "next_run_count": progress_report.get("run_count"),
         "stalled_run_count": state.get("stalled_run_count") if state else None,
@@ -723,6 +750,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "completion_pause_decision": completion_pause_decision,
         "automation_should_be_paused": automation_should_be_paused,
         "last_automation_pause": state.get("last_automation_pause") if state else None,
+        "pause_status": pause_status,
         "final_deep_review_status": final_deep_review["status"],
         "final_deep_review_prompt": final_deep_review["prompt"],
         "final_deep_review_prompt_prepared": final_deep_review["prompt_prepared"],
@@ -771,12 +799,16 @@ def main(argv: Optional[List[str]] = None) -> int:
             "hard_stop_guard",
             "activation_reconciliation",
             "approval_policy",
+            "autonomy_mode",
+            "allowed_operations",
             "required_model",
             "required_reasoning_effort",
             "configured_automation_model",
             "configured_automation_reasoning_effort",
             "model_mismatch",
             "reasoning_mismatch",
+            "last_run_quality",
+            "adaptive_model_decision",
             "run_count",
             "next_run_count",
             "stalled_run_count",
@@ -796,6 +828,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "completion_alert_present",
             "completion_pause_required",
             "automation_should_be_paused",
+            "pause_status",
             "final_deep_review_status",
             "final_deep_review_prompt",
             "final_deep_review_prompt_prepared",

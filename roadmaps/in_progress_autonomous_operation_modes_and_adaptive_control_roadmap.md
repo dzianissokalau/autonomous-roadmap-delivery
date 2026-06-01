@@ -1,9 +1,9 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
 Status: In Progress
-Current phase: Phase 5 - Validation, Inspection, And Migration
+Current phase: Phase 6 - Adapter Package Propagation
 Last updated: 2026-06-01
-Next action: Deliver Phase 5 validation, inspection, and migration surfaces.
+Next action: Deliver Phase 6 adapter package propagation.
 Blocked by: None.
 
 ## Purpose

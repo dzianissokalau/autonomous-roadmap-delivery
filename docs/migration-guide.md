@@ -30,6 +30,45 @@ moves canonical behavior into:
 7. Use `scripts/build_codex_package.py --check` to prove the committed Codex
    package matches canonical core sources and the Codex adapter overlay.
 
+## Autonomy Policy Opt-In
+
+Existing automations stay conservative until each automation opts in. Migrate
+one roadmap automation at a time:
+
+1. Create `automation/<roadmap-slug>/approval_policy.json` with
+   `approval_mode: "conservative"` first.
+2. Run `python3 -m roadmap_delivery.cli validate ... --json` and confirm the
+   effective approval mode, approved operations, and pause decisions are
+   visible in the report.
+3. Change to `delegated_local`, `delegated_delivery`, or `custom` only after
+   the operator accepts the exact operation set.
+4. Keep `retarget_saved_automation`, `pause_saved_automation`, and
+   `push_current_phase_branch` disabled unless the automation owner has
+   explicitly approved those surfaces.
+5. Never opt in operations listed under `never_auto`; validation treats those
+   as forbidden even when an automation is otherwise delegated.
+
+If `approval_policy.json` is missing, validators and inspectors use the
+conservative legacy fallback. That is a valid legacy state. A state file that
+claims delegated approval while the policy file is missing or invalid is not a
+valid migration state.
+
+## Adaptive And Pause Evidence
+
+When adopting adaptive model policy, add `adaptive_model_policy` to
+`phase_model_policy.json` and keep caps explicit. The validator should show the
+required model, configured model, run quality, and adaptive decision before any
+saved automation retarget is attempted.
+
+Completion and stall self-pause require readback evidence:
+
+- `last_automation_pause` records the attempted pause decision and result.
+- Successful pauses must include `PAUSED` readback.
+- Completed roadmaps must keep a completed operator alert and final review
+  evidence, even when a human still needs to pause an active automation.
+- Run-log entries may include `run_quality` and `adaptive_action` so repeated
+  runs can be audited without reopening older state snapshots.
+
 ## Validation Commands
 
 ```bash
