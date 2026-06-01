@@ -2,9 +2,9 @@
 
 All notable local framework release changes are recorded here.
 
-## 0.1.0 - 2026-05-25
+## 0.1.0 - 2026-06-01
 
-Initial framework-core release candidate.
+Initial framework-core and multi-host adapter release candidate.
 
 ### Added
 

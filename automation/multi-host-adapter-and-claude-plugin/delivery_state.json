@@ -5,11 +5,11 @@
   "current_phase": "Complete",
   "branch": "codex/multi-host-adapter-and-claude-plugin-finalization",
   "status": "completed",
-  "review_iterations": 1,
+  "review_iterations": 2,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "finalization",
-    "completed_at": "2026-06-01T00:57:13Z",
+    "phase": "post-finalization audit repair",
+    "completed_at": "2026-06-01T07:05:02Z",
     "status": "passed",
     "checks": [
       {
@@ -20,7 +20,7 @@
       {
         "command": "python3 scripts/build_release.py --check",
         "status": "passed",
-        "details": "Built reproducible 0.1.0 source, Codex, Claude, schema, CLI, generic markdown, manifest, and checksum artifacts."
+        "details": "Built reproducible 0.1.0 source, Codex, Claude, schema, CLI, generic markdown, manifest, and checksum artifacts after post-finalization audit repair."
       },
       {
         "command": "python3 scripts/check_release_privacy.py --repo-root .",
@@ -37,33 +37,28 @@
         "status": "passed"
       },
       {
-        "command": "(cd dist && shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256)",
+        "command": "PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json",
         "status": "passed",
-        "details": "All local ignored release artifacts under dist matched the generated checksum file."
-      },
-      {
-        "command": "PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --strict --json",
-        "status": "passed",
-        "details": "Pre-closeout validation reported no errors or warnings."
+        "details": "Post-pause validation reported no errors. Warnings are limited to the paused saved automation prompt still referencing the old in-progress roadmap path."
       },
       {
         "command": "PYTHONPATH=src python3 -m roadmap_delivery.cli inspect --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json",
         "status": "passed",
-        "details": "Pre-closeout inspection reported ACTIVE local gpt-5.5/xhigh automation readback and no warnings."
+        "details": "Post-pause inspection reported PAUSED local gpt-5.5/xhigh automation readback."
       },
       {
         "command": "sed -n '1,260p' /Users/dzianissokalau/.codex/automations/multi-host-adapter-and-claude-plugin/automation.toml",
         "status": "passed",
-        "details": "Saved automation readback was ACTIVE, local, gpt-5.5, xhigh before finalization bookkeeping."
+        "details": "Saved automation readback is PAUSED, local, gpt-5.5, xhigh after operator-approved pause."
       }
     ]
   },
   "last_review": {
     "phase": "finalization",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-1.md",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-2.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-06-01T00:57:13Z",
-    "summary": "Finalization verified all delivered phases, wrote deep-review prompt evidence, marked completion pending pause approval, and preserved human approval boundaries."
+    "reviewed_at": "2026-06-01T07:05:02Z",
+    "summary": "Post-finalization audit repair recorded branch publication and pause provenance, refreshed post-pause verification, reconciled completion evidence, and disposed external deep review findings."
   },
   "last_delivered_phase": "finalization",
   "blocked_reason": null,
@@ -84,17 +79,17 @@
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
     "readback_at": "2026-06-01T06:28:38Z"
   },
-  "run_count": 12,
+  "run_count": 13,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:743ac013208a0c3609dcbabc760b7087478e3cfe79d4a21c17591992de09db36",
-  "last_progress_at": "2026-06-01T01:00:54Z",
+  "last_progress_signature": "sha256:d90632e17dc8acbb3323a282afe521de6ac3351108eb2f4064502a4326fd07e1",
+  "last_progress_at": "2026-06-01T07:05:02Z",
   "last_operator_alert": {
     "kind": "completed",
     "file": "automation/multi-host-adapter-and-claude-plugin/alerts/2026-06-01T00-58-30Z-completed.md",
-    "timestamp": "2026-06-01T00:58:30Z",
-    "reason": "All multi-host adapter and Claude plugin roadmap phases and finalization are delivered; the saved Codex automation remains ACTIVE and needs explicit operator approval to pause.",
-    "next_human_action": "Review the final deep-review prompt, then approve pausing the active automation.",
+    "timestamp": "2026-06-01T07:05:02Z",
+    "reason": "All multi-host adapter and Claude plugin roadmap phases and finalization are delivered; the saved Codex automation is PAUSED and the GitHub review branch publication is recorded.",
+    "next_human_action": "Review the pushed GitHub branch for promotion readiness; publication, main promotion, and installed-skill synchronization remain separate approvals.",
     "notification_sink": "alert_file",
     "notification_status": "local_alert_only"
   },
@@ -120,11 +115,22 @@
     "branch_push_status": "pushed_to_origin",
     "branch_push_remote": "origin",
     "branch_push_completed_at": "2026-06-01T06:30:46Z",
+    "branch_push_operator_approval": "Operator approved publishing the finalization branch for GitHub review before commits 26cafa5 and 4803d3d were pushed.",
     "branch_push_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/multi-host-adapter-and-claude-plugin-finalization",
     "publication_status": "github_review_branch_pushed; release_artifacts_not_published",
     "promotion_status": "not_promoted_without_approval",
     "installed_skill_sync_status": "not_synchronized_without_approval",
-    "saved_automation_prompt_status": "still references the old in-progress roadmap path because app automation config edits were not approved"
+    "saved_automation_prompt_status": "still references the old in-progress roadmap path because app automation prompt edits were not part of this repair approval and the automation is paused",
+    "post_finalization_audit_repair": {
+      "completed_at": "2026-06-01T07:05:02Z",
+      "external_review": "/Users/dzianissokalau/Downloads/multi-host-roadmap-deep_review_results.md",
+      "review_file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-2.md",
+      "operator_repair_and_push_approval": "Operator requested: fix all valid concerns, then push to the github branch.",
+      "completion_alert_reconciled": true,
+      "run_log_reconciled": true,
+      "active_era_verification_superseded": true,
+      "local_path_publication_decision": "Local absolute paths are retained only in automation and roadmap audit artifacts on the GitHub review branch; release-bound privacy scan passes with 0 findings."
+    }
   },
-  "updated_at": "2026-06-01T06:30:46Z"
+  "updated_at": "2026-06-01T07:05:02Z"
 }

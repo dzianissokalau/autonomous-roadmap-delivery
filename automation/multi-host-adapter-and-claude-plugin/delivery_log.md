@@ -778,6 +778,7 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
 - Updated the final deep-review prompt so reviewers can fetch the review branch
   from GitHub instead of relying on local filesystem paths.
 - Reconciled saved automation readback after completion.
+- This was a post-completion administrative update, not a new phase delivery.
 
 ### Changes
 
@@ -786,6 +787,9 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
   `automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md`.
 - Read back the saved Codex automation as `PAUSED`, local, `gpt-5.5`, and
   `xhigh`; recorded completion rather than completion-pending-pause in state.
+- Published the review branch only after operator approval for GitHub review
+  branch publication; release artifact publication and promotion remained
+  explicitly out of scope.
 
 ### Tests And Verification
 
@@ -800,3 +804,106 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
   `https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/multi-host-adapter-and-claude-plugin-finalization`.
 - Release artifact publication and promotion to `main` remain separate
   human-approved actions.
+
+## Post-Finalization Audit Repair - 2026-06-01
+
+Status: completed
+Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
+
+### Scope
+
+- Repaired the finalization audit trail after independent deep review found
+  that post-finalization branch publication and pause readback were newer than
+  the final delivered review artifact and terminal run-log entry.
+- Refreshed verification after PAUSED automation readback so
+  `delivery_state.json` no longer carries ACTIVE-era verification as current
+  evidence.
+- Reconciled the completion alert and run log with the resolved `completed`
+  state.
+
+### Approval And Provenance
+
+- Branch publication approval: the operator explicitly approved publishing the
+  finalization branch for GitHub review before commits `26cafa5` and `4803d3d`
+  were made and pushed.
+- Repair and push approval: the operator explicitly requested this pass to
+  "fix all valid concerns, then push to the github branch".
+- Automation pause evidence: the saved automation config was read back from
+  `/Users/dzianissokalau/.codex/automations/multi-host-adapter-and-claude-plugin/automation.toml`
+  as `PAUSED`, local, `gpt-5.5`, `xhigh` at `2026-06-01T06:28:38Z`.
+  This repair records the readback and does not perform another app automation
+  config edit.
+- Protected operations still not performed: no package publication, no
+  promotion to `main`, no branch deletion, no installed-skill synchronization,
+  no destructive git operation, and no credential use.
+
+### Changes
+
+- Updated the completion alert to describe the resolved `completed` / PAUSED
+  state and added a resolution addendum.
+- Updated `delivery_state.json` with post-pause verification, finalization
+  audit repair fields, and the second finalization review artifact.
+- Added a terminal run-log entry for the completed post-finalization audit
+  repair.
+- Added finalization review iteration 2 to cover the external deep-review
+  findings and their dispositions.
+- Updated the changelog date to match the completed multi-host release
+  candidate scope.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --check`: passed.
+- `python3 scripts/build_release.py --check`: passed; reproducible `0.1.0`
+  source, Codex, Claude, schema, CLI, generic markdown, manifest, and checksum
+  artifacts.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 108
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest discover -s tests -v`: passed, 131 tests with 1
+  expected skip because the local `claude` binary is not installed.
+- `git diff --check`: passed.
+- `PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json`:
+  passed with no errors. Warnings are limited to the paused saved automation
+  prompt still referencing the old in-progress roadmap path; that live app
+  config text was not edited in this repair.
+- `PYTHONPATH=src python3 -m roadmap_delivery.cli inspect --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json`:
+  passed with saved automation readback `PAUSED`, local, `gpt-5.5`, `xhigh`.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-2.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- External Finding 1, missing post-finalization push/pause review and run-log
+  provenance: fixed.
+- External Finding 2, contradictory ACTIVE-era verification in current state:
+  fixed.
+- External Finding 3, stale completion alert and terminal run-log status:
+  fixed.
+- External Finding 4, completion hard-stop ambiguity: fixed by recording the
+  post-completion work as administrative, operator-approved, non-phase-delivery
+  repair.
+- External Finding 5, changelog date/scope mismatch: fixed.
+- External Finding 6, local absolute paths visible on the review branch:
+  accepted and explicitly bounded. They are retained only in automation and
+  roadmap audit artifacts on the review branch, contain no credentials, and
+  remain excluded from release-bound packages; privacy scan passed.
+
+### Residual Risks
+
+- The paused saved automation prompt still references the old in-progress
+  roadmap path. Because the automation is PAUSED and live automation prompt
+  edits were not part of this repair approval, this remains a recorded warning
+  rather than a blocker.
+- Public review-branch audit artifacts include local absolute paths for
+  traceability. They are not release-bound and should be reconsidered before
+  any broader publication beyond this review branch.
+
+### Next Action
+
+- Push the repair commit to
+  `origin/codex/multi-host-adapter-and-claude-plugin-finalization`.
+- After push, the branch is ready for human promotion review; publication,
+  promotion to `main`, and installed-skill sync remain separate approvals.
