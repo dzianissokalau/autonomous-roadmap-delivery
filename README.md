@@ -163,8 +163,8 @@ committed package drifts from those inputs.
   delivered framework hardening roadmap for the canonical core, schemas, shared
   library, CLI, generated Codex adapter, CI, privacy, release, and closeout.
 - `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`:
-  completed companion roadmap for generated host adapters and Claude packaging,
-  pending human approval to pause the active automation.
+  completed companion roadmap for generated host adapters and Claude packaging;
+  the saved automation is paused.
 
 ## Operating Model
 

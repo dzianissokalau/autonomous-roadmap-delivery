@@ -3,7 +3,7 @@
 Status: Completed
 Current phase: Complete
 Last updated: 2026-06-01
-Next action: Review the final deep-review prompt and approve pausing the active Codex automation; publication and promotion remain separate human-approved actions.
+Next action: Review the GitHub-fetchable final deep-review prompt; publication and promotion remain separate human-approved actions.
 Blocked by: None.
 
 ## Purpose
@@ -32,12 +32,12 @@ automation/multi-host-adapter-and-claude-plugin/
 Codex app automation:
 
 - ID: `multi-host-adapter-and-claude-plugin`
-- Status: ACTIVE
+- Status: PAUSED
 - Cadence: hourly
 - Model: `gpt-5.5`
 - Reasoning effort: `xhigh`
 - Execution environment: local
-- Completion state: `completed_pending_pause`
+- Completion state: `completed`
 
 ## Strategic Outcome
 

@@ -1,6 +1,6 @@
 # Multi-Host Adapter And Claude Plugin Delivery Log
 
-Status: Completed pending pause
+Status: Completed
 Roadmap: `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
 State file: `automation/multi-host-adapter-and-claude-plugin/delivery_state.json`
 Review directory: `automation/multi-host-adapter-and-claude-plugin/reviews`
@@ -767,3 +767,35 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
 - Reason: All multi-host adapter and Claude plugin roadmap phases and finalization are delivered; the saved Codex automation remains ACTIVE and needs explicit operator approval to pause.
 - Notification sink: `alert_file`
 - Notification status: `local_alert_only`
+
+## Post-Completion Review Prompt Update - 2026-06-01
+
+Status: completed
+Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
+
+### Scope
+
+- Updated the final deep-review prompt so reviewers can fetch the review branch
+  from GitHub instead of relying on local filesystem paths.
+- Reconciled saved automation readback after completion.
+
+### Changes
+
+- Added the GitHub repository, finalization branch, branch URL, and exact
+  `git clone` / `git fetch` commands to
+  `automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md`.
+- Read back the saved Codex automation as `PAUSED`, local, `gpt-5.5`, and
+  `xhigh`; recorded completion rather than completion-pending-pause in state.
+
+### Tests And Verification
+
+- `git diff --check`: passed.
+- `PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json`:
+  passed with expected warnings only for the stale saved automation prompt path
+  and the intentionally dirty worktree before this bookkeeping commit.
+
+### Next Action
+
+- Push `codex/multi-host-adapter-and-claude-plugin-finalization` to GitHub for
+  deep review; publication and promotion remain separate human-approved
+  actions.

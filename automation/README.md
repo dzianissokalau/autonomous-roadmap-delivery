@@ -40,4 +40,4 @@ in the project root or `../roadmaps/`.
 | `../roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md` | Delivered | Complete | `autonomous-roadmap-delivery-skill` hourly, PAUSED | `autonomous-roadmap-delivery-skill/delivery_state.json` |
 | `../roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md` | Delivered | Complete | `phase-model-policy-and-stall-control` hourly, PAUSED | `phase-model-policy-and-stall-control/delivery_state.json` |
 | `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed | Complete | `framework-core-and-release-readiness` hourly, PAUSED | `framework-core-and-release-readiness/delivery_state.json` |
-| `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` | Completed pending pause | Complete | `multi-host-adapter-and-claude-plugin` hourly, ACTIVE pending pause approval | `multi-host-adapter-and-claude-plugin/delivery_state.json` |
+| `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` | Completed | Complete | `multi-host-adapter-and-claude-plugin` hourly, PAUSED | `multi-host-adapter-and-claude-plugin/delivery_state.json` |

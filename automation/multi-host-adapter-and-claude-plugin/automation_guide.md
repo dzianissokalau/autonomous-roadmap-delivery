@@ -1,6 +1,6 @@
 # Multi-Host Adapter And Claude Plugin Automation Guide
 
-Status: Completed pending pause
+Status: Completed
 Roadmap: `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
 Roadmap slug: `multi-host-adapter-and-claude-plugin`
 State file: `automation/multi-host-adapter-and-claude-plugin/delivery_state.json`
