@@ -11,6 +11,7 @@ From the repository root:
 
 ```bash
 python3 scripts/build_adapters.py --adapter claude --check
+python3 scripts/build_release.py --check
 python3 -m json.tool dist/claude/.claude-plugin/plugin.json >/dev/null
 ```
 
@@ -23,6 +24,17 @@ Claude Code plugin directory untouched.
 export SMOKE_HOME="$(mktemp -d)"
 mkdir -p "$SMOKE_HOME/claude/plugins"
 cp -R dist/claude "$SMOKE_HOME/claude/plugins/roadmap-delivery"
+```
+
+To stage from the local release artifact instead, build artifacts into `dist/`
+and extract the Claude plugin package into the same isolated plugin directory:
+
+```bash
+python3 scripts/build_release.py --output-dir dist --json
+mkdir -p "$SMOKE_HOME/claude/plugins/roadmap-delivery"
+tar -xzf dist/roadmap-delivery-claude-plugin-0.1.0.tar.gz \
+  -C "$SMOKE_HOME/claude/plugins/roadmap-delivery" \
+  --strip-components=1
 ```
 
 If the `claude` binary is installed, this optional host check should return
@@ -93,3 +105,10 @@ python3 -m roadmap_delivery.cli validate \
 
 For blocked-remediation and model-policy-mismatch fixtures, follow
 `examples/demo-roadmap/runtime-checklist.md` in a temporary copy of the fixture.
+
+## Updating An Active Plugin
+
+Only update a live Claude Code plugin directory after adapter checks, release
+checks, privacy scanning, and demo validation pass. Installed-plugin
+synchronization is a human-approved operation; keep a backup of the previous
+plugin directory and do not overwrite unrelated local plugins.

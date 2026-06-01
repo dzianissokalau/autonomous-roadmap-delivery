@@ -17,12 +17,17 @@ DEFAULT_RELEASE_PATHS = (
     "SECURITY.md",
     "LICENSE",
     "pyproject.toml",
+    "CHANGELOG.md",
+    "VERSION",
     "docs",
     "core",
     "schemas",
     "src",
     "scripts",
     "adapters",
+    "host-capabilities",
+    "config",
+    "dist/claude",
     "skill/roadmap-delivery-skill",
 )
 TEXT_SUFFIXES = {

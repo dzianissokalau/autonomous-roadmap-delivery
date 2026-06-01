@@ -10,6 +10,7 @@ From the repository root:
 
 ```bash
 python3 scripts/build_adapters.py --adapter codex --check
+python3 scripts/build_release.py --check
 ```
 
 ## Stage An Isolated Install
@@ -22,6 +23,17 @@ export SMOKE_HOME="$(mktemp -d)"
 mkdir -p "$SMOKE_HOME/.codex/skills"
 cp -R skill/roadmap-delivery-skill \
   "$SMOKE_HOME/.codex/skills/roadmap-delivery-skill"
+```
+
+To stage from the local release artifact instead, build artifacts into `dist/`
+and extract the Codex package into the same isolated package directory:
+
+```bash
+python3 scripts/build_release.py --output-dir dist --json
+mkdir -p "$SMOKE_HOME/.codex/skills/roadmap-delivery-skill"
+tar -xzf dist/roadmap-delivery-codex-skill-0.1.0.tar.gz \
+  -C "$SMOKE_HOME/.codex/skills/roadmap-delivery-skill" \
+  --strip-components=1
 ```
 
 If the `codex` binary is installed, this optional host check should return
@@ -90,3 +102,10 @@ PYTHONPATH="$PWD/src" \
 
 For blocked-remediation and model-policy-mismatch fixtures, follow
 `examples/demo-roadmap/runtime-checklist.md` in a temporary copy of the fixture.
+
+## Updating An Active Install
+
+Only update a live Codex home after adapter checks, release checks, privacy
+scanning, and demo validation pass. Installed-skill synchronization is a
+human-approved operation; keep a backup of the previous
+`roadmap-delivery-skill` directory and do not overwrite unrelated local skills.

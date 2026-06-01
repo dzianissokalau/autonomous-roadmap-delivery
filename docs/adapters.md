@@ -10,7 +10,7 @@ that workflow.
 | Adapter | Status | Default build | Purpose |
 |---|---|---:|---|
 | `codex` | Supported package | Yes | Generated Codex skill package. |
-| `claude` | Roadmap package | Yes | Generated Claude plugin package. |
+| `claude` | Supported local plugin package | Yes | Generated Claude plugin package. |
 | `generic` | Documentation template | No | Markdown and schema pack for future adapter planning. |
 
 The generic adapter is intentionally not a support claim for Continue, Cline,

@@ -124,7 +124,7 @@ class ProviderConfigTests(unittest.TestCase):
                 self.assertIn("does not prove the active runner", normalized)
 
         self.assertIn("provider-neutral model-role guidance", claude_readme)
-        self.assertIn("does not claim live runtime support", claude_readme)
+        self.assertIn("Live Claude Code loading remains an optional maintainer", claude_readme)
 
 
 if __name__ == "__main__":

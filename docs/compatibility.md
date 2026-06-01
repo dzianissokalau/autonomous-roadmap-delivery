@@ -1,7 +1,8 @@
 # Compatibility
 
-This document records the support boundary for the framework core and the
-Codex adapter after the framework hardening migration.
+This document records the support boundary for the framework core, generated
+Codex skill package, generated Claude plugin package, and future-adapter
+planning surface.
 
 ## Supported Surfaces
 
@@ -15,10 +16,12 @@ Codex adapter after the framework hardening migration.
 | State schema version 1 | Supported | Current artifacts validate against `schemas/delivery_state.schema.json`. |
 | Legacy states without schema version | Compatibility mode | Accepted where legacy behavior is explicitly warning-backed. |
 | Model policy file | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
-| Codex package generation | Supported | `scripts/build_codex_package.py --check` verifies committed output. |
-| Local release artifacts | Supported | `scripts/build_release.py --check` verifies reproducible local artifacts. |
+| Adapter package generation | Supported | `scripts/build_adapters.py --check` verifies committed Codex and Claude output. |
+| Codex package generation | Supported | `scripts/build_codex_package.py --check` remains a compatibility wrapper check. |
+| Claude plugin package | Supported local package | Generated under `dist/claude/` with skill, reviewer agent, hooks, and references. |
+| Generic markdown pack | Documentation template | Built only as an explicit release artifact for future adapter planning. |
+| Local release artifacts | Supported | `scripts/build_release.py --check` verifies reproducible source, Codex, Claude, schema, CLI, and generic bundles. |
 | Host capability metadata | Supported | `host-capabilities/codex.yaml` and `host-capabilities/claude.yaml` define the adapter support contract. |
-| Claude plugin package | Active roadmap | Planned by the multi-host adapter roadmap; not installable until the Claude package phases are delivered. |
 
 ## Host Capability Notes
 
@@ -27,10 +30,16 @@ tools, filesystem permissions, model selection, reasoning effort, and
 automation scheduling. The framework validates saved automation config when it
 is available, but it does not switch the active model from prompt text.
 
-Claude and other host adapters should consume the same `core/`, `schemas/`,
-and shared library contracts. Any host-specific differences must be represented
-as explicit capability metadata and parity tests in the active multi-host
-roadmap.
+Claude consumes the same `core/`, `schemas/`, and shared library contracts
+through a generated plugin package under `dist/claude/`. Offline package
+structure checks, adapter parity tests, and demo-roadmap runtime validation are
+part of the maintained local support boundary. Live Claude Code loading is an
+optional maintainer smoke check when the `claude` binary is available.
+
+Future host adapters should consume the same `core/`, `schemas/`, and shared
+library contracts. Any host-specific differences must be represented as
+explicit capability metadata, parity tests, smoke checks, and compatibility
+notes before a host is listed as supported.
 
 ## Host Capability Contract
 
@@ -38,8 +47,10 @@ The multi-host adapter work uses explicit capability files instead of burying
 host assumptions in prompts:
 
 - `host-capabilities/codex.yaml` records the current Codex baseline.
-- `host-capabilities/claude.yaml` records the planned Claude target and known
-  gaps before implementation.
+- `host-capabilities/claude.yaml` records the supported local Claude plugin
+  package and host-specific fallback boundaries.
+- `host-capabilities/generic.yaml` records the documentation-only generic
+  adapter template for future host planning.
 
 Parity levels:
 
@@ -53,8 +64,9 @@ Parity levels:
 
 Claude support is a required-parity target for the core phase-gated workflow,
 file-backed state, validation, review artifacts, and release privacy gates. It
-is a best-effort target for host-specific scheduling, hooks, subagents, and
-approval UX until the Claude plugin phases prove the exact runtime surfaces.
+uses host-specific fallbacks for recurring automation, model/reasoning
+readback, hooks, subagents, and approval UX where Claude Code does not expose
+the same surfaces as Codex.
 
 ## Claude Hook Safety Boundary
 

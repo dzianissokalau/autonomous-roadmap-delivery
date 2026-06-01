@@ -1,7 +1,7 @@
 schema_version: 1
 host: claude
 updated: 2026-05-31
-support_status: planned
+support_status: supported_local_plugin_package
 parity_role: first_additional_host
 contract:
   supported_means:
@@ -12,25 +12,30 @@ contract:
 capabilities:
   skill_instruction_packaging:
     parity_level: required_parity
-    status: planned
-    target_artifacts:
+    status: supported
+    evidence:
       - adapters/claude/
       - dist/claude/
   agent_or_subagent_support:
     parity_level: host_specific_enhancement
-    status: planned_if_runtime_exposes_agent_surface
+    status: packaged_reviewer_agent
     fallback: same-context review with explicit limitation, or an external review prompt artifact
+    evidence:
+      - dist/claude/agents/reviewer.md
   hooks_or_guards:
     parity_level: host_specific_enhancement
-    status: planned
+    status: generated_plugin_hooks
     fallback: repository validators, blocked state, and local alert files
+    evidence:
+      - dist/claude/hooks/hooks.json
+      - dist/claude/hooks/roadmap_delivery_safety.py
   recurring_automation:
     parity_level: unsupported_by_host
     status: not_assumed
     fallback: manual or host-runner scheduled execution against repository artifacts
   model_selection:
     parity_level: required_parity
-    status: planned_runner_contract
+    status: provider_neutral_runner_contract
     guard: provider-neutral phase_model_policy.json maps model roles to host runner configuration
   filesystem_sandboxing:
     parity_level: required_parity
@@ -47,5 +52,5 @@ capabilities:
       - installed_plugin_sync
   mcp_or_tool_integration:
     parity_level: host_specific_enhancement
-    status: planned_when_available
+    status: supported_when_tools_are_available
     fallback: local CLI validation and file-backed inspection

@@ -32,17 +32,19 @@ Claude hook guards for roadmap delivery safety reminders. It also includes
 provider-neutral model-role guidance that records when a host cannot prove or
 set a reasoning-effort value.
 
-## Draft Local Test
+## Local Checks
 
 1. Regenerate the package from the repository root:
    `python3 scripts/build_adapters.py --adapter claude --write`
-2. Load the generated plugin in Claude Code:
-   `claude --plugin-dir ./dist/claude`
-3. Invoke the skill as
-   `/roadmap-delivery:roadmap-delivery-skill <roadmap path or automation id>`.
+2. Check committed output:
+   `python3 scripts/build_adapters.py --adapter claude --check`
+3. Build local release artifacts:
+   `python3 scripts/build_release.py --check`
 
-This package does not claim live runtime support yet. Later roadmap phases add
-smoke tests and release artifacts.
+The package is verified by offline structure checks and local demo-roadmap
+runtime validation. Live Claude Code loading remains an optional maintainer
+smoke check when the `claude` binary is available; publication or installed
+plugin synchronization still requires explicit human approval.
 """
 
 

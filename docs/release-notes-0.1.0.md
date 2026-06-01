@@ -15,6 +15,10 @@ has not been published to an external package registry.
   CLI commands from `src/roadmap_delivery/`.
 - `skill/roadmap-delivery-skill/` is a generated Codex package snapshot backed
   by adapter templates and drift checks.
+- `dist/claude/` is a generated Claude plugin package snapshot with the main
+  skill, reviewer agent, safety hooks, and canonical references.
+- A documentation-only generic markdown pack is built for future adapter
+  planning without claiming support for named hosts.
 - CI and release-check workflows run local tests, package checks, schema
   checks, privacy scanning, and release reproducibility checks.
 - `examples/demo-roadmap/` provides an offline fixture for smoke testing the
@@ -24,7 +28,7 @@ has not been published to an external package registry.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 scripts/build_codex_package.py --check
+python3 scripts/build_adapters.py --check
 python3 scripts/build_release.py --check
 python3 scripts/check_release_privacy.py --repo-root .
 git diff --check
@@ -34,6 +38,11 @@ git diff --check
 
 - Existing Codex users can continue installing from
   `skill/roadmap-delivery-skill/`.
+- Claude users can stage the generated local plugin package from
+  `dist/claude/` or the local release artifact, but live Claude Code loading is
+  still a maintainer smoke check when the host binary is available.
+- The generic markdown pack is a planning artifact, not a supported runtime
+  integration for future named hosts.
 - Existing helper script paths remain available as wrappers.
 - Legacy state artifacts remain supported where compatibility warnings are
   explicit.

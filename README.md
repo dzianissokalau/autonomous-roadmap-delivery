@@ -310,8 +310,10 @@ release artifacts use `VERSION` for archive names, manifests, and checksums.
 
 - source archive
 - Codex skill package
+- Claude plugin package
 - schema bundle
 - CLI source package
+- generic markdown pack for future adapter planning
 - release manifest
 - SHA-256 checksum file
 
@@ -324,8 +326,10 @@ python3 scripts/build_release.py --output-dir dist --json
 python3 scripts/check_release_privacy.py --repo-root . \
   --bundle dist/roadmap-delivery-0.1.0-source.tar.gz \
   --bundle dist/roadmap-delivery-codex-skill-0.1.0.tar.gz \
+  --bundle dist/roadmap-delivery-claude-plugin-0.1.0.tar.gz \
   --bundle dist/roadmap-delivery-schemas-0.1.0.tar.gz \
-  --bundle dist/roadmap-delivery-cli-0.1.0.tar.gz
+  --bundle dist/roadmap-delivery-cli-0.1.0.tar.gz \
+  --bundle dist/roadmap-delivery-generic-markdown-pack-0.1.0.tar.gz
 ```
 
 Release links:

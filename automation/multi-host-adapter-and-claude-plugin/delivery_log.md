@@ -611,3 +611,85 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-9`
 
 - Phase 10 is ready to start on
   `codex/multi-host-adapter-and-claude-plugin-phase-10`.
+
+## Phase 10 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-phase-10`
+
+### Scope
+
+- Delivered Phase 10 only: Compatibility Docs And Release Artifacts.
+- Built publish-ready local release artifacts for the supported Codex and
+  Claude packages plus schema, CLI, source, and generic markdown bundles.
+- Updated release-bound docs and capability metadata to reflect the current
+  support boundary and keep publication human-approved.
+
+### Changes
+
+- Extended `scripts/build_release.py` to run adapter checks, package the
+  generated Claude plugin, render and package the generic markdown pack, and
+  validate Codex, Claude, and generic artifact contents before success.
+- Extended `scripts/check_release_privacy.py` so the default privacy scan
+  covers changelog, version, host capabilities, provider config, and the
+  generated Claude package.
+- Updated compatibility, install, architecture, adapter, release-note, README,
+  changelog, Claude capability, and generated Claude README text so release
+  artifacts no longer ship stale "planned" or draft-only Claude claims.
+- Added release-builder and privacy tests for multi-host artifact kinds,
+  archive contents, manifest compatibility metadata, and expanded scanner
+  coverage.
+- Regenerated `dist/claude/README.md` and updated the Claude package snapshot.
+- Built local ignored artifacts under `dist/`:
+  source, Codex skill, Claude plugin, schemas, CLI, generic markdown pack,
+  manifest, and checksums.
+- Updated the roadmap to mark Phase 10 delivered and advance to
+  `finalization`.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --check`: passed; Codex and Claude
+  generated packages reported 0 diffs and 0 errors.
+- `python3 scripts/build_release.py --check`: passed with reproducible
+  `0.1.0` source, Codex, Claude, schema, CLI, generic, manifest, and checksum
+  artifacts.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 108
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest discover -s tests -v`: passed, 131 tests with 1
+  expected skip because the `claude` binary is not installed.
+- `git diff --check`: passed.
+- `shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256`: passed for all
+  local ignored artifacts under `dist/`.
+- `python3 scripts/build_release.py --output-dir dist --json`: passed and
+  wrote local ignored release artifacts.
+- `PYTHONPATH=src python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase "Phase 10 - Compatibility Docs And Release Artifacts" --json`:
+  passed; next phase is `finalization` and no automation config retarget is
+  required.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-10-review-iteration-1.md`
+- Verdict: delivered
+- Review limitation: same-context review; delegated sub-agent review was not
+  used because explicit delegation authorization was not present in this run.
+
+### Finding Disposition
+
+- No blocking findings.
+
+### Residual Risks
+
+- Live Claude Code loading remains optional because the local `claude` binary
+  is not installed; offline plugin structure, staging, and demo-roadmap runtime
+  checks passed.
+- Local release artifacts under `dist/` are intentionally ignored and are not
+  publication.
+- Publication, promotion, installed package/plugin synchronization, branch
+  push, and automation pause remain human-approved.
+
+### Next Action
+
+- Start `finalization` on
+  `codex/multi-host-adapter-and-claude-plugin-finalization`; prepare final
+  deep-review prompt evidence before marking the roadmap complete.

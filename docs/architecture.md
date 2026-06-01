@@ -48,9 +48,10 @@ metadata and compatibility docs.
 ## Release Boundary
 
 `scripts/build_release.py` creates deterministic local artifacts from committed
-sources. Release bundles include framework sources and the generated Codex
-package, but exclude roadmap automation state, review files, local alerts,
-`.git/`, and `.codex/`.
+sources. Release bundles include framework sources, the generated Codex
+package, the generated Claude plugin package, schema and CLI bundles, and the
+documentation-only generic markdown pack. They exclude roadmap automation
+state, review files, local alerts, `.git/`, and `.codex/`.
 
 Publication to GitHub Releases, package indexes, Homebrew, npm, or other
 external channels is not automated by this repository. It requires explicit

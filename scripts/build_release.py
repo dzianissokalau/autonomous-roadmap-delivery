@@ -21,6 +21,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 CODEX_SKILL_ROOT = "skill/roadmap-delivery-skill"
+CLAUDE_PLUGIN_ROOT = "dist/claude"
 SOURCE_PATHS = (
     "README.md",
     "SECURITY.md",
@@ -34,6 +35,9 @@ SOURCE_PATHS = (
     "src",
     "scripts",
     "adapters",
+    "host-capabilities",
+    "config",
+    CLAUDE_PLUGIN_ROOT,
     CODEX_SKILL_ROOT,
 )
 CLI_SOURCE_PATHS = (
@@ -134,6 +138,13 @@ def artifact_specs(version: str) -> List[ArtifactSpec]:
             strip_prefix=CODEX_SKILL_ROOT,
         ),
         ArtifactSpec(
+            kind="claude_plugin_package",
+            filename=f"roadmap-delivery-claude-plugin-{version}.tar.gz",
+            prefix=f"roadmap-delivery-claude-plugin-{version}",
+            paths=(CLAUDE_PLUGIN_ROOT,),
+            strip_prefix=CLAUDE_PLUGIN_ROOT,
+        ),
+        ArtifactSpec(
             kind="schema_bundle",
             filename=f"roadmap-delivery-schemas-{version}.tar.gz",
             prefix=f"roadmap-delivery-schemas-{version}",
@@ -146,6 +157,10 @@ def artifact_specs(version: str) -> List[ArtifactSpec]:
             paths=CLI_SOURCE_PATHS,
         ),
     ]
+
+
+def generic_artifact_filename(version: str) -> str:
+    return f"roadmap-delivery-generic-markdown-pack-{version}.tar.gz"
 
 
 def should_skip_file(path: Path) -> bool:
@@ -218,6 +233,48 @@ def write_tar_gz(repo_root: Path, output_path: Path, spec: ArtifactSpec) -> Buil
     return describe_artifact(spec.kind, output_path)
 
 
+def iter_directory_files(source_root: Path) -> Iterable[Tuple[Path, Path]]:
+    if not source_root.is_dir():
+        raise ReleaseBuildError(f"Release artifact source is not a directory: {source_root}")
+    if source_root.is_symlink():
+        raise ReleaseBuildError(f"Release artifact source must not be a symlink: {source_root}")
+    for candidate in sorted(path for path in source_root.rglob("*") if path.is_file()):
+        if candidate.is_symlink():
+            raise ReleaseBuildError(f"Release file must not be a symlink: {candidate}")
+        if should_skip_file(candidate):
+            continue
+        yield candidate.relative_to(source_root), candidate
+
+
+def write_directory_tar_gz(source_root: Path, output_path: Path, *, kind: str, prefix: str) -> BuiltArtifact:
+    files = list(iter_directory_files(source_root))
+    if not files:
+        raise ReleaseBuildError(f"No files selected for {kind}")
+
+    tar_buffer = io.BytesIO()
+    with tarfile.open(fileobj=tar_buffer, mode="w") as archive:
+        for rel_path, source_path in files:
+            data = source_path.read_bytes()
+            archive_member = PurePosixPath(prefix) / PurePosixPath(rel_path.as_posix())
+            if archive_member.is_absolute() or ".." in archive_member.parts:
+                raise ReleaseBuildError(f"Archive member escapes release root: {archive_member}")
+            info = tarfile.TarInfo(archive_member.as_posix())
+            info.size = len(data)
+            info.mtime = 0
+            info.mode = normalized_mode(source_path)
+            info.uid = 0
+            info.gid = 0
+            info.uname = ""
+            info.gname = ""
+            archive.addfile(info, io.BytesIO(data))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("wb") as raw_file:
+        with gzip.GzipFile(fileobj=raw_file, mode="wb", mtime=0) as gzip_file:
+            gzip_file.write(tar_buffer.getvalue())
+    return describe_artifact(kind, output_path)
+
+
 def describe_artifact(kind: str, path: Path) -> BuiltArtifact:
     data = path.read_bytes()
     return BuiltArtifact(
@@ -245,6 +302,77 @@ def validate_codex_artifact(path: Path, version: str) -> Dict[str, Any]:
         if name.startswith("/")
         or ".." in PurePosixPath(name).parts
         or name.startswith(("automation/", "roadmaps/", ".git/"))
+        or ".codex" in PurePosixPath(name).parts
+    ]
+    status = "passed" if not missing and not forbidden else "failed"
+    return {
+        "status": status,
+        "required_entries_present": not missing,
+        "missing": missing,
+        "forbidden_entries": forbidden,
+        "entries": len(names),
+    }
+
+
+def validate_claude_artifact(path: Path, version: str) -> Dict[str, Any]:
+    prefix = f"roadmap-delivery-claude-plugin-{version}"
+    required = {
+        f"{prefix}/.claude-plugin/plugin.json",
+        f"{prefix}/README.md",
+        f"{prefix}/skills/roadmap-delivery-skill/SKILL.md",
+        f"{prefix}/agents/reviewer.md",
+        f"{prefix}/hooks/hooks.json",
+        f"{prefix}/hooks/roadmap_delivery_safety.py",
+    }
+    with tarfile.open(path, "r:gz") as archive:
+        names = set(archive.getnames())
+        manifest_member = archive.extractfile(f"{prefix}/.claude-plugin/plugin.json")
+        manifest = json.loads(manifest_member.read().decode("utf-8")) if manifest_member else {}
+    missing = sorted(required - names)
+    forbidden = [
+        name
+        for name in names
+        if name.startswith("/")
+        or ".." in PurePosixPath(name).parts
+        or "/automation/" in name
+        or "/roadmaps/" in name
+        or "/.git/" in name
+        or ".codex" in PurePosixPath(name).parts
+        or name.endswith("/agents/openai.yaml")
+    ]
+    manifest_ok = manifest.get("name") == "roadmap-delivery" and manifest.get("version") == version
+    status = "passed" if not missing and not forbidden and manifest_ok else "failed"
+    return {
+        "status": status,
+        "required_entries_present": not missing,
+        "manifest_identity_valid": manifest_ok,
+        "missing": missing,
+        "forbidden_entries": forbidden,
+        "entries": len(names),
+    }
+
+
+def validate_generic_artifact(path: Path, version: str) -> Dict[str, Any]:
+    prefix = f"roadmap-delivery-generic-markdown-pack-{version}"
+    required = {
+        f"{prefix}/README.md",
+        f"{prefix}/cli/install.md",
+        f"{prefix}/checklists/future-adapter.md",
+        f"{prefix}/capabilities/generic.yaml",
+        f"{prefix}/schemas/delivery_state.schema.json",
+        f"{prefix}/workflow/phase-loop.md",
+    }
+    with tarfile.open(path, "r:gz") as archive:
+        names = set(archive.getnames())
+    missing = sorted(required - names)
+    forbidden = [
+        name
+        for name in names
+        if name.startswith("/")
+        or ".." in PurePosixPath(name).parts
+        or "/automation/" in name
+        or "/roadmaps/" in name
+        or "/.git/" in name
         or ".codex" in PurePosixPath(name).parts
     ]
     status = "passed" if not missing and not forbidden else "failed"
@@ -296,6 +424,13 @@ def build_once(repo_root: Path, output_dir: Path, *, include_paths: bool) -> Dic
     validate_release_inputs(repo_root, version)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    adapter_check = run_json_command(
+        [sys.executable, "scripts/build_adapters.py", "--check", "--json"],
+        cwd=repo_root,
+    )
+    if adapter_check["returncode"] != 0:
+        raise ReleaseBuildError("Codex and Claude adapter generation check failed")
+
     codex_check = run_json_command(
         [sys.executable, "scripts/build_codex_package.py", "--check", "--json"],
         cwd=repo_root,
@@ -307,10 +442,43 @@ def build_once(repo_root: Path, output_dir: Path, *, include_paths: bool) -> Dic
         write_tar_gz(repo_root, output_dir / spec.filename, spec)
         for spec in artifact_specs(version)
     ]
+    with tempfile.TemporaryDirectory(prefix="roadmap-delivery-generic-pack-") as generic_dir:
+        generic_root = Path(generic_dir)
+        generic_build = run_json_command(
+            [
+                sys.executable,
+                "scripts/build_adapters.py",
+                "--adapter",
+                "generic",
+                "--write",
+                "--output-root",
+                str(generic_root),
+                "--json",
+            ],
+            cwd=repo_root,
+        )
+        if generic_build["returncode"] != 0:
+            raise ReleaseBuildError("Generic markdown pack generation failed")
+        primary_artifacts.append(
+            write_directory_tar_gz(
+                generic_root / "generic",
+                output_dir / generic_artifact_filename(version),
+                kind="generic_markdown_pack",
+                prefix=f"roadmap-delivery-generic-markdown-pack-{version}",
+            )
+        )
     codex_artifact = next(item for item in primary_artifacts if item.kind == "codex_skill_package")
     codex_artifact_validation = validate_codex_artifact(codex_artifact.path, version)
     if codex_artifact_validation["status"] != "passed":
         raise ReleaseBuildError("Codex package artifact validation failed")
+    claude_artifact = next(item for item in primary_artifacts if item.kind == "claude_plugin_package")
+    claude_artifact_validation = validate_claude_artifact(claude_artifact.path, version)
+    if claude_artifact_validation["status"] != "passed":
+        raise ReleaseBuildError("Claude plugin artifact validation failed")
+    generic_artifact = next(item for item in primary_artifacts if item.kind == "generic_markdown_pack")
+    generic_artifact_validation = validate_generic_artifact(generic_artifact.path, version)
+    if generic_artifact_validation["status"] != "passed":
+        raise ReleaseBuildError("Generic markdown artifact validation failed")
 
     manifest_payload = {
         "schema_version": 1,
@@ -320,8 +488,11 @@ def build_once(repo_root: Path, output_dir: Path, *, include_paths: bool) -> Dic
         "artifacts": [artifact.as_report(include_path=False) for artifact in primary_artifacts],
         "compatibility": {
             "codex_skill_path": CODEX_SKILL_ROOT,
+            "claude_plugin_path": CLAUDE_PLUGIN_ROOT,
+            "generic_markdown_pack": "documentation-only adapter preparation pack",
             "helper_scripts_remain_wrappers": True,
             "legacy_state_compatibility": "warning-backed where validators allow it",
+            "supported_host_packages": ["codex", "claude"],
         },
         "publication": {
             "external_publication": False,
@@ -352,11 +523,17 @@ def build_once(repo_root: Path, output_dir: Path, *, include_paths: bool) -> Dic
         "version": version,
         "output_dir": str(output_dir) if include_paths else None,
         "artifacts": [artifact.as_report(include_path=include_paths) for artifact in all_artifacts],
+        "adapter_check": {
+            "status": adapter_check["status"],
+            "package_status": adapter_check["stdout"].get("status") if isinstance(adapter_check["stdout"], dict) else None,
+        },
         "codex_package_check": {
             "status": codex_check["status"],
             "package_status": codex_check["stdout"].get("status") if isinstance(codex_check["stdout"], dict) else None,
         },
         "codex_artifact_validation": codex_artifact_validation,
+        "claude_artifact_validation": claude_artifact_validation,
+        "generic_artifact_validation": generic_artifact_validation,
         "privacy_scan": {
             "status": privacy_scan["status"],
             "scanner_status": privacy_scan["stdout"].get("status") if isinstance(privacy_scan["stdout"], dict) else None,
