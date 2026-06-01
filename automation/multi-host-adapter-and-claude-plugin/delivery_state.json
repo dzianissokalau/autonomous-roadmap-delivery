@@ -117,10 +117,14 @@
     "deep_review_prompt_review_source": "github_branch",
     "deep_review_prompt_github_branch": "codex/multi-host-adapter-and-claude-plugin-finalization",
     "deep_review_prompt_github_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/multi-host-adapter-and-claude-plugin-finalization",
-    "publication_status": "not_published_without_approval",
+    "branch_push_status": "pushed_to_origin",
+    "branch_push_remote": "origin",
+    "branch_push_completed_at": "2026-06-01T06:30:46Z",
+    "branch_push_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/multi-host-adapter-and-claude-plugin-finalization",
+    "publication_status": "github_review_branch_pushed; release_artifacts_not_published",
     "promotion_status": "not_promoted_without_approval",
     "installed_skill_sync_status": "not_synchronized_without_approval",
     "saved_automation_prompt_status": "still references the old in-progress roadmap path because app automation config edits were not approved"
   },
-  "updated_at": "2026-06-01T06:28:38Z"
+  "updated_at": "2026-06-01T06:30:46Z"
 }

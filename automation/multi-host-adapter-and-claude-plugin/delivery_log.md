@@ -796,6 +796,7 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
 
 ### Next Action
 
-- Push `codex/multi-host-adapter-and-claude-plugin-finalization` to GitHub for
-  deep review; publication and promotion remain separate human-approved
-  actions.
+- Use the pushed GitHub branch for deep review:
+  `https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/multi-host-adapter-and-claude-plugin-finalization`.
+- Release artifact publication and promotion to `main` remain separate
+  human-approved actions.
