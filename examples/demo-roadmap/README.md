@@ -11,6 +11,7 @@ It demonstrates:
 - a scaffold dry-run that plans files without writing them
 - validation and inspection of the file-backed control plane
 - safe blocked-run and model-policy mismatch scenarios
+- conservative fallback and delegated local approval-policy scenarios
 - an install and runtime checklist for the generated Codex and Claude packages
 
 ## Try The Fixture
@@ -53,9 +54,15 @@ Mode on the next pass.
 wrong model and reasoning effort. Validation should stop before delivery when
 that saved automation config is used with the demo policy.
 
+`scenarios/delegated-local/approval_policy.json` can be copied into
+`automation/demo_roadmap/approval_policy.json` in a temporary checkout. Inspect
+should then report `delegated_local`, allow local commits, model retargets, and
+completion or stall pause, and keep branch push ask-first.
+
 ## Runtime Checklist
 
 Use `runtime-checklist.md` to stage the generated Codex package and Claude
 plugin in temporary directories, run inspect and validate on a temporary demo
-checkout, trigger the blocked-remediation fixture, and trigger the
-model-policy-mismatch fixture without credentials or live automation changes.
+checkout, trigger the delegated-local policy fixture, trigger the
+blocked-remediation fixture, and trigger the model-policy-mismatch fixture
+without credentials or live automation changes.

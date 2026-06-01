@@ -23,6 +23,8 @@ has not been published to an external package registry.
   checks, privacy scanning, and release reproducibility checks.
 - `examples/demo-roadmap/` provides an offline fixture for smoke testing the
   workflow.
+- `examples/autonomy-controls/` documents approval modes, adaptive retarget
+  traces, and completion or stall self-pause evidence.
 
 ## Local Verification
 
@@ -46,5 +48,8 @@ git diff --check
 - Existing helper script paths remain available as wrappers.
 - Legacy state artifacts remain supported where compatibility warnings are
   explicit.
+- Existing automations without `approval_policy.json` remain conservative.
+  Delegated local and delegated delivery modes require durable policy artifacts
+  and readback evidence before saved automation retarget or pause actions.
 - External publication, branch promotion, and installed-skill synchronization
   are not part of this release candidate and require operator approval.

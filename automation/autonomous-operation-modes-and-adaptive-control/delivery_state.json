@@ -1,17 +1,22 @@
 {
   "schema_version": 1,
-  "roadmap": "roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md",
+  "roadmap": "roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md",
   "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
-  "current_phase": "Phase 7 - Documentation, Demo, And Closeout",
+  "current_phase": "Complete",
   "branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-7",
-  "status": "not_started",
-  "review_iterations": 0,
+  "status": "completed_pending_pause",
+  "review_iterations": 1,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 6 - Adapter Package Propagation",
-    "completed_at": "2026-06-01T16:00:23Z",
+    "phase": "finalization",
+    "completed_at": "2026-06-01T17:00:42Z",
     "status": "passed",
     "checks": [
+      {
+        "command": "python3 -m unittest discover -s tests -v",
+        "status": "passed",
+        "details": "Ran 162 tests successfully with 1 skipped optional Claude binary smoke test after delivered-roadmap lifecycle updates."
+      },
       {
         "command": "python3 scripts/build_adapters.py --check",
         "status": "passed",
@@ -23,40 +28,40 @@
         "details": "Committed Codex skill package had no generated drift."
       },
       {
-        "command": "python3 -m unittest tests.test_adapter_codex tests.test_adapter_parity tests.test_claude_plugin_package tests.test_generic_adapter_package -v",
+        "command": "python3 scripts/build_release.py --check",
         "status": "passed",
-        "details": "Ran 26 adapter package and parity tests successfully."
+        "details": "Release artifact build check was reproducible for version 0.1.0 with no errors."
       },
       {
-        "command": "python3 -m unittest discover -s tests -v",
+        "command": "python3 scripts/check_release_privacy.py --repo-root .",
         "status": "passed",
-        "details": "Ran 162 tests successfully with 1 skipped optional Claude binary smoke test."
+        "details": "Scanned 117 release-bound files with no findings or errors."
       },
       {
-        "command": "python3 scripts/build_adapters.py --adapter generic --check --json",
+        "command": "python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --allow-warning completed_state_active_with_hard_stop --allow-warning automation_prompt_current_roadmap_missing --allow-warning stale_automation_roadmap_path --json",
         "status": "passed",
-        "details": "Generic render-only output included approval_policy.schema.json and policy fallback documentation."
+        "details": "Terminal validation passed with expected warnings only: worktree_dirty, completed ACTIVE automation with hard-stop guard, and stale unedited saved automation prompt path."
+      },
+      {
+        "command": "python3 -m roadmap_delivery.cli inspect --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --allow-warning completed_state_active_automation --allow-warning stale_automation_roadmap_path --json",
+        "status": "passed",
+        "details": "Terminal inspection confirmed all phases complete, completed alert present, final deep-review prompt exists, saved automation ACTIVE, and pause_saved_automation requires approval."
       },
       {
         "command": "git diff --check",
         "status": "passed",
         "details": "No whitespace errors were found."
-      },
-      {
-        "command": "python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 6 - Adapter Package Propagation' --json",
-        "status": "passed",
-        "details": "Phase 7 uses policy defaults; run quality classified as flawless, adaptive action was none, saved automation already matches gpt-5.5/xhigh, so no retarget was needed."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 6 - Adapter Package Propagation",
-    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-6-review-iteration-1.md",
+    "phase": "finalization",
+    "file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-finalization-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-06-01T16:00:23Z",
-    "summary": "Phase 6 adapter package propagation, generic policy schema packaging, parity coverage, generated outputs, and tests were delivered after required verification."
+    "reviewed_at": "2026-06-01T17:00:42Z",
+    "summary": "Finalization completed with terminal validation, completed alert, final deep-review prompt evidence, and completed_pending_pause because the saved automation pause requires approval."
   },
-  "last_delivered_phase": "Phase 6 - Adapter Package Propagation",
+  "last_delivered_phase": "finalization",
   "blocked_reason": null,
   "last_blocker_repair": {
     "repaired_at": "2026-06-01T11:51:32Z",
@@ -96,7 +101,7 @@
   "approval_policy_path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
   "approval_mode": "conservative",
   "last_approval_policy_readback": {
-    "read_at": "2026-06-01T14:58:55Z",
+    "read_at": "2026-06-01T17:00:42Z",
     "path": "automation/autonomous-operation-modes-and-adaptive-control/approval_policy.json",
     "status": "fallback",
     "approval_mode": "conservative",
@@ -134,7 +139,7 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-06-01T14:03:09Z",
+    "readback_at": "2026-06-01T17:00:42Z",
     "initial_active_drift_repaired": true,
     "activation_accepted_at": "2026-06-01T11:51:32Z",
     "drift_detected_at": "2026-06-01T09:12:07Z",
@@ -156,34 +161,74 @@
     ],
     "inspection_note": "At setup time, inspector reported a not_started_ lifecycle warning for setup state; validator accepted the roadmap as Not Started at Phase 0. This false-positive class is covered by the manual-activation framework fix."
   },
-  "run_count": 10,
+  "run_count": 12,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:fad90110792098e4578c8fc9446e29e96741268cbe8e01ebed89359091dedfc6",
-  "last_progress_at": "2026-06-01T16:02:20Z",
+  "last_progress_signature": "sha256:3d79d11a77a05881694342d17250b11e83b42207568d8084df1af9e087038ee3",
+  "last_progress_at": "2026-06-01T17:03:16Z",
   "last_operator_alert": {
-    "kind": "blocked",
-    "file": "automation/autonomous-operation-modes-and-adaptive-control/alerts/2026-06-01T09-12-07Z-blocked.md",
-    "timestamp": "2026-06-01T09:12:07Z",
-    "reason": "Saved Codex automation status is ACTIVE while repository state and setup guidance require PAUSED before Phase 0 delivery.",
-    "next_human_action": "Pause the saved automation again or explicitly accept the active state, then rerun reconciliation before starting Phase 0.",
+    "kind": "completed",
+    "file": "automation/autonomous-operation-modes-and-adaptive-control/alerts/2026-06-01T17-00-42Z-completed.md",
+    "timestamp": "2026-06-01T17:00:42Z",
+    "reason": "All roadmap phases and finalization checks are delivered; the saved Codex automation remains ACTIVE because completion pause is not pre-approved under conservative fallback.",
+    "next_human_action": "Pause the saved automation or explicitly keep the completed-state hard-stop guard active before any promotion or publication.",
     "notification_sink": "alert_file",
     "notification_status": "local_alert_only"
   },
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
-  "all_phases_complete": false,
-  "deep_review_prompt": null,
-  "final_deep_review_prompt_prepared": false,
-  "final_deep_review_prompt_file": null,
-  "final_deep_review_status": null,
-  "updated_at": "2026-06-01T16:02:20Z",
+  "all_phases_complete": true,
+  "deep_review_prompt": "automation/autonomous-operation-modes-and-adaptive-control/final_deep_review_prompt.md",
+  "final_deep_review_prompt_prepared": true,
+  "final_deep_review_prompt_file": "automation/autonomous-operation-modes-and-adaptive-control/final_deep_review_prompt.md",
+  "final_deep_review_status": "prompt-prepared",
+  "finalization": {
+    "completed_at": "2026-06-01T17:00:42Z",
+    "deep_review_prompt": "automation/autonomous-operation-modes-and-adaptive-control/final_deep_review_prompt.md",
+    "completion_alert_required": true,
+    "automation_pause_required": true,
+    "automation_pause_status": "approval_required",
+    "automation_readback": "ACTIVE, local, gpt-5.5, xhigh",
+    "approval_mode": "conservative",
+    "pause_approval_decision": {
+      "operation": "pause_saved_automation",
+      "decision": "ask",
+      "reason": "Approval policy does not pre-approve this operation.",
+      "context": "completion",
+      "source": "pause_automation_on_completion"
+    },
+    "deep_review_prompt_github_branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-7",
+    "deep_review_prompt_github_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/autonomous-operation-modes-and-adaptive-control-phase-7",
+    "deep_review_prompt_raw_url": "https://raw.githubusercontent.com/dzianissokalau/roadmap-delivery-skill/codex/autonomous-operation-modes-and-adaptive-control-phase-7/automation/autonomous-operation-modes-and-adaptive-control/final_deep_review_prompt.md",
+    "branch_push_status": "approved_pending_push",
+    "branch_push_remote": "origin",
+    "branch_push_operator_approval": "Operator requested: push to github branch, update deep review prompt so another LLM knows where on GitHub to fetch it.",
+    "publication_status": "github_review_branch_approved_pending_push; release_artifacts_not_published",
+    "promotion_status": "not_promoted_without_approval",
+    "installed_skill_sync_status": "not_synchronized_without_approval",
+    "saved_automation_prompt_status": "still references the old in-progress roadmap path because live app automation prompt edits were not approved and the completed-state hard-stop guard is present"
+  },
+  "last_automation_pause": {
+    "context": "completion",
+    "decided_at": "2026-06-01T17:00:42Z",
+    "approval_decision": {
+      "operation": "pause_saved_automation",
+      "decision": "ask",
+      "reason": "Approval policy does not pre-approve this operation.",
+      "context": "completion",
+      "source": "pause_automation_on_completion"
+    },
+    "status": "approval_required",
+    "result": null,
+    "readback_status": "ACTIVE"
+  },
+  "updated_at": "2026-06-01T17:03:16Z",
   "last_run_quality": "flawless",
   "last_adaptive_action": {
     "action": "none",
     "run_quality": "flawless",
-    "target_phase": "Phase 7 - Documentation, Demo, And Closeout",
+    "target_phase": "finalization",
     "target": {
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh"
@@ -199,7 +244,7 @@
   },
   "adaptive_escalation_count": 0,
   "adaptive_deescalation_count": 0,
-  "adaptive_flawless_streak": 4,
+  "adaptive_flawless_streak": 5,
   "model_history": [
     {
       "phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
@@ -243,6 +288,17 @@
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh",
       "target_source": "defaults",
+      "retarget_status": "not_needed"
+    },
+    {
+      "phase": "Phase 7 - Documentation, Demo, And Closeout",
+      "completed_at": "2026-06-01T16:49:36Z",
+      "run_quality": "flawless",
+      "adaptive_action": "none",
+      "target_phase": "finalization",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "target_source": "phases.finalization",
       "retarget_status": "not_needed"
     }
   ]

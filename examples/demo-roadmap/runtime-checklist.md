@@ -119,7 +119,26 @@ python3 -m roadmap_delivery.cli inspect \
 
 The inspect output should show `blocked_remediation_required: true`.
 
-## 6. Trigger The Model-Policy-Mismatch Fixture
+## 6. Trigger The Delegated-Local Policy Fixture
+
+```bash
+cp examples/demo-roadmap/scenarios/delegated-local/approval_policy.json \
+  "$SMOKE_REPO/automation/demo_roadmap/approval_policy.json"
+
+AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR="$SMOKE_HOME/.codex/automations" \
+PYTHONPATH="$PWD/src" \
+python3 -m roadmap_delivery.cli inspect \
+  --repo-root "$SMOKE_REPO" \
+  --roadmap-slug demo-roadmap \
+  --automation-id demo-roadmap-delivery \
+  --json
+```
+
+The inspect output should show `autonomy_mode: delegated_local`,
+`pause_saved_automation` as allowed, and `push_current_phase_branch` as
+ask-first.
+
+## 7. Trigger The Model-Policy-Mismatch Fixture
 
 ```bash
 python3 - <<'PY'

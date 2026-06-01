@@ -166,10 +166,10 @@ committed package drifts from those inputs.
 - `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`:
   completed companion roadmap for generated host adapters and Claude packaging;
   the saved automation is paused.
-- `roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
-  in-progress roadmap for autonomy modes, adaptive model escalation, and
-  automatic pause behavior; Phase 0 policy contract delivered, Phase 1
-  schema/setup work is next.
+- `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
+  completed roadmap for autonomy modes, adaptive model escalation, and
+  automatic pause behavior; the saved automation is pending a human pause
+  decision.
 
 ## Operating Model
 
@@ -190,6 +190,33 @@ Roadmap delivery uses a single-phase loop:
 Completed roadmaps still need an automation pause decision when the saved
 automation remains active. The local completion alert is the durable fallback;
 pausing the Codex app automation is a separate approved operation.
+
+## Autonomy Controls
+
+Autonomy is selected per roadmap automation with `approval_policy.json`.
+Existing automations without that file stay conservative: they may edit
+phase-owned files, write state/log/review artifacts, create or switch the
+current phase branch, and run verification. Retargeting saved automation
+model/reasoning, pausing a saved automation, committing locally, pushing a
+branch, publication, promotion, credential use, installed-skill sync, and
+destructive git remain approval-gated unless a durable policy explicitly allows
+the lower-risk operation.
+
+Use these files when choosing a mode:
+
+- `docs/autonomy-and-approval-policy.md`: policy contract and operation table.
+- `docs/migration-guide.md`: opt-in steps for existing automations.
+- `examples/autonomy-controls/`: approval policy examples, adaptive model
+  trace, and completion/stall pause examples.
+- `examples/demo-roadmap/scenarios/delegated-local/approval_policy.json`: demo
+  fixture for inspecting delegated local decisions without live automation
+  changes.
+
+Never-auto operations remain forbidden in every mode: force push,
+`git reset --hard`, branch or tag deletion, promotion to `main`, release or
+package publication, unavailable credential use, repository security or billing
+changes, global tool sync, and destructive filesystem operations outside phase
+scope.
 
 ## Framework CLI
 

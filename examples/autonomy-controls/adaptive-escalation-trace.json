@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "roadmap_slug": "example-autonomy-roadmap",
+  "delivered_phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
+  "next_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
+  "previous_run": {
+    "run_quality": "review_needs_fix",
+    "review_iterations": 1,
+    "verification_status": "passed_after_fix",
+    "human_gated": false
+  },
+  "policy": {
+    "enabled": true,
+    "escalate_on": [
+      "delivered_with_fixes",
+      "verification_failed",
+      "review_needs_fix",
+      "stalled",
+      "retarget_failed"
+    ],
+    "human_gated_qualities": [
+      "blocked_human_required",
+      "completion_closeout_failed"
+    ],
+    "caps": {
+      "allowed_models": [
+        "gpt-5.4",
+        "gpt-5.5"
+      ],
+      "max_reasoning_effort": "xhigh",
+      "allowed_providers": [
+        "openai"
+      ]
+    }
+  },
+  "adaptive_action": {
+    "action": "escalate",
+    "reason": "review_needs_fix is configured to escalate the next run.",
+    "target_changed": true,
+    "target": {
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh"
+    },
+    "retarget_status": "approved_update_available"
+  },
+  "readback_required_before_next_delivery": {
+    "configured_automation_model": "gpt-5.5",
+    "configured_automation_reasoning_effort": "xhigh",
+    "status": "must_match_before_implementation"
+  }
+}

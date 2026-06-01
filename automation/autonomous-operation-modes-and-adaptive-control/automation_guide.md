@@ -1,7 +1,7 @@
 # Autonomous Operation Modes And Adaptive Control Automation Guide
 
-Status: Active
-Roadmap: `roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`
+Status: Completed Pending Pause
+Roadmap: `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`
 Roadmap slug: `autonomous-operation-modes-and-adaptive-control`
 State file: `automation/autonomous-operation-modes-and-adaptive-control/delivery_state.json`
 Delivery log: `automation/autonomous-operation-modes-and-adaptive-control/delivery_log.md`
@@ -40,8 +40,8 @@ Activation accepted: 2026-06-01T11:51:39Z (operator/manual activation)
 
 ## Next Run Prompt
 
-Run the next safe phase-gated delivery step for
-`roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
+Confirm completion hard-stop and pause handling for
+`roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`.
 
 Use the installed `roadmap-delivery-skill` and read these files before acting:
 
@@ -73,29 +73,17 @@ Hard stop before delivery if `all_phases_complete` is true, state is
 automation is paused or request pause permission, write any missing completion
 alert, and do not start phase work.
 
-For the current phase only:
+For the current terminal state only:
 
-- extract objective, owned files, implementation steps, acceptance criteria,
-  required verification, non-goals, and stop conditions
-- create or reuse the correct
-  `codex/autonomous-operation-modes-and-adaptive-control-phase-<n>` branch when
-  implementation work is required
-- read `phase_model_policy.json`, resolve the current phase's required model
-  and reasoning, and verify the saved automation config matches before delivery
-- make only phase-scoped changes
-- run required verification and targeted checks
-- update `automation/autonomous-operation-modes-and-adaptive-control/delivery_log.md`
-  and `automation/autonomous-operation-modes-and-adaptive-control/delivery_state.json`
-- perform a skeptical review from fresh context where available
-- write review output under
-  `automation/autonomous-operation-modes-and-adaptive-control/reviews/`
-- if the verdict is `needs-fix`, fix only current-phase findings and rerun
-  verification
-- stop after 3 review/fix iterations and mark blocked if still not delivered
+- confirm final verification, final review evidence, completed alert, and
+  final deep-review prompt evidence
+- confirm the saved automation config readback and the approval-policy pause
+  decision
+- if the saved automation remains ACTIVE and pause is not explicitly approved,
+  keep `completed_pending_pause`, preserve the hard-stop guard, and ask for
+  the pause decision
 
-Do not advance unless acceptance criteria are satisfied, verification passed,
-review verdict is `delivered`, and roadmap/state/log agree. After advancing
-state to the next phase, stop. Do not push, merge, promote to `main`, delete
-branches, edit app automation config beyond approved retarget/pause flows,
-install/sync global skills or plugins, or run destructive commands without
-explicit human approval.
+Do not start another phase. Do not push, merge, promote to `main`, delete
+branches, edit app automation config beyond approved pause flows, install/sync
+global skills or plugins, publish packages, use credentials, or run destructive
+commands without explicit human approval.

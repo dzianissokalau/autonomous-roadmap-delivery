@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "roadmap": "roadmaps/delivered_example_autonomy_roadmap.md",
+  "roadmap_slug": "example-autonomy-roadmap",
+  "current_phase": "completed",
+  "status": "completed",
+  "all_phases_complete": true,
+  "approval_mode": "delegated_local",
+  "approval_policy_path": "automation/example-autonomy-roadmap/approval_policy.json",
+  "last_operator_alert": {
+    "kind": "completed",
+    "file": "automation/example-autonomy-roadmap/alerts/2026-06-01T00-00-00Z-completed.md",
+    "timestamp": "2026-06-01T00:00:00Z",
+    "reason": "All roadmap phases and final verification are complete.",
+    "next_human_action": "Review the final deep-review output before promotion.",
+    "notification_sink": "alert_file",
+    "notification_status": "local_alert_only"
+  },
+  "last_automation_pause": {
+    "status": "paused",
+    "reason": "completion",
+    "approval_decision": {
+      "operation": "pause_saved_automation",
+      "context": "completion",
+      "decision": "allowed",
+      "source": "operation"
+    },
+    "readback_status": "PAUSED",
+    "paused_at": "2026-06-01T00:00:00Z"
+  },
+  "final_deep_review_prompt_prepared": true,
+  "final_deep_review_prompt_file": "automation/example-autonomy-roadmap/final_deep_review_prompt.md",
+  "final_deep_review_status": "prompt-prepared"
+}

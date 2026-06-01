@@ -16,6 +16,9 @@ planning surface.
 | State schema version 1 | Supported | Current artifacts validate against `schemas/delivery_state.schema.json`. |
 | Legacy states without schema version | Compatibility mode | Accepted where legacy behavior is explicitly warning-backed. |
 | Model policy file | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
+| Approval policy file | Supported | Missing `approval_policy.json` keeps conservative fallback; delegated modes require valid policy readback. |
+| Adaptive model policy | Supported | Run quality can retarget the next run within explicit caps and saved automation readback. |
+| Completion and stall self-pause | Supported with approval | Pause is automatic only when policy or explicit approval allows it and readback confirms `PAUSED`. |
 | Adapter package generation | Supported | `scripts/build_adapters.py --check` verifies committed Codex and Claude output. |
 | Codex package generation | Supported | `scripts/build_codex_package.py --check` remains a compatibility wrapper check. |
 | Claude plugin package | Supported local package | Generated under `dist/claude/` with skill, reviewer agent, hooks, and references. |
@@ -40,6 +43,11 @@ Future host adapters should consume the same `core/`, `schemas/`, and shared
 library contracts. Any host-specific differences must be represented as
 explicit capability metadata, parity tests, smoke checks, and compatibility
 notes before a host is listed as supported.
+
+Approval policy, adaptive model policy, and completion or stall pause behavior
+are host-neutral control-plane contracts. Hosts that cannot read or update a
+saved runner config must expose that limitation as an explicit fallback instead
+of claiming automatic retarget or pause support.
 
 ## Host Capability Contract
 
@@ -104,6 +112,11 @@ The following operations are intentionally outside automatic delivery:
 - editing live app automation configuration
 - using credentials or external notification sinks
 - destructive git operations
+
+Delegated approval modes can pre-approve lower-risk saved automation retarget
+and pause operations only when policy, state, and readback agree. They never
+pre-approve publication, promotion, unavailable credential use, or destructive
+git.
 
 Automation and CLI checks may identify that one of these actions is needed,
 but the action itself requires explicit operator approval.

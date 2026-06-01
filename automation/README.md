@@ -9,7 +9,7 @@ Use `../roadmaps/` for human-facing documents:
 - `../roadmaps/delivered_autonomous-roadmap-delivery-skill-phased-roadmap.md`
 - `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
 - `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
-- `../roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md`
+- `../roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`
 
 Use this folder for automation templates, state, logs, review outputs, and
 closeout checklists.
@@ -46,7 +46,7 @@ in the project root or `../roadmaps/`.
 | `../roadmaps/delivered_phase_model_policy_and_stall_control_roadmap.md` | Delivered | Complete | `phase-model-policy-and-stall-control` hourly, PAUSED | `phase-model-policy-and-stall-control/delivery_state.json` |
 | `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed | Complete | `framework-core-and-release-readiness` hourly, PAUSED | `framework-core-and-release-readiness/delivery_state.json` |
 | `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` | Completed | Complete | `multi-host-adapter-and-claude-plugin` hourly, PAUSED | `multi-host-adapter-and-claude-plugin/delivery_state.json` |
-| `../roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md` | In Progress | Phase 6 - Adapter Package Propagation | `autonomous-operation-modes-and-adaptive-control` hourly, ACTIVE | `autonomous-operation-modes-and-adaptive-control/delivery_state.json` |
+| `../roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md` | Completed Pending Pause | Complete | `autonomous-operation-modes-and-adaptive-control` hourly, ACTIVE | `autonomous-operation-modes-and-adaptive-control/delivery_state.json` |
 
 ## Migration Notes
 

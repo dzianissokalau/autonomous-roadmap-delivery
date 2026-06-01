@@ -1,0 +1,114 @@
+{
+  "conservative": {
+    "schema_version": 1,
+    "approval_mode": "conservative",
+    "operations": {
+      "edit_phase_owned_files": true,
+      "write_state_log_review_artifacts": true,
+      "create_or_switch_phase_branch": true,
+      "run_verification": true,
+      "commit_delivered_phase_locally": false,
+      "retarget_saved_automation": false,
+      "pause_saved_automation": false,
+      "push_current_phase_branch": false
+    },
+    "pause_automation_on_completion": false,
+    "pause_automation_on_stall": false,
+    "never_auto": [
+      "force_push",
+      "git_reset_hard",
+      "delete_branches_or_tags",
+      "merge_or_promote_to_main",
+      "publish_releases_or_packages",
+      "use_unavailable_credentials",
+      "change_repository_security_or_billing",
+      "install_or_sync_global_tools",
+      "destructive_filesystem_outside_phase_scope"
+    ],
+    "notes": "Default legacy behavior when approval_policy.json is missing."
+  },
+  "delegated_local": {
+    "schema_version": 1,
+    "approval_mode": "delegated_local",
+    "operations": {
+      "edit_phase_owned_files": true,
+      "write_state_log_review_artifacts": true,
+      "create_or_switch_phase_branch": true,
+      "run_verification": true,
+      "commit_delivered_phase_locally": true,
+      "retarget_saved_automation": true,
+      "pause_saved_automation": true,
+      "push_current_phase_branch": false
+    },
+    "pause_automation_on_completion": true,
+    "pause_automation_on_stall": true,
+    "never_auto": [
+      "force_push",
+      "git_reset_hard",
+      "delete_branches_or_tags",
+      "merge_or_promote_to_main",
+      "publish_releases_or_packages",
+      "use_unavailable_credentials",
+      "change_repository_security_or_billing",
+      "install_or_sync_global_tools",
+      "destructive_filesystem_outside_phase_scope"
+    ],
+    "notes": "Best fit for unattended local delivery with saved automation readback."
+  },
+  "delegated_delivery": {
+    "schema_version": 1,
+    "approval_mode": "delegated_delivery",
+    "operations": {
+      "edit_phase_owned_files": true,
+      "write_state_log_review_artifacts": true,
+      "create_or_switch_phase_branch": true,
+      "run_verification": true,
+      "commit_delivered_phase_locally": true,
+      "retarget_saved_automation": true,
+      "pause_saved_automation": true,
+      "push_current_phase_branch": true
+    },
+    "pause_automation_on_completion": true,
+    "pause_automation_on_stall": true,
+    "never_auto": [
+      "force_push",
+      "git_reset_hard",
+      "delete_branches_or_tags",
+      "merge_or_promote_to_main",
+      "publish_releases_or_packages",
+      "use_unavailable_credentials",
+      "change_repository_security_or_billing",
+      "install_or_sync_global_tools",
+      "destructive_filesystem_outside_phase_scope"
+    ],
+    "notes": "Adds routine current-branch push approval; promotion still asks."
+  },
+  "custom": {
+    "schema_version": 1,
+    "approval_mode": "custom",
+    "operations": {
+      "edit_phase_owned_files": true,
+      "write_state_log_review_artifacts": true,
+      "create_or_switch_phase_branch": true,
+      "run_verification": true,
+      "commit_delivered_phase_locally": true,
+      "retarget_saved_automation": false,
+      "pause_saved_automation": true,
+      "push_current_phase_branch": false
+    },
+    "pause_automation_on_completion": true,
+    "pause_automation_on_stall": false,
+    "never_auto": [
+      "force_push",
+      "git_reset_hard",
+      "delete_branches_or_tags",
+      "merge_or_promote_to_main",
+      "publish_releases_or_packages",
+      "use_unavailable_credentials",
+      "change_repository_security_or_billing",
+      "install_or_sync_global_tools",
+      "destructive_filesystem_outside_phase_scope"
+    ],
+    "notes": "Example custom mode that allows local closeout pause but not model retarget or branch push."
+  }
+}

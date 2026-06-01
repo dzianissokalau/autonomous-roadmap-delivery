@@ -53,6 +53,14 @@ conservative legacy fallback. That is a valid legacy state. A state file that
 claims delegated approval while the policy file is missing or invalid is not a
 valid migration state.
 
+Use `examples/autonomy-controls/approval-policy-examples.json` to compare the
+standard modes before changing a live roadmap. To try delegated local behavior
+without touching a real automation, copy
+`examples/demo-roadmap/scenarios/delegated-local/approval_policy.json` into a
+temporary demo checkout and run `inspect`; it should show local commits,
+retargets, and completion or stall pauses as allowed while branch push remains
+ask-first.
+
 ## Adaptive And Pause Evidence
 
 When adopting adaptive model policy, add `adaptive_model_policy` to
@@ -68,6 +76,14 @@ Completion and stall self-pause require readback evidence:
   evidence, even when a human still needs to pause an active automation.
 - Run-log entries may include `run_quality` and `adaptive_action` so repeated
   runs can be audited without reopening older state snapshots.
+
+Reference shapes are available under `examples/autonomy-controls/`:
+
+- `adaptive-escalation-trace.json` shows why the next run is retargeted after a
+  non-flawless run.
+- `completion-self-pause-state.json` shows completed state with completed alert,
+  final deep-review prompt metadata, and `PAUSED` readback.
+- `stall-self-pause-run-log.jsonl` shows the stall-threshold audit line.
 
 ## Validation Commands
 

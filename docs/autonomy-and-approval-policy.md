@@ -25,6 +25,23 @@ An implementation must treat mode names as policy identifiers, not as prompt
 advice. If the stored policy is missing, malformed, or not validated, fall back
 to `conservative` and record the reason.
 
+## Choosing A Mode
+
+Choose the lowest mode that covers the operation you want the automation to do
+without another prompt:
+
+| Need | Mode to start with | Why |
+|---|---|---|
+| Local phase edits and verification only | `conservative` | This is the legacy fallback and keeps saved automation config, commits, pushes, and pause operations ask-first. |
+| Unattended local delivery and closeout | `delegated_local` | Allows local commits, saved model/reasoning retargets, and completion or stall pauses when readback proves the result. |
+| Routine phase branch publication | `delegated_delivery` | Adds current phase branch push approval while keeping promotion, release publication, and destructive operations forbidden. |
+| A narrower exception set | `custom` | Every allowed operation is named explicitly; missing entries stay denied. |
+
+Review `examples/autonomy-controls/approval-policy-examples.json` before
+switching an existing automation. For existing roadmaps, migrate through
+`conservative` first so validation can prove the effective policy before any
+delegated operation is enabled.
+
 ## Operation Boundary
 
 The following operations can be pre-approved by mode or custom policy when the
@@ -110,9 +127,24 @@ If readback fails or still shows `ACTIVE`, the automation must keep durable
 evidence of the failed closeout and stop. It must not start a new phase while
 completion or stall pause handling is unresolved.
 
-## Implementation Notes For Later Phases
+## Example Artifacts
 
-Later phases should add schema fields and validators for the selected approval
-mode, custom operation map, adaptive caps, run quality, and pause evidence. The
-runtime gates should consume those durable fields directly. They should not
-parse prose from this document as policy.
+The repository includes offline examples that can be inspected without
+credentials or live automation access:
+
+- `examples/autonomy-controls/approval-policy-examples.json` compares
+  conservative, delegated local, delegated delivery, and custom policies.
+- `examples/autonomy-controls/adaptive-escalation-trace.json` shows a
+  non-flawless run escalating the next run within policy caps.
+- `examples/autonomy-controls/completion-self-pause-state.json` shows completed
+  state with a completed alert and `PAUSED` readback.
+- `examples/autonomy-controls/stall-self-pause-run-log.jsonl` shows the audit
+  line for stall-threshold pause handling.
+- `examples/demo-roadmap/scenarios/delegated-local/approval_policy.json` can be
+  copied into the demo fixture to inspect delegated local decisions.
+
+## Implementation Notes
+
+Schemas, validators, inspectors, setup output, adapter packages, and helper
+scripts consume the durable JSON artifacts directly. They must not parse prose
+from this document as policy.

@@ -1,10 +1,10 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
-Status: In Progress
-Current phase: Phase 7 - Documentation, Demo, And Closeout
+Status: Completed
+Current phase: Complete
 Last updated: 2026-06-01
-Next action: Deliver Phase 7 documentation, demo, and closeout.
-Blocked by: None.
+Next action: Pause the saved Codex automation or explicitly keep the hard-stop guard active; promotion and publication remain separate approvals.
+Blocked by: Completion pause approval for the still-ACTIVE saved automation.
 
 ## Purpose
 
@@ -24,7 +24,7 @@ preferences.
 Recommended automation setup:
 
 ```text
-ROADMAP_PATH=roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md
+ROADMAP_PATH=roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md
 ROADMAP_SLUG=autonomous-operation-modes-and-adaptive-control
 AUTOMATION_DIR=automation/autonomous-operation-modes-and-adaptive-control
 AUTOMATION_ID=autonomous-operation-modes-and-adaptive-control
@@ -194,7 +194,7 @@ automation self-pause is allowed.
 ### Owned Files
 
 ```text
-roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md
+roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md
 docs/autonomy-and-approval-policy.md
 README.md
 automation/README.md
@@ -638,7 +638,7 @@ docs/migration-guide.md
 docs/release-notes-0.1.0.md
 examples/
 automation/autonomous-operation-modes-and-adaptive-control/
-roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md
+roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md
 ```
 
 ### Implementation Steps
