@@ -19,17 +19,34 @@ again. On the next run, handle `status: blocked` as a remediation gate:
 3. Repair `local-repairable` blockers when they are current-phase bookkeeping,
    stale paths, missing generated artifacts, branch drift, or malformed
    state/log entries.
-4. Repair `automation-config` blockers only when the user already authorized
-   that automation surface in this workflow.
+4. Repair `automation-config` blockers only when the approval-policy decision
+   is `allowed` or explicit human approval is already present.
 5. Rerun validation/readback after repair.
 6. If repair passes, record `last_blocker_repair`, clear `blocked_reason`,
    reset stalled counters when progress is real, and resume the current phase.
 7. If repair needs credentials, a product decision, destructive git, broad
-   publication, or unapproved automation changes, keep state blocked and ask for
-   the missing action.
+   publication, an approval-policy decision of `ask`, or a `forbidden`
+   operation, keep state blocked and ask for the missing action or record the
+   blocker.
 
 Do not write another blocked review for the same issue until this remediation
 classification has been attempted.
+
+## Approval Policy Problems
+
+Missing `approval_policy.json` keeps conservative legacy behavior: phase-owned
+edits, state/log/review writes, phase branch creation, and verification can
+proceed, while local commits, automation retarget, automation pause, branch
+push, installed-skill sync, publication, promotion, credential use, and
+destructive git must pass the approval gate.
+
+Invalid approval policy is a blocker before relying on pre-approval. Record the
+policy error in state/log/review, use conservative fallback only for reporting,
+and stop before any operation that required the invalid policy.
+
+Forbidden operations produce clear blocker messages, not prompts to bypass the
+policy. Never-auto operations stay `forbidden` in conservative,
+delegated-local, delegated-delivery, and custom modes.
 
 ## Automation Worktree Missing Local Phase Artifacts
 
@@ -70,7 +87,8 @@ Current automation model mismatch:
 
 - Do not start phase implementation.
 - Record required and configured model/reasoning.
-- Retarget the automation only when that surface is already approved.
+- Retarget the automation only when `retarget_saved_automation` resolves to
+  `allowed` or explicit human approval is already present.
 - Read back the saved config and stop so the next run starts on the correct
   model.
 

@@ -7,10 +7,28 @@ runner config, or verification evidence disagree.
 
 Classify the issue before retrying delivery. Repair only local current-phase
 bookkeeping, stale paths, missing generated artifacts, branch drift, malformed
-state/log entries, or already-approved runner configuration changes. Keep state
-blocked and ask for human action when the repair needs credentials, product
-input, destructive git, broad publication, promotion, or unapproved runner
-configuration changes.
+state/log entries, or runner configuration changes whose approval-policy
+decision is `allowed`. Keep state blocked and ask for human action when the
+repair needs credentials, product input, destructive git, broad publication,
+promotion, or an approval-policy decision of `ask`. Record a blocker when the
+operation is `forbidden` or unknown.
+
+## Approval Policy Problems
+
+Missing `approval_policy.json` is conservative legacy behavior: local edits,
+state/log/review writes, phase branch creation, and verification may proceed,
+while local commits, automation retargets, automation pause, branch push,
+installed skill sync, publication, promotion, credential use, and destructive
+git require the approval gate.
+
+Invalid approval policy is a blocker before delivery relies on pre-approval.
+Record the invalid policy error in state/log/review, use conservative fallback
+only for reporting, and stop before any operation that needed the invalid
+policy.
+
+Forbidden operations produce blockers, not prompts to bypass the policy.
+Never-auto operations stay forbidden in conservative, delegated, and custom
+modes.
 
 ## Common Blockers
 
@@ -41,7 +59,7 @@ On a blocked run:
 1. Read the blocked reason, failed verification, latest review findings, and
    runner readback.
 2. Classify the blocker.
-3. Repair only local or already-authorized runner configuration blockers.
+3. Repair only local or approval-policy `allowed` runner configuration blockers.
 4. Rerun validation/readback.
 5. Record `last_blocker_repair`, clear `blocked_reason`, and reset stall
    counters only after repair evidence passes.

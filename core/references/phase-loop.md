@@ -15,6 +15,23 @@ and reasoning before extracting the phase contract. Compare those values with
 the configured runner values from readback. A mismatch is a stop-before-delivery
 condition unless the operator already approved the runner configuration repair.
 
+## Approval Policy Gate
+
+Before asking the operator or acting automatically, read and validate
+`approval_policy.json` when present. Missing policy keeps conservative legacy
+behavior. Resolve each named operation to `allowed`, `ask`, or `forbidden`:
+
+- `allowed`: the current approval mode pre-approves the operation; proceed and
+  record the approval decision in state, log, or review evidence.
+- `ask`: stop before the operation unless explicit human approval is already
+  present in the current workflow.
+- `forbidden`: record a blocker; never-auto operations and unknown operations
+  must not run automatically in any approval mode.
+
+Use the gate for phase-owned edits, state/log/review writes, branch creation,
+local commits, automation retargets, automation pause, branch push, installed
+skill sync, publication, promotion, credential use, and destructive git.
+
 ## Blocked Remediation Gate
 
 If state is `blocked`, classify the blocker before attempting normal delivery:
@@ -28,7 +45,7 @@ If state is `blocked`, classify the blocker before attempting normal delivery:
 - `external-decision`: product, policy, or scope input is missing
 - `destructive-risk`: repair would overwrite user work or rewrite history
 
-Repair only local or already-approved runner configuration blockers. Rerun
+Repair only local or `allowed` runner configuration blockers. Rerun
 reconciliation after repair, clear `blocked_reason` only after validation
 passes, then resume the current phase.
 

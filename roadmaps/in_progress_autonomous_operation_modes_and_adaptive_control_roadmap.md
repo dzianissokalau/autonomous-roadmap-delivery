@@ -1,9 +1,9 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
 Status: In Progress
-Current phase: Phase 2 - Approval Gate Enforcement
+Current phase: Phase 3 - Run Quality Classification And Adaptive Model Policy
 Last updated: 2026-06-01
-Next action: Deliver Phase 2 approval gate enforcement.
+Next action: Deliver Phase 3 run quality classification and adaptive model policy.
 Blocked by: None.
 
 ## Purpose

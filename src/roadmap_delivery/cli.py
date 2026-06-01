@@ -155,6 +155,8 @@ def run_validate(args: argparse.Namespace) -> int:
 
 
 def attach_approval_policy_report(report: Dict[str, Any], repo_root: Path) -> None:
+    if "approval_policy" in report:
+        return
     state_file_value = report.get("state_file")
     if not isinstance(state_file_value, str) or not state_file_value:
         return

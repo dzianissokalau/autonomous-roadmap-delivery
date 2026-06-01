@@ -61,6 +61,7 @@ PARITY_RULES = {
 }
 
 CORE_PROMPT_COVERAGE = {
+    "approval_policy_gate.md": ("approval_policy.json", "`allowed`", "`forbidden`"),
     "blocked_remediation.md": ("local-repairable", "automation-config", "destructive-risk"),
     "model_policy_gate.md": ("phase model policy", "required model", "configured"),
     "review_gate.md": ("fresh review verdict", "`delivered`", "`needs-fix`"),

@@ -36,7 +36,8 @@ missing, use policy defaults and record that fallback in the delivery log.
 
 If the saved automation config already matches the finalization model and
 reasoning effort, record the readback and continue the finalization checklist.
-If it does not match, retarget only with explicit approval, read back the saved
+If it does not match, retarget only when `retarget_saved_automation` resolves
+to `allowed` or explicit human approval is already present, read back the saved
 config, and stop so finalization starts in a fresh run with the right model.
 
 If retargeting or readback fails, do not mark the roadmap complete. Keep or set
@@ -80,11 +81,12 @@ any further delivery extraction:
 3. Confirm a final deep-review prompt/review artifact exists, or record an
    explicit human waiver.
 4. Record the final deep-review state fields.
-5. Confirm publication or final branch push is approved before attempting it.
+5. Confirm publication or final branch push is `allowed` by approval policy or
+   explicitly approved before attempting it.
 6. Set `all_phases_complete` or an equivalent completed status in state.
 7. Write a `completed` operator alert before any optional notification sink.
-8. Pause the automation when the pause surface is approved, then read back
-   status.
+8. Pause the automation when `pause_saved_automation` is `allowed` or
+   explicitly approved, then read back status.
 9. If pause approval or tooling is unavailable, record
    `completed_pending_pause`, keep the hard-stop guard active, and ask the
    operator to pause the automation.
@@ -120,8 +122,11 @@ Stage files by explicit path. Do not stage the whole worktree.
 
 ## Publication Rules
 
-Publishing a branch requires explicit human approval. Before publication,
-confirm:
+Publishing a branch requires `push_current_phase_branch` or the publication
+operation to resolve to `allowed`, or explicit human approval in the current
+conversation. Publication, promotion, credential use, installed-skill sync, and
+destructive git remain `forbidden` when they match never-auto operations.
+Before publication, confirm:
 
 - branch name
 - remote
@@ -137,8 +142,8 @@ When the roadmap is complete or blocked on a human decision:
 
 1. Read back the saved automation config.
 2. Write the required local operator alert for the terminal state.
-3. Confirm whether the user wants it paused when pause approval is not already
-   part of the workflow.
+3. Confirm whether the user wants it paused when `pause_saved_automation` is
+   not `allowed`.
 4. If approved, pause the automation through the available app/tooling.
 5. Read back status.
 6. Record the alert file, pause result, and any notification failure in
@@ -168,7 +173,7 @@ decision, pause handling must be addressed before the final response.
 - Read back the saved automation status.
 - If complete, write or confirm the `completed` alert file before optional
   external notification.
-- If complete and active, ask for approval to pause or use the approved pause
+- If complete and active, ask for approval to pause or use the `allowed` pause
   flow. Do not continue delivery work while waiting.
 - If blocked by product decision, credentials, verification environment, or max
   review iterations, recommend pause and record the reason.

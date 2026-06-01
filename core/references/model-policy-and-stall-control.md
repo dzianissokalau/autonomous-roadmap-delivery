@@ -83,16 +83,22 @@ Before implementation:
 4. Stop before phase-owned edits if required and configured values differ or
    cannot be proven.
 
-Retarget runner configuration only when that surface is already approved. After
-retargeting, read back the saved config and stop so a later run starts with the
-right settings.
+Retarget runner configuration only when `approval_policy.json` resolves
+`retarget_saved_automation` to `allowed` or explicit human approval is already
+present. If the decision is `ask`, record the required approval and stop. If the
+decision is `forbidden`, record a blocker and do not attempt the retarget.
+After retargeting, read back the saved config and stop so a later run starts
+with the right settings.
 
 ## End-Run Retargeting
 
 After a delivered review verdict, resolve the next phase's model and reasoning,
-update durable state, compare against runner readback, and retarget only with
-approval. If readback fails or mismatches, keep or set blocked state, write an
-alert, and do not start the next phase.
+update durable state, compare against runner readback, and retarget only when
+the approval-policy decision is `allowed` or explicit human approval is already
+present. The retarget plan should surface the operation decision so conservative
+mode preserves ask-first behavior and delegated modes avoid repeated prompts
+only for explicitly allowed runner updates. If readback fails or mismatches,
+keep or set blocked state, write an alert, and do not start the next phase.
 
 ## Progress And Stall Control
 

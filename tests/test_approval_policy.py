@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from roadmap_delivery.approval import (
+    approval_decision_for_operation,
     approved_operation_names,
     approved_operations_for_mode,
     default_approval_policy,
@@ -32,6 +33,22 @@ class ApprovalPolicyTests(unittest.TestCase):
         self.assertFalse(delegated_local["push_current_phase_branch"])
         self.assertTrue(delegated_delivery["push_current_phase_branch"])
 
+    def test_operation_resolver_distinguishes_allowed_ask_and_forbidden(self):
+        conservative = approved_operations_for_mode("conservative")
+        delegated_local = approved_operations_for_mode("delegated_local")
+
+        self.assertEqual(
+            approval_decision_for_operation(delegated_local, "retarget_saved_automation")["decision"],
+            "allowed",
+        )
+        self.assertEqual(
+            approval_decision_for_operation(conservative, "retarget_saved_automation")["decision"],
+            "ask",
+        )
+        destructive = approval_decision_for_operation(delegated_local, "destructive_git")
+        self.assertEqual(destructive["decision"], "forbidden")
+        self.assertIn("never automatic", destructive["reason"])
+
     def test_missing_policy_uses_conservative_legacy_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo_root = Path(tmp) / "repo"
@@ -48,6 +65,8 @@ class ApprovalPolicyTests(unittest.TestCase):
         self.assertEqual(report["fallback_reason"], "missing_policy")
         self.assertIn("edit_phase_owned_files", report["approved_operations"])
         self.assertNotIn("push_current_phase_branch", report["approved_operations"])
+        self.assertEqual(report["operation_decisions"]["retarget_saved_automation"]["decision"], "ask")
+        self.assertEqual(report["operation_decisions"]["promote_to_main"]["decision"], "forbidden")
         self.assertEqual(report["errors"], [])
 
     def test_custom_policy_missing_operations_default_to_denied(self):

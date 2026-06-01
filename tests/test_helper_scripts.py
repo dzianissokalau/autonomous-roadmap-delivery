@@ -727,6 +727,18 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(validate["warnings"], [])
             self.assertTrue(validate["blocked_remediation_guard"])
 
+    def test_inspect_and_validate_surface_approval_decisions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp)
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            for report in (inspect, validate):
+                decisions = report["approval_policy"]["operation_decisions"]
+                self.assertEqual(decisions["retarget_saved_automation"]["decision"], "ask")
+                self.assertEqual(decisions["promote_to_main"]["decision"], "forbidden")
+
     def test_root_automation_layout_is_supported_by_both_helpers(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = DeliveryFixture(tmp, state_layout="root")
@@ -1359,6 +1371,48 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(failed["failure_path"]["state_status"], "blocked")
             self.assertEqual(failed["failure_path"]["alert_kind"], "retarget-failed")
             self.assertTrue(failed["failure_path"]["stop_before_next_phase"])
+
+    def test_retarget_plan_honors_preapproved_automation_update(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                automation_model="gpt-5.4",
+                automation_reasoning="medium",
+            )
+            roadmap_path = fixture.repo_root / "roadmaps" / fixture.roadmap_filename
+            roadmap_path.write_text(
+                roadmap_path.read_text(encoding="utf-8")
+                + "\n## Phase 2 - Next Fixture\n\nNext fixture body.\n",
+                encoding="utf-8",
+            )
+            policy_text = DeliveryFixture.build_model_policy_text(
+                defaults_model="gpt-5.4",
+                defaults_reasoning="medium",
+                phases={
+                    "2": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                    "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                },
+            )
+            (fixture.state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
+            (fixture.state_dir / "approval_policy.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "approval_mode": "delegated_local",
+                        "operations": {},
+                        "never_auto": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            plan = self.run_plan(fixture, "--delivered-phase", "Phase 1 - Fixture")
+
+            self.assertEqual(plan["approval_policy"]["approval_mode"], "delegated_local")
+            self.assertEqual(plan["retarget"]["status"], "approved_update_available")
+            self.assertFalse(plan["retarget"]["approval_required"])
+            self.assertEqual(plan["retarget"]["approval_decision"]["decision"], "allowed")
 
     def test_model_policy_replay_prompts_cover_required_scenarios(self):
         prompt_text = (REPO_ROOT / "evals" / "model-policy-prompts.md").read_text(encoding="utf-8")

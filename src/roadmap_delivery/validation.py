@@ -10,6 +10,7 @@ import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
+from .approval import read_approval_policy
 from .git import run_git
 from .paths import (
     extract_roadmap_references,
@@ -1171,6 +1172,10 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
     if normalized(state.get("status")) == "blocked" and str(automation_status).upper() == "ACTIVE" and not blocked_remediation_guard:
         add(errors, "blocked_state_active_without_remediation_guard", "State is blocked and automation is ACTIVE without Blocked Remediation Mode.", automation_toml)
 
+    approval_policy = read_approval_policy(repo_root, state_file, state) if state_file else None
+    if approval_policy is not None:
+        errors.extend(approval_policy.get("errors", []))
+
     policy_path = state_dir / "phase_model_policy.json" if state_dir else None
     model_policy: Dict[str, Any] = {}
     if policy_path is not None:
@@ -1230,6 +1235,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "hard_stop_guard": hard_stop_guard,
         "blocked_remediation_guard": blocked_remediation_guard,
         "activation_reconciliation": activation_reconciliation,
+        "approval_policy": approval_policy,
         "model_policy": model_policy or None,
         "schema_validation": {
             "schema_paths": schema_paths,

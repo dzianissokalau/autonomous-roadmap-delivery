@@ -16,6 +16,44 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 DEFAULT_AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
 AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(DEFAULT_AUTOMATIONS_DIR))).expanduser()
 
+OPERATIONS = (
+    "edit_phase_owned_files",
+    "write_state_log_review_artifacts",
+    "create_or_switch_phase_branch",
+    "run_verification",
+    "commit_delivered_phase_locally",
+    "retarget_saved_automation",
+    "pause_saved_automation",
+    "push_current_phase_branch",
+)
+
+BASE_LOCAL_OPERATIONS = frozenset(
+    {
+        "edit_phase_owned_files",
+        "write_state_log_review_artifacts",
+        "create_or_switch_phase_branch",
+        "run_verification",
+    }
+)
+
+LOCAL_DELEGATED_OPERATIONS = frozenset(
+    {
+        "commit_delivered_phase_locally",
+        "retarget_saved_automation",
+        "pause_saved_automation",
+    }
+)
+
+DELIVERY_DELEGATED_OPERATIONS = frozenset({"push_current_phase_branch"})
+
+FORBIDDEN_NAMED_OPERATIONS = {
+    "sync_installed_skill": "Installed skill or plugin synchronization is never automatic.",
+    "publish_release_or_package": "Publication to release or package registries is never automatic.",
+    "promote_to_main": "Merging or promoting work to main is never automatic.",
+    "use_credentials": "Credential use requires explicit human approval and available credentials.",
+    "destructive_git": "Destructive git operations are never automatic.",
+}
+
 
 def unique(items: Iterable[str]) -> List[str]:
     seen = set()
@@ -129,6 +167,131 @@ def load_json(path: Path, errors: List[str]) -> Optional[Dict[str, Any]]:
     return value
 
 
+def approved_operations_for_mode(mode: str, custom_operations: Optional[Dict[str, bool]] = None) -> Dict[str, bool]:
+    if mode == "conservative":
+        allowed = set(BASE_LOCAL_OPERATIONS)
+    elif mode == "delegated_local":
+        allowed = set(BASE_LOCAL_OPERATIONS | LOCAL_DELEGATED_OPERATIONS)
+    elif mode == "delegated_delivery":
+        allowed = set(BASE_LOCAL_OPERATIONS | LOCAL_DELEGATED_OPERATIONS | DELIVERY_DELEGATED_OPERATIONS)
+    elif mode == "custom":
+        custom_operations = custom_operations or {}
+        return {operation: bool(custom_operations.get(operation, False)) for operation in OPERATIONS}
+    else:
+        allowed = set()
+    return {operation: operation in allowed for operation in OPERATIONS}
+
+
+def approved_operation_names(operations: Dict[str, bool]) -> List[str]:
+    return [operation for operation in OPERATIONS if operations.get(operation) is True]
+
+
+def approval_decision_for_operation(operations: Dict[str, bool], operation: str) -> Dict[str, Any]:
+    if operation in FORBIDDEN_NAMED_OPERATIONS:
+        return {
+            "operation": operation,
+            "decision": "forbidden",
+            "reason": FORBIDDEN_NAMED_OPERATIONS[operation],
+        }
+    if operation not in OPERATIONS:
+        return {
+            "operation": operation,
+            "decision": "forbidden",
+            "reason": "Unknown operation cannot be classified safely.",
+        }
+    if operations.get(operation) is True:
+        return {
+            "operation": operation,
+            "decision": "allowed",
+            "reason": "Approval policy pre-approves this operation.",
+        }
+    return {
+        "operation": operation,
+        "decision": "ask",
+        "reason": "Approval policy does not pre-approve this operation.",
+    }
+
+
+def read_approval_policy(repo_root: Path, state_path: Optional[Path], state: Dict[str, Any]) -> Dict[str, Any]:
+    if state_path is not None and isinstance(state.get("approval_policy_path"), str) and state.get("approval_policy_path"):
+        policy_path = resolve_repo_path(repo_root, str(state["approval_policy_path"]))
+    elif state_path is not None:
+        policy_path = state_path.parent / "approval_policy.json"
+    else:
+        policy_path = None
+
+    operations = approved_operations_for_mode("conservative")
+    if policy_path is None or not policy_path.exists():
+        return {
+            "path": str(policy_path) if policy_path else None,
+            "present": False,
+            "fallback": "conservative",
+            "fallback_reason": "missing_policy",
+            "approval_mode": "conservative",
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": {
+                operation: approval_decision_for_operation(operations, operation)
+                for operation in (*OPERATIONS, *FORBIDDEN_NAMED_OPERATIONS)
+            },
+            "errors": [],
+        }
+
+    policy = load_json(policy_path, [])
+    if policy is None:
+        return {
+            "path": str(policy_path),
+            "present": True,
+            "fallback": "conservative",
+            "fallback_reason": "invalid_policy",
+            "approval_mode": "conservative",
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": {
+                operation: approval_decision_for_operation(operations, operation)
+                for operation in (*OPERATIONS, *FORBIDDEN_NAMED_OPERATIONS)
+            },
+            "errors": [f"{policy_path}: approval_policy.json could not be read as an object"],
+        }
+
+    mode = policy.get("approval_mode")
+    raw_operations = policy.get("operations")
+    if mode not in {"conservative", "delegated_local", "delegated_delivery", "custom"} or not isinstance(raw_operations, dict):
+        return {
+            "path": str(policy_path),
+            "present": True,
+            "fallback": "conservative",
+            "fallback_reason": "invalid_policy",
+            "approval_mode": "conservative",
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": {
+                operation: approval_decision_for_operation(operations, operation)
+                for operation in (*OPERATIONS, *FORBIDDEN_NAMED_OPERATIONS)
+            },
+            "errors": [f"{policy_path}: approval policy mode or operations map is invalid"],
+        }
+
+    if mode == "custom":
+        operations = approved_operations_for_mode("custom", raw_operations)
+    else:
+        operations = approved_operations_for_mode(str(mode))
+    return {
+        "path": str(policy_path),
+        "present": True,
+        "fallback": None,
+        "fallback_reason": None,
+        "approval_mode": str(mode),
+        "approved_operations": approved_operation_names(operations),
+        "operations": operations,
+        "operation_decisions": {
+            operation: approval_decision_for_operation(operations, operation)
+            for operation in (*OPERATIONS, *FORBIDDEN_NAMED_OPERATIONS)
+        },
+        "errors": [],
+    }
+
+
 def find_state(repo_root: Path, forms: Dict[str, str], errors: List[str]) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
     candidates = state_candidates(repo_root, forms)
     for candidate in candidates:
@@ -238,6 +401,8 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
     forms = slug_forms(args.roadmap_slug)
     state_path, state = find_state(repo_root, forms, errors)
     state = state or {}
+    approval_policy = read_approval_policy(repo_root, state_path, state)
+    errors.extend(str(item) for item in approval_policy.get("errors", []))
 
     roadmap_path = resolve_repo_path(repo_root, state.get("roadmap"))
     if roadmap_path is None:
@@ -267,11 +432,22 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
         configured_model != target["model"]
         or configured_reasoning != target["reasoning_effort"]
     )
+    retarget_decision = approval_decision_for_operation(
+        approval_policy.get("operations", {}),
+        "retarget_saved_automation",
+    )
 
     retarget_status = "not_needed" if not update_required else "requires_approved_update"
     next_action = "advance state and leave automation config unchanged after readback"
     if update_required:
-        next_action = "request or perform an approved automation model/reasoning update, read back config, then stop"
+        if retarget_decision["decision"] == "allowed":
+            retarget_status = "approved_update_available"
+            next_action = "perform the pre-approved automation model/reasoning update, read back config, then stop"
+        elif retarget_decision["decision"] == "forbidden":
+            retarget_status = "forbidden_by_approval_policy"
+            next_action = "record a blocker because approval policy forbids automation retarget"
+        else:
+            next_action = "request an approved automation model/reasoning update, read back config, then stop"
     if not automation_toml:
         retarget_status = "automation_config_missing"
         next_action = "stop for automation config readback before advancing"
@@ -296,10 +472,12 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
             "configured_model": configured_model,
             "configured_reasoning_effort": configured_reasoning,
         },
+        "approval_policy": approval_policy,
         "retarget": {
             "status": retarget_status,
             "update_required": update_required,
-            "approval_required": update_required,
+            "approval_required": bool(update_required and retarget_decision["decision"] != "allowed"),
+            "approval_decision": retarget_decision,
             "simulated_failure": args.simulate_update_failure,
             "readback_required": True,
         },

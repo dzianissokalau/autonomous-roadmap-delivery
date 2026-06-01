@@ -30,7 +30,9 @@ When all phases are complete, do not extract or start another phase. Instead:
 4. Write a completed operator alert before relying on optional notification
    sinks.
 5. Set completed state or completed-pending-pause state.
-6. Pause the runner only when the pause surface is approved and read back.
+6. Pause the runner only when the approval-policy decision for
+   `pause_saved_automation` is `allowed` or explicit human approval is present,
+   then read back the paused runner status.
 7. If pause approval is unavailable, record the required human pause action.
 
 Completed state is a hard stop for future scheduled runs.
@@ -48,9 +50,11 @@ behavior.
 
 ## Promotion Boundary
 
-Promotion, publication, merging, pushing, release upload, and destructive branch
-operations are separate operator-approved actions. A finalization run may
-prepare evidence, but it must not publish or promote without explicit approval.
+Promotion, publication, merging, pushing, release upload, credential use,
+installed skill sync, and destructive branch operations are separate protected
+actions. A finalization run may prepare evidence, but it must not publish,
+promote, or use credentials when the approval-policy decision is `ask`, and it
+must record a blocker when the decision is `forbidden`.
 
 ## Host Adapter Boundary
 

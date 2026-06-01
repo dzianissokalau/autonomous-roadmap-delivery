@@ -100,6 +100,25 @@ For Codex app automations, the saved config must read back with matching
 fields, stop immediately after readback; do not continue delivery in the same
 run.
 
+## Approval Policy Gate
+
+Before asking the operator or performing an operation automatically, read and
+validate `automation/<slug>/approval_policy.json` when present. Missing policy
+keeps conservative legacy behavior. Resolve each named operation to `allowed`,
+`ask`, or `forbidden`:
+
+- `allowed`: the approval policy pre-approves the operation; proceed and record
+  the decision in state/log/review evidence.
+- `ask`: stop before the operation unless explicit human approval is already
+  present in the current workflow.
+- `forbidden`: record a blocker and do not run it automatically.
+
+Use named decisions for phase-owned edits, state/log/review writes, branch
+creation, local commits, automation retarget, automation pause, branch push,
+installed-skill sync, publication, promotion, credential use, and destructive
+git. Never-auto and unknown operations are always `forbidden`, even in
+delegated or custom modes.
+
 ## End-Run Retargeting Gate
 
 After a delivered review verdict and before advancing state to the next phase:
@@ -117,9 +136,9 @@ After a delivered review verdict and before advancing state to the next phase:
 4. If the current automation config already matches the next required
    model/reasoning, record that no retarget was needed and keep the automation
    active.
-5. If the config does not match, update it only when the operator already
-   approved that automation surface. Read the saved config back after the
-   update.
+5. If the config does not match, update it only when the approval-policy
+   decision for `retarget_saved_automation` is `allowed` or explicit human
+   approval is already present. Read the saved config back after the update.
 6. If readback matches, record the retarget result and stop. The next run
    starts the next phase.
 7. If the update or readback fails, set or keep the state blocked, write or

@@ -12,28 +12,28 @@
       "size": 217
     },
     {
-      "core_sha256": "a9472b51a34bfee6d12860d0966c0c9a5917e77d92e8e4ce46b2e1406d3e482c",
-      "core_size": 2620,
+      "core_sha256": "ac7ae838f373e5b544778a234da2e9659113c5a53568de2ccea203c51563b98b",
+      "core_size": 2860,
       "core_source": "core/references/finalization-and-promotion.md",
       "path": "references/finalization-and-promotion.md",
-      "sha256": "64392e3816c03393fc17fe41a6c345a5729480d86756112b7cd0f0b14494929b",
-      "size": 7637
+      "sha256": "64d278d1d534e4cd84362feb7631885a86f2f12976437d1c401bedf8b7ab5b2f",
+      "size": 8037
     },
     {
-      "core_sha256": "ded558eb2093df154ce5d0e192e502254a735c221b91e96d2a15791794ca8a95",
-      "core_size": 3790,
+      "core_sha256": "8d2733e9ccf00e2db0c9b2c1ddd5d78bacfd9655a39c3439a16ba05ea5755c31",
+      "core_size": 4295,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "references/model-policy-and-stall-control.md",
-      "sha256": "c9b2b88276fb91f61c9f4d1cb476527dfa0ffddf485a0357ced09e969cc7fd07",
-      "size": 13782
+      "sha256": "8d71838824f7fe5dddd4a49e586d16dfdb1b87ea1d7672a817804ccc873345a4",
+      "size": 14032
     },
     {
-      "core_sha256": "1b4d19782f4bdd2827984ec828b2fcdf98b5657f45643e681839a47c7451aebe",
-      "core_size": 3694,
+      "core_sha256": "b03e1bfdda3b2ce7bbf63cee87929c2f960a6886421d22660ab7a12ab69fd36d",
+      "core_size": 4554,
       "core_source": "core/references/phase-loop.md",
       "path": "references/phase-loop.md",
-      "sha256": "34116d64b3c4282d2d231db3cbb4283100381e9cccbf69985f500e1b15546e84",
-      "size": 11553
+      "sha256": "e53573edd555cb102cd988405d80caaebb8a792fe6d7c35e2a691762f59b56ac",
+      "size": 12536
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -60,12 +60,12 @@
       "size": 10919
     },
     {
-      "core_sha256": "2ab6b1fb1aec135080be2803fa37e04bf333c6c8d070dc3225869404f36ec2d3",
-      "core_size": 3650,
+      "core_sha256": "d91f49d08b4faf05dd8f85bfbab7097b95971189bc210e1458be5eae6d9f59e5",
+      "core_size": 4508,
       "core_source": "core/references/troubleshooting.md",
       "path": "references/troubleshooting.md",
-      "sha256": "f68763b0ae91fe039193df985285d0ff0102bd764ad9556ff0804ad710dd0272",
-      "size": 15666
+      "sha256": "eed66f395f925f87e7a1069d81719d361a28d51e0fae480fede33c1068a4da6d",
+      "size": 16609
     },
     {
       "mode": "0644",
@@ -82,8 +82,8 @@
     {
       "mode": "0755",
       "path": "scripts/plan_automation_retarget.py",
-      "sha256": "3348ec1d29a17be76a6eb1d404eaf8ccf63517b0a892a5c540979197aa8478c6",
-      "size": 13659
+      "sha256": "cb37729e157cf50db3e2fc14d7e225e21d2616af87a12438f55269cda91ab7be",
+      "size": 20952
     },
     {
       "mode": "0755",

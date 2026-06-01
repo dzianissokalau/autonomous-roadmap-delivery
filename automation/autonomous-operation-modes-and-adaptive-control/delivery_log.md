@@ -285,3 +285,82 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-1`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-2` and start
   Phase 2 - Approval Gate Enforcement.
+
+## Phase 2 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-2`
+
+### Scope
+
+- Enforce approval policy decisions across the approval helper, validation and
+  inspection reports, model-retarget planning, and workflow references.
+- Add named operation decisions for local work, local commits, branch creation,
+  automation retarget, automation pause, branch push, installed-skill sync,
+  publication, promotion, credential use, and destructive git.
+- Keep adaptive model escalation and completion pause semantics out of Phase 2.
+
+### Changes
+
+- Added an approval resolver that returns `allowed`, `ask`, or `forbidden` for
+  named operations, including clear forbidden reasons for never-auto actions.
+- Surfaced approval-policy operation decisions in `validate`, `inspect`, and
+  the retarget plan helper.
+- Updated the retarget plan so delegated local policy can report
+  `approved_update_available` when `retarget_saved_automation` is allowed,
+  while conservative missing-policy behavior remains ask-first.
+- Added `core/prompts/approval_policy_gate.md` and updated phase-loop,
+  troubleshooting, finalization, and model-policy references with approval gate
+  rules.
+- Refreshed Codex and Claude generated package outputs and package snapshots
+  after reference changes.
+- Advanced the roadmap header and delivery state to Phase 3 after the delivered
+  review verdict. The Phase 2 to Phase 3 retarget plan resolved to policy
+  defaults, and the saved automation already matched `gpt-5.5`/`xhigh`, so no
+  automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_approval_policy tests.test_helper_scripts -v`:
+  passed, 53 tests.
+- `python3 -m unittest tests.test_library_units -v`:
+  passed, 7 tests.
+- `python3 scripts/build_codex_package.py --check`:
+  passed; status ok, 14 files, no diffs.
+- `python3 -m unittest discover -s tests -v`:
+  passed, 144 tests, 1 skipped optional Claude binary smoke test.
+- `git diff --check`:
+  passed.
+- `python3 scripts/build_adapters.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --check --json`:
+  passed; Codex and Claude package reports were status ok with no generated
+  diffs.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 2 - Approval Gate Enforcement' --json`:
+  passed; Phase 3 uses policy defaults and no retarget was needed. The
+  approval policy readback remains conservative fallback because this automation
+  has no `approval_policy.json` yet.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-2-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Existing automations without `approval_policy.json`, including this one,
+  still report conservative fallback until the migration phase creates policy
+  artifacts.
+- `src/roadmap_delivery/automation.py` does not exist in this codebase; the
+  current retarget enforcement path lives in the retarget helper, validation,
+  inspection, and workflow references.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-3` and start
+  Phase 3 - Run Quality Classification And Adaptive Model Policy.

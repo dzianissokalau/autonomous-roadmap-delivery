@@ -1,4 +1,4 @@
-"""Approval policy helpers for roadmap automation setup and validation."""
+"""Approval policy helpers for roadmap automation setup, validation, and gates."""
 
 from __future__ import annotations
 
@@ -53,6 +53,28 @@ NEVER_AUTO_OPERATIONS = (
     "destructive_filesystem_outside_phase_scope",
 )
 
+FORBIDDEN_NAMED_OPERATIONS = {
+    "sync_installed_skill": "Installed skill or plugin synchronization is never automatic.",
+    "publish_release_or_package": "Publication to release or package registries is never automatic.",
+    "promote_to_main": "Merging or promoting work to main is never automatic.",
+    "use_credentials": "Credential use requires explicit human approval and available credentials.",
+    "destructive_git": "Destructive git operations are never automatic.",
+}
+
+NEVER_AUTO_REASONS = {
+    "force_push": "Force push is never automatic.",
+    "git_reset_hard": "git reset --hard is never automatic.",
+    "delete_branches_or_tags": "Deleting branches or tags is never automatic.",
+    "merge_or_promote_to_main": "Merging or promoting work to main is never automatic.",
+    "publish_releases_or_packages": "Publication to releases or package registries is never automatic.",
+    "use_unavailable_credentials": "Credentials unavailable to the runner cannot be used automatically.",
+    "change_repository_security_or_billing": "Repository security, visibility, permissions, secrets, or billing changes are never automatic.",
+    "install_or_sync_global_tools": "Installing or syncing global tools, skills, or plugins is never automatic.",
+    "destructive_filesystem_outside_phase_scope": "Destructive filesystem operations outside phase-owned paths are never automatic.",
+}
+
+APPROVAL_OPERATION_NAMES = OPERATIONS + tuple(FORBIDDEN_NAMED_OPERATIONS) + NEVER_AUTO_OPERATIONS
+
 
 def approved_operations_for_mode(
     mode: str,
@@ -76,6 +98,53 @@ def approved_operations_for_mode(
 
 def approved_operation_names(operations: Dict[str, bool]) -> List[str]:
     return [operation for operation in OPERATIONS if operations.get(operation) is True]
+
+
+def approval_decision_for_operation(operations: Dict[str, bool], operation: str) -> Dict[str, Any]:
+    """Return the gate decision for a named operation.
+
+    `allowed` means repository policy pre-approves the operation. `ask` means
+    the operation is possible only with explicit human approval. `forbidden`
+    means the operation is outside automation policy and must be recorded as a
+    blocker instead of being performed automatically.
+    """
+
+    if operation in FORBIDDEN_NAMED_OPERATIONS:
+        return {
+            "operation": operation,
+            "decision": "forbidden",
+            "reason": FORBIDDEN_NAMED_OPERATIONS[operation],
+        }
+    if operation in NEVER_AUTO_REASONS:
+        return {
+            "operation": operation,
+            "decision": "forbidden",
+            "reason": NEVER_AUTO_REASONS[operation],
+        }
+    if operation not in OPERATIONS:
+        return {
+            "operation": operation,
+            "decision": "forbidden",
+            "reason": "Unknown operation cannot be classified safely.",
+        }
+    if operations.get(operation) is True:
+        return {
+            "operation": operation,
+            "decision": "allowed",
+            "reason": "Approval policy pre-approves this operation.",
+        }
+    return {
+        "operation": operation,
+        "decision": "ask",
+        "reason": "Approval policy does not pre-approve this operation.",
+    }
+
+
+def approval_decisions_for_operations(operations: Dict[str, bool]) -> Dict[str, Dict[str, Any]]:
+    return {
+        operation: approval_decision_for_operation(operations, operation)
+        for operation in APPROVAL_OPERATION_NAMES
+    }
 
 
 def default_approval_policy(
@@ -201,39 +270,45 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
     path = approval_policy_path(repo_root, state_file, state)
     if not path.exists():
         policy = default_approval_policy("conservative")
+        operations = policy["operations"]
         return {
             "path": str(path),
             "present": False,
             "fallback": "conservative",
             "fallback_reason": "missing_policy",
             "approval_mode": "conservative",
-            "approved_operations": approved_operation_names(policy["operations"]),
-            "operations": policy["operations"],
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [],
         }
 
     try:
         policy = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
+        operations = approved_operations_for_mode("conservative")
         return {
             "path": str(path),
             "present": True,
             "fallback": "conservative",
             "fallback_reason": "invalid_json",
             "approval_mode": "conservative",
-            "approved_operations": approved_operation_names(approved_operations_for_mode("conservative")),
-            "operations": approved_operations_for_mode("conservative"),
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [_finding("invalid_approval_policy_json", f"Approval policy is invalid JSON: {exc}", path)],
         }
     except OSError as exc:
+        operations = approved_operations_for_mode("conservative")
         return {
             "path": str(path),
             "present": True,
             "fallback": "conservative",
             "fallback_reason": "unreadable",
             "approval_mode": "conservative",
-            "approved_operations": approved_operation_names(approved_operations_for_mode("conservative")),
-            "operations": approved_operations_for_mode("conservative"),
+            "approved_operations": approved_operation_names(operations),
+            "operations": operations,
+            "operation_decisions": approval_decisions_for_operations(operations),
             "errors": [_finding("approval_policy_unreadable", f"Cannot read approval policy: {exc}", path)],
         }
 
@@ -248,6 +323,7 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
             "approval_mode": "conservative",
             "approved_operations": approved_operation_names(operations),
             "operations": operations,
+            "operation_decisions": approval_decisions_for_operations(operations),
             "errors": errors,
         }
 
@@ -261,5 +337,6 @@ def read_approval_policy(repo_root: Path, state_file: Path, state: Dict[str, Any
         "approval_mode": mode,
         "approved_operations": approved_operation_names(operations),
         "operations": operations,
+        "operation_decisions": approval_decisions_for_operations(operations),
         "errors": [],
     }

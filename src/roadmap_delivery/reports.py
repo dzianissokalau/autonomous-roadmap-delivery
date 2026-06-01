@@ -9,6 +9,7 @@ import re
 import sys
 from typing import Any, Dict, List, Optional
 
+from .approval import read_approval_policy
 from .git import run_git
 from .paths import (
     automation_dir_candidates,
@@ -621,6 +622,11 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
                 suffix = f" line {line}" if line is not None else ""
                 add_warning(warnings, "invalid_run_log_jsonl", f"{item.get('path')}{suffix}: {item.get('message')}")
     blocked_remediation_required = normalized(state_status) == "blocked"
+    approval_policy: Optional[Dict[str, Any]] = None
+    if state_file is not None and state is not None:
+        approval_policy = read_approval_policy(repo_root, state_file, state)
+        for item in approval_policy.get("errors", []):
+            add_warning(warnings, item.get("code", "invalid_approval_policy"), item.get("message", "Approval policy is invalid."))
     if automation_prompt and not blocked_remediation_guard:
         add_warning(warnings, "automation_prompt_missing_blocked_remediation_guard", "Automation prompt does not include Blocked Remediation Mode.")
     all_phases_complete = is_complete_state(state)
@@ -661,6 +667,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "blocked_remediation_guard": blocked_remediation_guard,
         "hard_stop_guard": hard_stop_guard,
         "activation_reconciliation": activation_reconciliation,
+        "approval_policy": approval_policy,
         "required_model": model_policy.get("required_model"),
         "required_reasoning_effort": model_policy.get("required_reasoning_effort"),
         "configured_automation_model": model_policy.get("configured_model"),
@@ -736,6 +743,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "blocked_remediation_guard",
             "hard_stop_guard",
             "activation_reconciliation",
+            "approval_policy",
             "required_model",
             "required_reasoning_effort",
             "configured_automation_model",

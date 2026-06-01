@@ -213,10 +213,12 @@ If they mismatch, do not edit phase-owned files. Record:
 - required model and reasoning effort
 - configured model and reasoning effort
 - source of the configured values
-- whether retargeting is already approved
+- approval-policy decision for `retarget_saved_automation`
 
-Retarget the automation only when the operator already approved that surface,
-then exit so the next run starts on the correct model.
+Retarget the automation only when `retarget_saved_automation` resolves to
+`allowed` or explicit human approval is already present, then exit so the next
+run starts on the correct model. If the decision is `ask`, record the missing
+approval and stop. If the decision is `forbidden`, record a blocker.
 
 If the active model cannot be proven and the roadmap is model-strict, stop and
 ask for confirmation rather than guessing.
@@ -261,7 +263,8 @@ After a phase is delivered and reviewed:
 1. Resolve the next phase.
 2. Resolve the next phase model and reasoning from policy.
 3. Update state with next required model/reasoning.
-4. Retarget automation only when that update is approved.
+4. Retarget automation only when `retarget_saved_automation` is `allowed` or
+   explicit human approval is already present.
 5. Read back automation config.
 6. If readback fails or mismatches, mark blocked, write an alert, and do not
    start the next phase.
