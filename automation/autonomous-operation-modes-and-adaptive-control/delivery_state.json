@@ -201,10 +201,13 @@
     "deep_review_prompt_github_branch": "codex/autonomous-operation-modes-and-adaptive-control-phase-7",
     "deep_review_prompt_github_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/autonomous-operation-modes-and-adaptive-control-phase-7",
     "deep_review_prompt_raw_url": "https://raw.githubusercontent.com/dzianissokalau/roadmap-delivery-skill/codex/autonomous-operation-modes-and-adaptive-control-phase-7/automation/autonomous-operation-modes-and-adaptive-control/final_deep_review_prompt.md",
-    "branch_push_status": "approved_pending_push",
+    "branch_push_status": "pushed_to_origin",
     "branch_push_remote": "origin",
+    "branch_push_completed_at": "2026-06-01T18:01:13Z",
+    "branch_push_commit": "1f6207682c1f328d8867197b6b8fa4950b00230c",
+    "branch_push_url": "https://github.com/dzianissokalau/roadmap-delivery-skill/tree/codex/autonomous-operation-modes-and-adaptive-control-phase-7",
     "branch_push_operator_approval": "Operator requested: push to github branch, update deep review prompt so another LLM knows where on GitHub to fetch it.",
-    "publication_status": "github_review_branch_approved_pending_push; release_artifacts_not_published",
+    "publication_status": "github_review_branch_pushed; release_artifacts_not_published",
     "promotion_status": "not_promoted_without_approval",
     "installed_skill_sync_status": "not_synchronized_without_approval",
     "saved_automation_prompt_status": "still references the old in-progress roadmap path because live app automation prompt edits were not approved and the completed-state hard-stop guard is present"
@@ -223,7 +226,7 @@
     "result": null,
     "readback_status": "ACTIVE"
   },
-  "updated_at": "2026-06-01T17:03:16Z",
+  "updated_at": "2026-06-01T18:01:13Z",
   "last_run_quality": "flawless",
   "last_adaptive_action": {
     "action": "none",
