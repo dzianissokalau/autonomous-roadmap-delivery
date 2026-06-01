@@ -3,7 +3,7 @@
 Status: Completed
 Current phase: Complete
 Last updated: 2026-06-01
-Next action: Human merge review; promotion and publication remain separate approvals.
+Next action: Promoted to main; release publication and installed-skill synchronization remain separate approvals.
 Blocked by: None.
 
 ## Purpose

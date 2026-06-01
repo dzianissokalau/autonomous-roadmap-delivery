@@ -961,3 +961,41 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-7`
 - No promotion to `main`, release publication, package publication,
   installed-skill synchronization, destructive git operation, branch deletion,
   or force push was performed.
+
+## Main Promotion - 2026-06-01
+
+Status: promoted_to_main
+Target: `origin/main`
+Source branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-7`
+Source commit: `5f74d23fef2a69eb9004f16321c3873b3bfce86a`
+
+### Approval
+
+- Operator requested: "so promote it to main".
+- Scope is limited to fast-forward promotion to `main` and promotion audit
+  bookkeeping.
+- Release publication, package publication, installed-skill synchronization,
+  branch deletion, force push, destructive git, and repository security or
+  billing changes remain out of scope.
+
+### Pre-Promotion Verification
+
+- `python3 -m unittest discover -s tests -v`:
+  passed, 162 tests with 1 optional host-binary smoke skip.
+- `python3 scripts/build_adapters.py --check`: passed.
+- `python3 scripts/build_codex_package.py --check`: passed.
+- `python3 scripts/build_release.py --check`: passed.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --json`:
+  passed with no warnings.
+- `python3 -m roadmap_delivery.cli inspect --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --json`:
+  passed with no warnings.
+- `git diff --check`: passed.
+
+### Promotion
+
+- Confirmed remote `main` matched local `origin/main` at
+  `c7d4a5a09c3d258f40ba4cf757fe75a5f43d0f55` before promotion.
+- Confirmed `origin/main` was an ancestor of the reviewed source branch.
+- Fast-forwarded local `main` to the reviewed source branch and recorded this
+  promotion audit before pushing `origin/main`.
