@@ -1,9 +1,9 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
 Status: In Progress
-Current phase: Phase 3 - Run Quality Classification And Adaptive Model Policy
+Current phase: Phase 4 - Automation Self-Pause On Completion And Stall
 Last updated: 2026-06-01
-Next action: Deliver Phase 3 run quality classification and adaptive model policy.
+Next action: Deliver Phase 4 automation self-pause on completion and stall.
 Blocked by: None.
 
 ## Purpose

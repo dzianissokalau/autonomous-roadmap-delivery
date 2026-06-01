@@ -207,6 +207,51 @@
         "null"
       ]
     },
+    "last_run_quality": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "flawless",
+        "delivered_with_fixes",
+        "verification_failed",
+        "review_needs_fix",
+        "blocked_local_repairable",
+        "blocked_human_required",
+        "stalled",
+        "retarget_failed",
+        "completion_closeout_failed",
+        null
+      ]
+    },
+    "last_adaptive_action": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "model_history": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object"
+      }
+    },
+    "adaptive_escalation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "adaptive_deescalation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "adaptive_flawless_streak": {
+      "type": "integer",
+      "minimum": 0
+    },
     "auto_advance_after_delivered_review": {
       "type": "boolean"
     },

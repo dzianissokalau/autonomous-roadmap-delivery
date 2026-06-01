@@ -84,6 +84,71 @@
         },
         "additionalProperties": true
       }
+    },
+    "adaptive_model_policy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "escalate_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/run_quality"
+          }
+        },
+        "human_gated_qualities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/run_quality"
+          }
+        },
+        "deescalate_after_flawless_runs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "escalation": {
+          "$ref": "#/$defs/model_target"
+        },
+        "deescalation": {
+          "$ref": "#/$defs/model_target"
+        },
+        "caps": {
+          "type": "object",
+          "properties": {
+            "allowed_models": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "max_reasoning_effort": {
+              "$ref": "#/$defs/reasoning_effort"
+            },
+            "allowed_providers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allowed_cost_classes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "floors": {
+          "$ref": "#/$defs/model_target"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "$defs": {
@@ -96,6 +161,44 @@
         "high",
         "xhigh"
       ]
+    },
+    "run_quality": {
+      "type": "string",
+      "enum": [
+        "flawless",
+        "delivered_with_fixes",
+        "verification_failed",
+        "review_needs_fix",
+        "blocked_local_repairable",
+        "blocked_human_required",
+        "stalled",
+        "retarget_failed",
+        "completion_closeout_failed"
+      ]
+    },
+    "model_target": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reasoning_effort": {
+          "$ref": "#/$defs/reasoning_effort"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost_class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "min_reasoning_effort": {
+          "$ref": "#/$defs/reasoning_effort"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

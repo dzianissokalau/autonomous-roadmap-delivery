@@ -14,5 +14,36 @@
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh"
     }
+  },
+  "adaptive_model_policy": {
+    "enabled": true,
+    "escalate_on": [
+      "delivered_with_fixes",
+      "verification_failed",
+      "review_needs_fix",
+      "stalled",
+      "retarget_failed"
+    ],
+    "human_gated_qualities": [
+      "blocked_human_required",
+      "completion_closeout_failed"
+    ],
+    "deescalate_after_flawless_runs": 0,
+    "escalation": {
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh"
+    },
+    "caps": {
+      "allowed_models": [
+        "gpt-5.5"
+      ],
+      "max_reasoning_effort": "xhigh",
+      "allowed_providers": [
+        "openai"
+      ],
+      "allowed_cost_classes": [
+        "approved"
+      ]
+    }
   }
 }

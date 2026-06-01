@@ -58,9 +58,10 @@ operating policy, configured runner, and next action. The log is append-only
 after delivery starts.
 
 The phase model policy must define default model and reasoning requirements,
-optional phase overrides, finalization requirements, stall threshold, and alert
-mode. Configured runner model and reasoning values may be written to state only
-after readback proves them.
+optional phase overrides, finalization requirements, stall threshold, alert
+mode, and disabled-by-default adaptive model policy fields with explicit caps.
+Configured runner model and reasoning values may be written to state only after
+readback proves them.
 
 ## Prompt Requirements
 
@@ -75,6 +76,7 @@ The saved runner prompt must require the agent to:
 - enter blocked remediation before retrying delivery when state is blocked
 - hard-stop on completed or completed-pending-pause state
 - verify model and reasoning against policy before phase-owned edits
+- classify run quality and apply adaptive model policy only to the next run
 - preserve unrelated worktree changes
 - run required verification
 - write a fresh review artifact before phase advancement

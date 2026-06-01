@@ -9,6 +9,7 @@ import re
 import sys
 from typing import Any, Dict, List, Optional
 
+from .adaptive import adaptive_target_from_state, validate_adaptive_model_policy
 from .approval import read_approval_policy
 from .git import run_git
 from .paths import (
@@ -388,6 +389,11 @@ def inspect_model_policy(
         "present": False,
         "required_model": None,
         "required_reasoning_effort": None,
+        "base_required_model": None,
+        "base_required_reasoning_effort": None,
+        "selection_source": None,
+        "selection_reason": None,
+        "adaptive_policy": None,
         "configured_model": automation_data.get("model") if automation_data else None,
         "configured_reasoning_effort": automation_data.get("reasoning_effort") if automation_data else None,
         "model_mismatch": False,
@@ -409,6 +415,10 @@ def inspect_model_policy(
         add_warning(warnings, "invalid_model_policy_shape", f"Policy file root is not an object: {policy_path}")
         return result
     result["schema_version"] = policy.get("schema_version")
+    adaptive_policy = validate_adaptive_model_policy(policy)
+    result["adaptive_policy"] = adaptive_policy
+    for item in adaptive_policy.get("errors", []):
+        add_warning(warnings, str(item.get("code", "invalid_adaptive_policy")), str(item.get("message", "Adaptive model policy is invalid.")))
     if policy.get("schema_version") != 1:
         add_warning(warnings, "unsupported_model_policy_schema", f"Policy schema_version must be 1: {policy_path}")
     defaults = policy.get("defaults") if isinstance(policy.get("defaults"), dict) else {}
@@ -421,12 +431,26 @@ def inspect_model_policy(
         phase_policy = {}
     required_model = phase_policy.get("model") or defaults.get("model")
     required_reasoning = phase_policy.get("reasoning_effort") or defaults.get("reasoning_effort")
+    selection_source = f"phases.{phase_key}" if phase_key and phase_key in phases else "defaults"
+    selection_reason = f"Current phase target resolved from {selection_source}."
+    base_required_model = required_model
+    base_required_reasoning = required_reasoning
+    state_target = adaptive_target_from_state(state, state.get("current_phase"))
+    if state_target:
+        required_model = state_target.get("model") or required_model
+        required_reasoning = state_target.get("reasoning_effort") or required_reasoning
+        selection_source = str(state_target.get("source") or "state.last_adaptive_action")
+        selection_reason = str(state_target.get("reason") or "Adaptive target recorded in delivery state.")
     configured_model = automation_data.get("model") or state.get("configured_automation_model")
     configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")
     result.update(
         {
             "required_model": required_model,
             "required_reasoning_effort": required_reasoning,
+            "base_required_model": base_required_model,
+            "base_required_reasoning_effort": base_required_reasoning,
+            "selection_source": selection_source,
+            "selection_reason": selection_reason,
             "configured_model": configured_model,
             "configured_reasoning_effort": configured_reasoning,
             "model_mismatch": bool(required_model and configured_model and str(required_model) != str(configured_model)),

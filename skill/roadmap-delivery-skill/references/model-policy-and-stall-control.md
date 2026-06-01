@@ -48,6 +48,31 @@ Recommended shape:
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh"
     }
+  },
+  "adaptive_model_policy": {
+    "enabled": false,
+    "escalate_on": [
+      "delivered_with_fixes",
+      "verification_failed",
+      "review_needs_fix",
+      "stalled",
+      "retarget_failed"
+    ],
+    "human_gated_qualities": [
+      "blocked_human_required",
+      "completion_closeout_failed"
+    ],
+    "deescalate_after_flawless_runs": 0,
+    "escalation": {
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh"
+    },
+    "caps": {
+      "allowed_models": ["gpt-5.5"],
+      "max_reasoning_effort": "xhigh",
+      "allowed_providers": ["openai"],
+      "allowed_cost_classes": ["standard"]
+    }
   }
 }
 ```
@@ -59,6 +84,31 @@ Allowed `reasoning_effort` values:
 - `medium`
 - `high`
 - `xhigh`
+
+## Adaptive Model Policy
+
+Classify run quality after verification and the review verdict:
+
+- `flawless`
+- `delivered_with_fixes`
+- `verification_failed`
+- `review_needs_fix`
+- `blocked_local_repairable`
+- `blocked_human_required`
+- `stalled`
+- `retarget_failed`
+- `completion_closeout_failed`
+
+Adaptive policy applies only to the next run. It never changes the model inside
+an already-running Codex session. Non-flawless local delivery outcomes may
+escalate to the configured `escalation` target. Human-gated blockers skip model
+escalation and keep asking for the missing human action. A flawless streak may
+de-escalate only when explicitly configured.
+
+When adaptive policy is enabled, caps are required. Use `allowed_models`,
+`max_reasoning_effort`, and optional provider or cost-class caps to prevent
+unbounded model, provider, or cost changes without inferring provider-specific
+pricing.
 
 ## Provider Role Config
 
@@ -262,11 +312,14 @@ After a phase is delivered and reviewed:
 
 1. Resolve the next phase.
 2. Resolve the next phase model and reasoning from policy.
-3. Update state with next required model/reasoning.
-4. Retarget automation only when `retarget_saved_automation` is `allowed` or
+3. Classify the delivered run quality and apply `adaptive_model_policy` to the
+   next-run target.
+4. Update state with next required model/reasoning, run quality, adaptive
+   action, model history, and escalation/de-escalation counters.
+5. Retarget automation only when `retarget_saved_automation` is `allowed` or
    explicit human approval is already present.
-5. Read back automation config.
-6. If readback fails or mismatches, mark blocked, write an alert, and do not
+6. Read back automation config.
+7. If readback fails or mismatches, mark blocked, write an alert, and do not
    start the next phase.
 
 Do not deliver the next phase in the same run after retargeting.

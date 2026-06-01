@@ -182,12 +182,16 @@ class CliTests(unittest.TestCase):
             self.assertTrue((automation_dir / "delivery_state.json").is_file())
             self.assertTrue((automation_dir / "reviews").is_dir())
             policy = json.loads((automation_dir / "approval_policy.json").read_text(encoding="utf-8"))
+            model_policy = json.loads((automation_dir / "phase_model_policy.json").read_text(encoding="utf-8"))
             state = json.loads((automation_dir / "delivery_state.json").read_text(encoding="utf-8"))
             self.assertEqual(policy["approval_mode"], "conservative")
+            self.assertFalse(model_policy["adaptive_model_policy"]["enabled"])
             self.assertEqual(state["roadmap_slug"], "new-roadmap")
             self.assertEqual(state["approval_policy_path"], "automation/new_roadmap/approval_policy.json")
             self.assertEqual(state["approval_mode"], "conservative")
             self.assertEqual(state["last_approval_policy_readback"]["status"], "valid")
+            self.assertIsNone(state["last_run_quality"])
+            self.assertEqual(state["adaptive_flawless_streak"], 0)
             self.assertIn(str((automation_dir / "delivery_state.json").resolve()), report["created"])
 
     def test_scaffold_custom_approval_policy_reports_selected_operations(self):

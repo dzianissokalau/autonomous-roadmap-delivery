@@ -20,20 +20,20 @@
       "size": 8037
     },
     {
-      "core_sha256": "8d2733e9ccf00e2db0c9b2c1ddd5d78bacfd9655a39c3439a16ba05ea5755c31",
-      "core_size": 4295,
+      "core_sha256": "114ddcf9fabb04cdb361eaed2fd4c6bae35e8338dc428b55e994ce127db98e12",
+      "core_size": 6143,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "references/model-policy-and-stall-control.md",
-      "sha256": "8d71838824f7fe5dddd4a49e586d16dfdb1b87ea1d7672a817804ccc873345a4",
-      "size": 14032
+      "sha256": "5fe77f3f97bdf3fc7783206f7bed40c9cf244f5158dcd380fb58c68310d6f6b9",
+      "size": 15732
     },
     {
-      "core_sha256": "b03e1bfdda3b2ce7bbf63cee87929c2f960a6886421d22660ab7a12ab69fd36d",
-      "core_size": 4554,
+      "core_sha256": "8ab02081fe709944cc4175fa197ed656f8d4749eaca01b11056b6e5e93798fe8",
+      "core_size": 5370,
       "core_source": "core/references/phase-loop.md",
       "path": "references/phase-loop.md",
-      "sha256": "e53573edd555cb102cd988405d80caaebb8a792fe6d7c35e2a691762f59b56ac",
-      "size": 12536
+      "sha256": "86ac1d0255aef45e88b0498392779f3a81374acbafcbbb636b6699b829d7c9de",
+      "size": 13520
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -44,12 +44,12 @@
       "size": 5619
     },
     {
-      "core_sha256": "7f6c17b5f37b65ce102a350cda70c5d04f8a01b667f820bc670c442bafc9689d",
-      "core_size": 3890,
+      "core_sha256": "cade84c15ae2b4d1bf22d4cb7afd4170f9b8a02069aaae9bd46e15c5538fbeb5",
+      "core_size": 4035,
       "core_source": "core/references/setup-automation.md",
       "path": "references/setup-automation.md",
-      "sha256": "b7385a1de2e334407c9e57d333a81704ba0a131fc721e5ebfe9cae10a41d1e45",
-      "size": 15693
+      "sha256": "62aea869d0291fabdd52e4b96e34f63835c8b979e92348ec39d646de5105c059",
+      "size": 16656
     },
     {
       "core_sha256": "600e5a2f1e53c9269ca51af3258bc6083cf9ad63d93a130ad9f7592142738001",
@@ -82,8 +82,8 @@
     {
       "mode": "0755",
       "path": "scripts/plan_automation_retarget.py",
-      "sha256": "cb37729e157cf50db3e2fc14d7e225e21d2616af87a12438f55269cda91ab7be",
-      "size": 20952
+      "sha256": "7c8f20ff4f5b8bca9a770ce0cc2b3521b362fdcca58c9fe5a64691bf3a98db55",
+      "size": 32811
     },
     {
       "mode": "0755",

@@ -1,14 +1,14 @@
 {
     "roadmap": "roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md",
     "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
-    "current_phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
+    "current_phase": "Phase 4 - Automation Self-Pause On Completion And Stall",
     "status": "not_started",
     "review_iterations": 0,
     "max_review_iterations": 3,
     "active_review_file": null,
     "last_verdict": "delivered",
-    "last_review_file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-2-review-iteration-1.md",
-    "last_delivered_phase": "Phase 2 - Approval Gate Enforcement",
+    "last_review_file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-3-review-iteration-1.md",
+    "last_delivered_phase": "Phase 3 - Run Quality Classification And Adaptive Model Policy",
     "blocked_reason": null,
     "last_blocker_repair": {
         "repaired_at": "2026-06-01T11:51:32Z",
@@ -21,5 +21,5 @@
         "source": "operator/manual activation accepted in user report",
         "readback_status": "ACTIVE"
     },
-    "updated_at": "2026-06-01T12:36:26Z"
+    "updated_at": "2026-06-01T13:04:30Z"
 }

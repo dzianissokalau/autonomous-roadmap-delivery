@@ -84,6 +84,21 @@ Run every verification command named by the phase, then any targeted checks
 directly tied to changed behavior. If a required command cannot run, record the
 command, exit status or reason, classification, and next action.
 
+## Adaptive Model Gate
+
+After verification and review, classify the run quality before planning the
+next phase. Use the configured adaptive model policy to decide whether the next
+run keeps the base target, escalates, de-escalates after a flawless streak, or
+skips escalation because the blocker is human-gated. Record the run quality,
+adaptive action, target model/reasoning, target source, and approval decision
+in durable state, log, or review evidence.
+
+Adaptive decisions apply only to the next run. If the chosen next target differs
+from runner readback, retarget the saved runner only when approval policy
+allows that automation update or explicit human approval is already present.
+After any retarget, read back the saved runner config and stop so the next run
+starts with the selected model and reasoning.
+
 ## Review And Advancement
 
 Write a fresh review artifact before advancing. Advance only when acceptance

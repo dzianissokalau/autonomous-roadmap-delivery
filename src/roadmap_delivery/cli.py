@@ -336,6 +336,12 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
         "last_progress_signature": None,
         "last_progress_at": None,
         "last_operator_alert": None,
+        "last_run_quality": None,
+        "last_adaptive_action": None,
+        "model_history": [],
+        "adaptive_escalation_count": 0,
+        "adaptive_deescalation_count": 0,
+        "adaptive_flawless_streak": 0,
         "auto_advance_after_delivered_review": True,
         "commit_delivered_phase_locally": True,
         "push_to_github": False,
@@ -371,6 +377,25 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
         "notification": {"mode": "alert_file", "fallback": "alert_file"},
         "defaults": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
         "phases": {},
+        "adaptive_model_policy": {
+            "enabled": False,
+            "escalate_on": [
+                "delivered_with_fixes",
+                "verification_failed",
+                "review_needs_fix",
+                "stalled",
+                "retarget_failed",
+            ],
+            "human_gated_qualities": [
+                "blocked_human_required",
+                "completion_closeout_failed",
+            ],
+            "deescalate_after_flawless_runs": 0,
+            "caps": {
+                "allowed_models": ["gpt-5.5"],
+                "max_reasoning_effort": "xhigh",
+            },
+        },
     }
     _write_text_if_missing(automation_dir / "phase_model_policy.json", json.dumps(policy, indent=2) + "\n", created)
     _write_text_if_missing(automation_dir / "automation_run_log.jsonl", "", created)

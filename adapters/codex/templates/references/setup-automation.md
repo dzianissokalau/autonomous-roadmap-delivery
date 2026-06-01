@@ -91,6 +91,12 @@ readback proves them.
   "last_progress_signature": null,
   "last_progress_at": null,
   "last_operator_alert": null,
+  "last_run_quality": null,
+  "last_adaptive_action": null,
+  "model_history": [],
+  "adaptive_escalation_count": 0,
+  "adaptive_deescalation_count": 0,
+  "adaptive_flawless_streak": 0,
   "auto_advance_after_delivered_review": true,
   "push_to_github": false,
   "updated_at": null
@@ -110,6 +116,10 @@ automations. Ask for, or infer only from explicit operator setup answers:
 - finalization model and reasoning effort
 - `max_stalled_runs`, normally `3`
 - notification mode, normally `alert_file`
+- adaptive model policy, disabled by default unless the operator selected
+  escalation/de-escalation behavior
+- adaptive caps for allowed models, maximum reasoning effort, and optional
+  provider or cost-class boundaries
 
 Use lower-cost models or lower reasoning only for phases whose acceptance
 criteria are documentation-only, status-only, or otherwise low-risk. Use the
@@ -136,6 +146,25 @@ Minimum generated policy:
     "finalization": {
       "model": "<finalization-model>",
       "reasoning_effort": "<finalization-reasoning-effort>"
+    }
+  },
+  "adaptive_model_policy": {
+    "enabled": false,
+    "escalate_on": [
+      "delivered_with_fixes",
+      "verification_failed",
+      "review_needs_fix",
+      "stalled",
+      "retarget_failed"
+    ],
+    "human_gated_qualities": [
+      "blocked_human_required",
+      "completion_closeout_failed"
+    ],
+    "deescalate_after_flawless_runs": 0,
+    "caps": {
+      "allowed_models": ["<default-model>"],
+      "max_reasoning_effort": "<default-reasoning-effort>"
     }
   }
 }
@@ -214,6 +243,7 @@ For the current phase only:
   before implementation
 - make only phase-scoped changes
 - run required verification and targeted checks
+- classify run quality and apply adaptive model policy only to the next run
 - update `automation/<roadmap-slug>/delivery_log.md` and
   `automation/<roadmap-slug>/delivery_state.json`
 - perform a skeptical review from fresh context where available

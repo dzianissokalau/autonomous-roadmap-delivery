@@ -229,6 +229,25 @@ directly tied to changed behavior. If a required command cannot run, record:
 
 Do not claim delivery when verification only checked pre-existing behavior.
 
+## Adaptive Model Gate
+
+After verification and review, classify run quality before planning the next
+phase: `flawless`, `delivered_with_fixes`, `verification_failed`,
+`review_needs_fix`, `blocked_local_repairable`, `blocked_human_required`,
+`stalled`, `retarget_failed`, or `completion_closeout_failed`.
+
+Use `adaptive_model_policy` to decide whether the next run keeps the base
+target, escalates, de-escalates after a flawless streak, or skips escalation
+because the blocker is human-gated. Record the run quality, adaptive action,
+target model/reasoning, target source, and approval decision in state, log, or
+review evidence.
+
+Adaptive decisions apply only to the next run. If the chosen next target
+differs from Codex automation readback, retarget the saved automation only when
+approval policy allows that update or explicit human approval is already
+present. After any retarget, read back the saved config and stop so the next
+run starts with the selected model and reasoning.
+
 ## Review Gate
 
 After implementation and verification, write a fresh review file before

@@ -10,6 +10,7 @@ import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
+from .adaptive import adaptive_target_from_state, validate_adaptive_model_policy
 from .approval import read_approval_policy
 from .git import run_git
 from .paths import (
@@ -608,6 +609,11 @@ def validate_model_policy(
         "policy_path": str(policy_path),
         "required_model": None,
         "required_reasoning_effort": None,
+        "base_required_model": None,
+        "base_required_reasoning_effort": None,
+        "selection_source": None,
+        "selection_reason": None,
+        "adaptive_policy": None,
         "configured_model": automation_data.get("model"),
         "configured_reasoning_effort": automation_data.get("reasoning_effort"),
         "configured_model_source": "automation_config" if automation_data.get("model") else None,
@@ -627,6 +633,10 @@ def validate_model_policy(
 
     if policy.get("schema_version") != 1:
         add(errors, "unsupported_model_policy_schema", "Policy schema_version must be 1.", policy_path)
+    adaptive_policy = validate_adaptive_model_policy(policy)
+    result["adaptive_policy"] = adaptive_policy
+    for item in adaptive_policy.get("errors", []):
+        add(errors, str(item.get("code") or "invalid_adaptive_policy"), str(item.get("message") or "Adaptive model policy is invalid."), policy_path)
 
     max_stalled = policy.get("max_stalled_runs")
     if not isinstance(max_stalled, int) or isinstance(max_stalled, bool) or max_stalled < 1:
@@ -677,8 +687,20 @@ def validate_model_policy(
         phase_policy = {}
     required_model = phase_policy.get("model") or default_model
     required_reasoning = phase_policy.get("reasoning_effort") or default_reasoning
+    selection_source = f"phases.{phase_key}" if phase_key and phase_key in phases else "defaults"
+    selection_reason = f"Current phase target resolved from {selection_source}."
+    result["base_required_model"] = required_model
+    result["base_required_reasoning_effort"] = required_reasoning
+    state_target = adaptive_target_from_state(state, state.get("current_phase"))
+    if state_target:
+        required_model = state_target.get("model") or required_model
+        required_reasoning = state_target.get("reasoning_effort") or required_reasoning
+        selection_source = str(state_target.get("source") or "state.last_adaptive_action")
+        selection_reason = str(state_target.get("reason") or "Adaptive target recorded in delivery state.")
     result["required_model"] = required_model
     result["required_reasoning_effort"] = required_reasoning
+    result["selection_source"] = selection_source
+    result["selection_reason"] = selection_reason
 
     configured_model = automation_data.get("model") or state.get("configured_automation_model")
     configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")

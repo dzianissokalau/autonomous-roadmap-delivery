@@ -54,6 +54,35 @@ FORBIDDEN_NAMED_OPERATIONS = {
     "destructive_git": "Destructive git operations are never automatic.",
 }
 
+RUN_QUALITIES = (
+    "flawless",
+    "delivered_with_fixes",
+    "verification_failed",
+    "review_needs_fix",
+    "blocked_local_repairable",
+    "blocked_human_required",
+    "stalled",
+    "retarget_failed",
+    "completion_closeout_failed",
+)
+
+DEFAULT_ESCALATE_ON = (
+    "delivered_with_fixes",
+    "verification_failed",
+    "review_needs_fix",
+    "stalled",
+    "retarget_failed",
+)
+
+DEFAULT_HUMAN_GATED_QUALITIES = (
+    "blocked_human_required",
+    "completion_closeout_failed",
+)
+
+LOCAL_REPAIRABLE_BLOCKERS = {"local-repairable", "local_repairable", "automation-config", "automation_config"}
+HUMAN_GATED_BLOCKERS = {"permission-gated", "permission_gated", "external-decision", "external_decision", "destructive-risk", "destructive_risk"}
+REASONING_ORDER = ("minimal", "low", "medium", "high", "xhigh")
+
 
 def unique(items: Iterable[str]) -> List[str]:
     seen = set()
@@ -210,6 +239,221 @@ def approval_decision_for_operation(operations: Dict[str, bool], operation: str)
         "decision": "ask",
         "reason": "Approval policy does not pre-approve this operation.",
     }
+
+
+def normalized(value: Any) -> str:
+    return str(value or "").strip().lower().replace("_", "-")
+
+
+def normalize_run_quality(value: Any) -> Optional[str]:
+    text = normalized(value)
+    for quality in RUN_QUALITIES:
+        if text == quality.replace("_", "-"):
+            return quality
+    return None
+
+
+def nonzero_int(value: Any) -> int:
+    if isinstance(value, bool):
+        return 0
+    if isinstance(value, int) and value > 0:
+        return value
+    return 0
+
+
+def reasoning_index(value: Any) -> Optional[int]:
+    try:
+        return REASONING_ORDER.index(str(value or ""))
+    except ValueError:
+        return None
+
+
+def next_reasoning(value: Any, max_reasoning: Any = None) -> Any:
+    index = reasoning_index(value)
+    if index is None:
+        return value
+    cap_index = reasoning_index(max_reasoning)
+    if cap_index is None:
+        cap_index = len(REASONING_ORDER) - 1
+    return REASONING_ORDER[min(index + 1, cap_index)]
+
+
+def string_list(value: Any, default: Iterable[str]) -> List[str]:
+    if not isinstance(value, list):
+        return list(default)
+    return [str(item) for item in value if isinstance(item, str) and item.strip()]
+
+
+def classify_run_quality(
+    state: Dict[str, Any],
+    *,
+    retarget_status: Any = None,
+    blocker_class: Any = None,
+    stalled: Optional[bool] = None,
+    completion_closeout_failed: bool = False,
+) -> str:
+    recorded = normalize_run_quality(state.get("last_run_quality"))
+    if recorded:
+        return recorded
+    if completion_closeout_failed:
+        return "completion_closeout_failed"
+    if normalized(retarget_status) in {"failed", "retarget-failed", "retarget-failed-alert"}:
+        return "retarget_failed"
+    if stalled is None:
+        stalled_count = nonzero_int(state.get("stalled_run_count"))
+        max_stalled = nonzero_int(state.get("max_stalled_runs"))
+        stalled = bool(max_stalled and stalled_count >= max_stalled)
+    if stalled:
+        return "stalled"
+    blocker = normalized(blocker_class or state.get("blocker_class") or state.get("last_blocker_class"))
+    if blocker in LOCAL_REPAIRABLE_BLOCKERS:
+        return "blocked_local_repairable"
+    if blocker in HUMAN_GATED_BLOCKERS:
+        return "blocked_human_required"
+    verification = state.get("last_verification") if isinstance(state.get("last_verification"), dict) else {}
+    if normalized(verification.get("status")) in {"failed", "error", "failure"}:
+        return "verification_failed"
+    review = state.get("last_review") if isinstance(state.get("last_review"), dict) else {}
+    verdict = normalized(review.get("verdict"))
+    if verdict == "needs-fix":
+        return "review_needs_fix"
+    if verdict == "blocked":
+        return "blocked_human_required"
+    if verdict == "delivered":
+        return "delivered_with_fixes" if nonzero_int(state.get("review_iterations")) > 1 else "flawless"
+    return "blocked_human_required" if blocker else "flawless"
+
+
+def validate_adaptive_policy(policy: Dict[str, Any]) -> List[str]:
+    adaptive = policy.get("adaptive_model_policy")
+    if not isinstance(adaptive, dict):
+        return []
+    errors: List[str] = []
+    enabled = bool(adaptive.get("enabled"))
+    for field in ("escalate_on", "human_gated_qualities"):
+        value = adaptive.get(field)
+        if value is not None and not isinstance(value, list):
+            errors.append(f"adaptive_model_policy.{field} must be an array")
+            continue
+        for item in value or []:
+            if normalize_run_quality(item) is None:
+                errors.append(f"adaptive_model_policy.{field} contains unknown run quality {item!r}")
+    caps = adaptive.get("caps")
+    if enabled and not isinstance(caps, dict):
+        errors.append("enabled adaptive_model_policy must define caps")
+        caps = {}
+    elif not isinstance(caps, dict):
+        caps = {}
+    allowed_models = caps.get("allowed_models")
+    if enabled and (not isinstance(allowed_models, list) or not allowed_models or not all(isinstance(item, str) and item.strip() for item in allowed_models)):
+        errors.append("adaptive_model_policy.caps.allowed_models must be a non-empty string array")
+    max_reasoning = caps.get("max_reasoning_effort")
+    if enabled and max_reasoning not in REASONING_ORDER:
+        errors.append("adaptive_model_policy.caps.max_reasoning_effort must be a known reasoning effort")
+    for field in ("escalation", "deescalation"):
+        target = adaptive.get(field)
+        if target is None:
+            continue
+        if not isinstance(target, dict):
+            errors.append(f"adaptive_model_policy.{field} must be an object")
+            continue
+        model = target.get("model")
+        reasoning = target.get("reasoning_effort")
+        if enabled and model is not None and isinstance(allowed_models, list) and model not in allowed_models:
+            errors.append(f"adaptive_model_policy.{field}.model {model!r} is not allowed by caps.allowed_models")
+        if reasoning is not None and reasoning not in REASONING_ORDER:
+            errors.append(f"adaptive_model_policy.{field}.reasoning_effort must be a known reasoning effort")
+        if enabled and reasoning_index(reasoning) is not None and reasoning_index(max_reasoning) is not None and reasoning_index(reasoning) > reasoning_index(max_reasoning):
+            errors.append(f"adaptive_model_policy.{field}.reasoning_effort exceeds caps.max_reasoning_effort")
+    return errors
+
+
+def resolve_adaptive_action(
+    policy: Dict[str, Any],
+    *,
+    base_target: Dict[str, Any],
+    run_quality: str,
+    flawless_streak: Any,
+) -> Dict[str, Any]:
+    adaptive = policy.get("adaptive_model_policy")
+    target = {
+        "model": base_target.get("model"),
+        "reasoning_effort": base_target.get("reasoning_effort"),
+    }
+    result = {
+        "enabled": bool(isinstance(adaptive, dict) and adaptive.get("enabled")),
+        "run_quality": run_quality,
+        "action": "disabled",
+        "target": target,
+        "target_changed": False,
+        "next_flawless_streak": nonzero_int(flawless_streak),
+        "reason": "Adaptive model policy is disabled or absent.",
+        "errors": [],
+    }
+    if not result["enabled"]:
+        return result
+    errors = validate_adaptive_policy(policy)
+    if errors:
+        result.update({"action": "blocked_by_policy", "reason": "Adaptive model policy is invalid.", "errors": errors})
+        return result
+    assert isinstance(adaptive, dict)
+    caps = adaptive.get("caps") if isinstance(adaptive.get("caps"), dict) else {}
+    human_gated = {normalize_run_quality(item) for item in string_list(adaptive.get("human_gated_qualities"), DEFAULT_HUMAN_GATED_QUALITIES)}
+    escalate_on = {normalize_run_quality(item) for item in string_list(adaptive.get("escalate_on"), DEFAULT_ESCALATE_ON)}
+    if run_quality in human_gated:
+        result.update(
+            {
+                "action": "none_human_gated",
+                "next_flawless_streak": 0,
+                "reason": "Human-gated blockers require the missing human action instead of model escalation.",
+            }
+        )
+        return result
+    if run_quality in escalate_on:
+        escalation = adaptive.get("escalation") if isinstance(adaptive.get("escalation"), dict) else {}
+        candidate = {
+            "model": escalation.get("model") or target["model"],
+            "reasoning_effort": escalation.get("reasoning_effort") or next_reasoning(target["reasoning_effort"], caps.get("max_reasoning_effort")),
+        }
+        result.update(
+            {
+                "action": "escalate" if candidate != target else "none_at_cap",
+                "target": candidate,
+                "target_changed": candidate != target,
+                "next_flawless_streak": 0,
+                "reason": "Run quality triggers adaptive escalation." if candidate != target else "Run quality triggers escalation, but the target is already at the configured cap.",
+            }
+        )
+        return result
+    if run_quality == "flawless":
+        next_streak = nonzero_int(flawless_streak) + 1
+        threshold = adaptive.get("deescalate_after_flawless_runs", 0)
+        if isinstance(threshold, int) and not isinstance(threshold, bool) and threshold > 0 and next_streak >= threshold:
+            deescalation = adaptive.get("deescalation") if isinstance(adaptive.get("deescalation"), dict) else {}
+            candidate = {
+                "model": deescalation.get("model") or target["model"],
+                "reasoning_effort": deescalation.get("reasoning_effort") or target["reasoning_effort"],
+            }
+            result.update(
+                {
+                    "action": "deescalate" if candidate != target else "none",
+                    "target": candidate,
+                    "target_changed": candidate != target,
+                    "next_flawless_streak": 0 if candidate != target else next_streak,
+                    "reason": "Flawless run streak reached the configured de-escalation threshold.",
+                }
+            )
+            return result
+        result.update(
+            {
+                "action": "none",
+                "next_flawless_streak": next_streak,
+                "reason": "Flawless run keeps the current model policy target.",
+            }
+        )
+        return result
+    result.update({"action": "none", "next_flawless_streak": 0, "reason": "Run quality does not trigger an adaptive model change."})
+    return result
 
 
 def read_approval_policy(repo_root: Path, state_path: Optional[Path], state: Dict[str, Any]) -> Dict[str, Any]:
@@ -422,7 +666,26 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
     if policy is None:
         errors.append("phase_model_policy.json was not found or could not be read")
         policy = {}
-    target = resolve_policy_target(policy, next_key, errors)
+    base_target = resolve_policy_target(policy, next_key, errors)
+    run_quality = classify_run_quality(state)
+    adaptive_action = resolve_adaptive_action(
+        policy,
+        base_target=base_target,
+        run_quality=run_quality,
+        flawless_streak=state.get("adaptive_flawless_streak", 0),
+    )
+    errors.extend(str(item) for item in adaptive_action.get("errors", []))
+    target = dict(base_target)
+    target["base_model"] = base_target.get("model")
+    target["base_reasoning_effort"] = base_target.get("reasoning_effort")
+    target["adaptive_action"] = adaptive_action.get("action")
+    target["adaptive_run_quality"] = adaptive_action.get("run_quality")
+    target["adaptive_reason"] = adaptive_action.get("reason")
+    if adaptive_action.get("target_changed"):
+        adaptive_target = adaptive_action.get("target") or {}
+        target["model"] = adaptive_target.get("model")
+        target["reasoning_effort"] = adaptive_target.get("reasoning_effort")
+        target["source"] = f"{base_target.get('source')}+adaptive.{adaptive_action.get('action')}"
 
     automation_toml = find_automation_toml(args.automation_id, forms)
     automation_data = parse_minimal_toml(automation_toml) if automation_toml and automation_toml.exists() else {}
@@ -464,6 +727,8 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
         "next_phase_key": next_key,
         "next_phase": next_phase,
         "target": target,
+        "run_quality": run_quality,
+        "adaptive_action": adaptive_action,
         "automation": {
             "id": args.automation_id,
             "toml": str(automation_toml) if automation_toml else None,
@@ -487,6 +752,15 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
             "required_reasoning_effort": target["reasoning_effort"],
             "configured_automation_model": configured_model,
             "configured_automation_reasoning_effort": configured_reasoning,
+            "last_run_quality": run_quality,
+            "last_adaptive_action": {
+                "action": adaptive_action.get("action"),
+                "run_quality": adaptive_action.get("run_quality"),
+                "target_phase": next_phase,
+                "target": adaptive_action.get("target"),
+                "reason": adaptive_action.get("reason"),
+            },
+            "adaptive_flawless_streak": adaptive_action.get("next_flawless_streak"),
         },
         "failure_path": {
             "state_status": "blocked",

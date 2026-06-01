@@ -364,3 +364,93 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-2`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-3` and start
   Phase 3 - Run Quality Classification And Adaptive Model Policy.
+
+## Phase 3 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-4`
+
+### Scope
+
+- Add run quality classification and adaptive model policy support.
+- Add durable state fields for run quality, adaptive action, model history, and
+  adaptive counters.
+- Make validation, inspection, and the retarget plan explain adaptive decisions
+  and respect approval-policy retarget gates.
+- Keep completion pause semantics out of Phase 3.
+
+### Changes
+
+- Added `src/roadmap_delivery/adaptive.py` with run-quality classification,
+  adaptive escalation/de-escalation resolution, human-gated no-op behavior, and
+  cap validation.
+- Extended `schemas/phase_model_policy.schema.json` for
+  `adaptive_model_policy`, run quality names, model targets, caps, providers,
+  and cost classes.
+- Extended `schemas/delivery_state.schema.json`, scaffold state creation, and
+  the delivery-state template with `last_run_quality`,
+  `last_adaptive_action`, `model_history`, and adaptive counters.
+- Updated validation and inspection so adaptive policy errors are surfaced and
+  state-recorded adaptive targets can explain the current required model.
+- Updated the retarget planner to classify delivered run quality, apply
+  adaptive policy to the next target, and report adaptive action plus approval
+  policy decisions without mutating saved automation config.
+- Added `core/prompts/adaptive_model_gate.md` and updated core, Codex, and
+  Claude workflow references for next-run-only adaptive behavior.
+- Refreshed generated Codex and Claude package outputs and package snapshots.
+- Added `tests/test_adaptive_model_policy.py` for classification, escalation,
+  human-gated blockers, cap validation, retarget planning, and inspection
+  explanation.
+- Updated this automation's `phase_model_policy.json` with enabled adaptive
+  policy capped to the approved `gpt-5.5`/`xhigh` target.
+- Advanced the roadmap header and delivery state to Phase 4 after the delivered
+  review verdict. The Phase 3 to Phase 4 retarget plan classified the run as
+  `flawless`; adaptive action was `none`, and the saved automation already
+  matched `gpt-5.5`/`xhigh`, so no automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_adaptive_model_policy tests.test_helper_scripts -v`:
+  passed, 53 tests.
+- `python3 -m unittest tests.test_schema_validation -v`:
+  passed, 7 tests.
+- `python3 scripts/build_codex_package.py --check --json`:
+  passed; status ok, 14 files, no diffs.
+- `python3 scripts/build_adapters.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --check --json`:
+  passed; Codex and Claude package reports were status ok with no generated
+  diffs.
+- `python3 -m unittest discover -s tests -v`:
+  passed, 150 tests with 1 skipped optional Claude binary smoke test.
+- `git diff --check`:
+  passed.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 3 - Run Quality Classification And Adaptive Model Policy' --json`:
+  passed; Phase 4 uses policy defaults, run quality is `flawless`, adaptive
+  action is `none`, and no retarget was needed.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-3-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Existing automations without `approval_policy.json`, including this one,
+  still report conservative fallback until the migration phase creates policy
+  artifacts.
+- Provider pricing is not inferred; provider and cost-class behavior depends on
+  explicit policy caps.
+- `src/roadmap_delivery/automation.py` does not exist in this codebase; saved
+  automation retarget behavior remains implemented through the retarget helper,
+  validation, inspection, workflow references, and runner readback.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-4` and start
+  Phase 4 - Automation Self-Pause On Completion And Stall.

@@ -28,6 +28,7 @@ REQUIRED_TEMPLATE_FILES = {
 }
 
 REQUIRED_PROMPT_FILES = {
+    "adaptive_model_gate.md",
     "blocked_remediation.md",
     "model_policy_gate.md",
     "review_gate.md",
