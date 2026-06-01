@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "roadmap": "roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md",
+  "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
+  "current_phase": "Phase 0 - Policy Contract And Safety Boundary",
+  "branch": null,
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "last_verification": null,
+  "last_review": null,
+  "last_delivered_phase": null,
+  "blocked_reason": null,
+  "last_blocker_repair": null,
+  "required_model": "gpt-5.5",
+  "required_reasoning_effort": "xhigh",
+  "configured_automation_model": "gpt-5.5",
+  "configured_automation_reasoning_effort": "xhigh",
+  "configured_automation_status": "PAUSED",
+  "configured_execution_environment": "local",
+  "automation": {
+    "id": "autonomous-operation-modes-and-adaptive-control",
+    "status": "PAUSED",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh",
+    "execution_environment": "local",
+    "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
+    "readback_at": "2026-06-01T08:53:42Z",
+    "initial_active_drift_repaired": true
+  },
+  "last_setup_validation": {
+    "completed_at": "2026-06-01T08:54:14Z",
+    "status": "passed_with_expected_setup_warnings",
+    "warnings_allowed": [
+      "empty_review_dir",
+      "current_branch_name_mismatch",
+      "worktree_dirty"
+    ],
+    "inspection_warnings": [
+      "worktree_dirty",
+      "roadmap_lifecycle_filename_mismatch"
+    ],
+    "inspection_note": "Inspector reports not_started_ lifecycle warning for setup state because not_started is currently included in ACTIVE_STATUSES; validator accepts the roadmap as Not Started at Phase 0."
+  },
+  "run_count": 0,
+  "stalled_run_count": 0,
+  "max_stalled_runs": 3,
+  "last_progress_signature": null,
+  "last_progress_at": null,
+  "last_operator_alert": null,
+  "auto_advance_after_delivered_review": true,
+  "commit_delivered_phase_locally": true,
+  "push_to_github": false,
+  "all_phases_complete": false,
+  "deep_review_prompt": null,
+  "final_deep_review_prompt_prepared": false,
+  "final_deep_review_prompt_file": null,
+  "final_deep_review_status": null,
+  "updated_at": "2026-06-01T08:54:14Z"
+}

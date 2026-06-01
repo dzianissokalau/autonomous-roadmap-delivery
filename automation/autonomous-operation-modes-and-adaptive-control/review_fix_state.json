@@ -1,0 +1,14 @@
+{
+  "roadmap": "roadmaps/not_started_autonomous_operation_modes_and_adaptive_control_roadmap.md",
+  "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
+  "current_phase": "Phase 0 - Policy Contract And Safety Boundary",
+  "status": "not_started",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "active_review_file": null,
+  "last_verdict": null,
+  "last_review_file": null,
+  "last_delivered_phase": null,
+  "blocked_reason": null,
+  "updated_at": "2026-06-01T08:51:39Z"
+}
