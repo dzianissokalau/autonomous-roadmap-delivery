@@ -17,6 +17,21 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
   "last_delivered_phase": null,
   "blocked_reason": null,
   "last_blocker_repair": null,
+  "approval_policy_path": "automation/<roadmap-slug>/approval_policy.json",
+  "approval_mode": "conservative",
+  "last_approval_policy_readback": {
+    "read_at": null,
+    "path": "automation/<roadmap-slug>/approval_policy.json",
+    "status": "valid",
+    "approval_mode": "conservative",
+    "approved_operations": [
+      "edit_phase_owned_files",
+      "write_state_log_review_artifacts",
+      "create_or_switch_phase_branch",
+      "run_verification"
+    ],
+    "fallback_reason": null
+  },
   "required_model": "<required-model-or-null>",
   "required_reasoning_effort": "<required-reasoning-or-null>",
   "configured_automation_model": "<configured-model-or-null>",
@@ -36,3 +51,6 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
 
 Configured model and reasoning fields must come from runner readback, not from
 desired policy values.
+
+Missing `approval_policy.json` keeps legacy conservative behavior. Invalid
+approval policies must fail validation before delivery relies on pre-approval.

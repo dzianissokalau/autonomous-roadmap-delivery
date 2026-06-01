@@ -17,6 +17,7 @@ Create durable artifacts under the repository automation directory:
 ```text
 automation/<roadmap-slug>/
   automation_guide.md
+  approval_policy.json
   delivery_state.json
   delivery_log.md
   review_fix_state.json
@@ -43,7 +44,14 @@ guide/log/state to ACTIVE and record the activation.
 The initial state must identify the roadmap, slug, current phase, phase branch
 when known, status, review iteration counters, model policy fields, verification
 evidence, latest review evidence, blocker fields, run/stall counters, and
-updated timestamp.
+updated timestamp. It must also record the approval policy path, active
+approval mode, and last approval-policy readback.
+
+The approval policy must start as `conservative` unless the operator explicitly
+selects `delegated_local`, `delegated_delivery`, or `custom`. A missing approval
+policy keeps legacy conservative behavior. An invalid approval policy must fail
+validation before delivery relies on pre-approval. Custom policy must provide an
+operation allow/deny map, with missing operations treated as denied.
 
 The initial delivery log must describe the roadmap, state path, review path,
 operating policy, configured runner, and next action. The log is append-only
@@ -60,6 +68,9 @@ The saved runner prompt must require the agent to:
 
 - read the roadmap, state, log, review state, policy, latest reviews, runner
   configuration, branch, and worktree status before editing
+- read and validate approval policy before relying on pre-approved operations
+- use conservative legacy behavior when approval policy is missing
+- stop before delivery when approval policy is invalid
 - operate on exactly one current phase
 - enter blocked remediation before retrying delivery when state is blocked
 - hard-stop on completed or completed-pending-pause state

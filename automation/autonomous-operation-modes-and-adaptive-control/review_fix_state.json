@@ -1,14 +1,14 @@
 {
   "roadmap": "roadmaps/in_progress_autonomous_operation_modes_and_adaptive_control_roadmap.md",
   "roadmap_slug": "autonomous-operation-modes-and-adaptive-control",
-  "current_phase": "Phase 1 - Approval Policy Schema And Setup UX",
+  "current_phase": "Phase 2 - Approval Gate Enforcement",
   "status": "not_started",
   "review_iterations": 0,
   "max_review_iterations": 3,
   "active_review_file": null,
   "last_verdict": "delivered",
-  "last_review_file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-0-review-iteration-2.md",
-  "last_delivered_phase": "Phase 0 - Policy Contract And Safety Boundary",
+  "last_review_file": "automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-1-review-iteration-1.md",
+  "last_delivered_phase": "Phase 1 - Approval Policy Schema And Setup UX",
   "blocked_reason": null,
   "last_blocker_repair": {
     "repaired_at": "2026-06-01T11:51:32Z",
@@ -21,5 +21,5 @@
     "source": "operator/manual activation accepted in user report",
     "readback_status": "ACTIVE"
   },
-  "updated_at": "2026-06-01T11:56:08Z"
+  "updated_at": "2026-06-01T12:16:14Z"
 }

@@ -9,8 +9,17 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 from . import __version__
+from .approval import (
+    APPROVAL_MODES,
+    approved_operation_names,
+    default_approval_policy,
+    parse_operation_assignments,
+    read_approval_policy,
+    validate_approval_policy,
+)
 from .paths import slug_forms
 from .reports import inspect as inspect_state
+from .state import JsonObjectError, load_json_object
 from .validation import parse_allowed_warning_codes, print_text as print_validation_text, validate
 
 
@@ -128,10 +137,10 @@ def run_inspect(args: argparse.Namespace) -> int:
 
 def run_validate(args: argparse.Namespace) -> int:
     _require_slug_or_automation(args.parser, args)
-    report = _with_cli_fields(
-        validate(_repo_root(args.repo_root), args.roadmap_slug, args.automation_id),
-        "validate",
-    )
+    repo_root = _repo_root(args.repo_root)
+    report = validate(repo_root, args.roadmap_slug, args.automation_id)
+    attach_approval_policy_report(report, repo_root)
+    report = _with_cli_fields(report, "validate")
     if args.json:
         _print_json(report)
     else:
@@ -145,6 +154,36 @@ def run_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def attach_approval_policy_report(report: Dict[str, Any], repo_root: Path) -> None:
+    state_file_value = report.get("state_file")
+    if not isinstance(state_file_value, str) or not state_file_value:
+        return
+    state_file = Path(state_file_value)
+    try:
+        state = load_json_object(state_file)
+    except JsonObjectError:
+        return
+    approval_report = read_approval_policy(repo_root, state_file, state)
+    report["approval_policy"] = approval_report
+    report.setdefault("errors", []).extend(approval_report.get("errors", []))
+
+
+def build_approval_policy_from_args(args: argparse.Namespace) -> tuple[Dict[str, Any], List[Dict[str, str]]]:
+    operations, errors = parse_operation_assignments(getattr(args, "approval_operation", None))
+    mode = getattr(args, "approval_mode", "conservative")
+    if mode != "custom" and operations:
+        errors.append(
+            {
+                "code": "approval_operations_require_custom_mode",
+                "message": "--approval-operation may only be used with --approval-mode custom.",
+            }
+        )
+        operations = {}
+    policy = default_approval_policy(mode, operations if mode == "custom" else None)
+    errors.extend(validate_approval_policy(policy))
+    return policy, errors
+
+
 def build_scaffold_plan(args: argparse.Namespace) -> Dict[str, Any]:
     repo_root = _repo_root(args.repo_root)
     forms = slug_forms(args.roadmap_slug)
@@ -152,10 +191,13 @@ def build_scaffold_plan(args: argparse.Namespace) -> Dict[str, Any]:
     automation_id = args.automation_id or args.roadmap_slug
     automation_dir = repo_root / "automation" / slug_dir
     roadmap_path = repo_root / "roadmaps" / f"not_started_{slug_dir}_roadmap.md"
+    approval_policy_path = automation_dir / "approval_policy.json"
+    approval_policy, approval_errors = build_approval_policy_from_args(args)
     planned_paths = [
         {"kind": "file", "path": str(roadmap_path), "exists": roadmap_path.exists()},
         {"kind": "directory", "path": str(automation_dir), "exists": automation_dir.exists()},
         {"kind": "file", "path": str(automation_dir / "automation_guide.md"), "exists": (automation_dir / "automation_guide.md").exists()},
+        {"kind": "file", "path": str(approval_policy_path), "exists": approval_policy_path.exists()},
         {"kind": "file", "path": str(automation_dir / "delivery_state.json"), "exists": (automation_dir / "delivery_state.json").exists()},
         {"kind": "file", "path": str(automation_dir / "delivery_log.md"), "exists": (automation_dir / "delivery_log.md").exists()},
         {"kind": "file", "path": str(automation_dir / "review_fix_state.json"), "exists": (automation_dir / "review_fix_state.json").exists()},
@@ -173,12 +215,20 @@ def build_scaffold_plan(args: argparse.Namespace) -> Dict[str, Any]:
         "repo_root": str(repo_root),
         "roadmap_slug": args.roadmap_slug,
         "automation_id": automation_id,
+        "approval_policy": {
+            "path": str(approval_policy_path),
+            "approval_mode": approval_policy["approval_mode"],
+            "approved_operations": approved_operation_names(approval_policy["operations"]),
+            "policy": approval_policy,
+        },
         "planned_paths": planned_paths,
         "would_create": [item["path"] for item in planned_paths if not item["exists"]],
         "created": [],
-        "errors": [],
+        "errors": approval_errors,
         "warnings": [],
     }
+    report["status"] = _status(report)
+    return report
 
 
 def _utc_now() -> str:
@@ -203,6 +253,8 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
     timestamp = _utc_now()
     automation_dir = repo_root / "automation" / slug_dir
     roadmap_path = repo_root / "roadmaps" / f"not_started_{slug_dir}_roadmap.md"
+    approval_policy = report["approval_policy"]["policy"]
+    approval_policy_rel = f"automation/{slug_dir}/approval_policy.json"
     created: List[str] = []
 
     for directory in (automation_dir, automation_dir / "reviews", automation_dir / "alerts"):
@@ -247,6 +299,11 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
         ),
         created,
     )
+    _write_text_if_missing(
+        automation_dir / "approval_policy.json",
+        json.dumps(approval_policy, indent=2, sort_keys=False) + "\n",
+        created,
+    )
     state = {
         "schema_version": 1,
         "roadmap": f"roadmaps/not_started_{slug_dir}_roadmap.md",
@@ -261,6 +318,16 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
         "last_delivered_phase": None,
         "blocked_reason": None,
         "last_blocker_repair": None,
+        "approval_policy_path": approval_policy_rel,
+        "approval_mode": approval_policy["approval_mode"],
+        "last_approval_policy_readback": {
+            "read_at": timestamp,
+            "path": approval_policy_rel,
+            "status": "valid",
+            "approval_mode": approval_policy["approval_mode"],
+            "approved_operations": approved_operation_names(approval_policy["operations"]),
+            "fallback_reason": None,
+        },
         "run_count": 0,
         "stalled_run_count": 0,
         "max_stalled_runs": 3,
@@ -310,12 +377,21 @@ def apply_scaffold_plan(report: Dict[str, Any]) -> None:
 
 def run_scaffold(args: argparse.Namespace) -> int:
     report = build_scaffold_plan(args)
+    if report.get("errors"):
+        if args.json:
+            _print_json(report)
+        else:
+            _print_key_values(report, ("command", "status", "dry_run", "repo_root", "roadmap_slug", "automation_id"))
+        return 1
     if not args.dry_run:
         apply_scaffold_plan(report)
     if args.json:
         _print_json(report)
     else:
         _print_key_values(report, ("command", "status", "dry_run", "repo_root", "roadmap_slug", "automation_id"))
+        print("approved_operations:")
+        for operation in report["approval_policy"]["approved_operations"]:
+            print(f"- {operation}")
         print("would_create:")
         for path in report["would_create"]:
             print(f"- {path}")
@@ -427,6 +503,19 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_flags(scaffold_parser)
     scaffold_parser.add_argument("--roadmap-slug", required=True, help="Roadmap slug for the planned automation.")
     scaffold_parser.add_argument("--automation-id", help="Automation id to include in the plan.")
+    scaffold_parser.add_argument(
+        "--approval-mode",
+        default="conservative",
+        choices=APPROVAL_MODES,
+        help="Approval mode for the generated approval_policy.json.",
+    )
+    scaffold_parser.add_argument(
+        "--approval-operation",
+        action="append",
+        default=[],
+        metavar="OPERATION=allow|deny",
+        help="Custom operation decision for --approval-mode custom. May be repeated.",
+    )
     scaffold_parser.add_argument("--dry-run", action="store_true", help="Plan files without writing them.")
     add_strict_flags(scaffold_parser)
     scaffold_parser.set_defaults(func=run_scaffold, parser=scaffold_parser)

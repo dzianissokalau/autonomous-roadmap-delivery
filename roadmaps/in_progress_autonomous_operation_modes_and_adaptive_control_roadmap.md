@@ -1,9 +1,9 @@
 # Autonomous Operation Modes And Adaptive Control Roadmap
 
 Status: In Progress
-Current phase: Phase 1 - Approval Policy Schema And Setup UX
+Current phase: Phase 2 - Approval Gate Enforcement
 Last updated: 2026-06-01
-Next action: Deliver Phase 1 approval policy schema and setup UX.
+Next action: Deliver Phase 2 approval gate enforcement.
 Blocked by: None.
 
 ## Purpose

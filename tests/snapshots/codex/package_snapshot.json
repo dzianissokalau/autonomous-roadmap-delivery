@@ -44,8 +44,8 @@
       "size": 5619
     },
     {
-      "core_sha256": "89d7ab3c1991227d26a2f4b0f26c2bfe8557d67a1350b6377e0a34a8d6c39ddc",
-      "core_size": 3172,
+      "core_sha256": "7f6c17b5f37b65ce102a350cda70c5d04f8a01b667f820bc670c442bafc9689d",
+      "core_size": 3890,
       "core_source": "core/references/setup-automation.md",
       "path": "references/setup-automation.md",
       "sha256": "b7385a1de2e334407c9e57d333a81704ba0a131fc721e5ebfe9cae10a41d1e45",

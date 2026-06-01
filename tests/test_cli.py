@@ -145,6 +145,17 @@ class CliTests(unittest.TestCase):
             self.assertTrue(report["dry_run"])
             self.assertEqual(report["command"], "scaffold")
             self.assertIn(str(repo_root.resolve() / "automation" / "new_roadmap"), report["would_create"])
+            self.assertIn(str(repo_root.resolve() / "automation" / "new_roadmap" / "approval_policy.json"), report["would_create"])
+            self.assertEqual(report["approval_policy"]["approval_mode"], "conservative")
+            self.assertEqual(
+                report["approval_policy"]["approved_operations"],
+                [
+                    "edit_phase_owned_files",
+                    "write_state_log_review_artifacts",
+                    "create_or_switch_phase_branch",
+                    "run_verification",
+                ],
+            )
             self.assertFalse((repo_root / "automation" / "new_roadmap").exists())
 
     def test_scaffold_write_mode_creates_files(self):
@@ -167,11 +178,76 @@ class CliTests(unittest.TestCase):
             automation_dir = repo_root / "automation" / "new_roadmap"
             self.assertFalse(report["dry_run"])
             self.assertTrue((repo_root / "roadmaps" / "not_started_new_roadmap_roadmap.md").is_file())
+            self.assertTrue((automation_dir / "approval_policy.json").is_file())
             self.assertTrue((automation_dir / "delivery_state.json").is_file())
             self.assertTrue((automation_dir / "reviews").is_dir())
+            policy = json.loads((automation_dir / "approval_policy.json").read_text(encoding="utf-8"))
             state = json.loads((automation_dir / "delivery_state.json").read_text(encoding="utf-8"))
+            self.assertEqual(policy["approval_mode"], "conservative")
             self.assertEqual(state["roadmap_slug"], "new-roadmap")
+            self.assertEqual(state["approval_policy_path"], "automation/new_roadmap/approval_policy.json")
+            self.assertEqual(state["approval_mode"], "conservative")
+            self.assertEqual(state["last_approval_policy_readback"]["status"], "valid")
             self.assertIn(str((automation_dir / "delivery_state.json").resolve()), report["created"])
+
+    def test_scaffold_custom_approval_policy_reports_selected_operations(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp) / "repo"
+            repo_root.mkdir()
+
+            proc = self.run_cli(
+                "scaffold",
+                "--repo-root",
+                str(repo_root),
+                "--roadmap-slug",
+                "new-roadmap",
+                "--approval-mode",
+                "custom",
+                "--approval-operation",
+                "edit_phase_owned_files=allow",
+                "--approval-operation",
+                "push_current_phase_branch=deny",
+                "--dry-run",
+                "--json",
+            )
+            report = json.loads(proc.stdout)
+
+            self.assertEqual(report["approval_policy"]["approval_mode"], "custom")
+            self.assertEqual(report["approval_policy"]["approved_operations"], ["edit_phase_owned_files"])
+
+    def test_validate_reports_invalid_approval_policy_as_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(tmp, write_model_policy=True)
+            policy_path = fixture.state_dir / "approval_policy.json"
+            policy_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "approval_mode": "delegated_local",
+                        "operations": {"push_current_phase_branch": True},
+                        "never_auto": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            proc = self.run_cli(
+                "validate",
+                "--repo-root",
+                str(fixture.repo_root),
+                "--roadmap-slug",
+                fixture.slug,
+                "--automation-id",
+                fixture.automation_id,
+                "--json",
+                env=fixture.env(),
+                allowed_returncodes=(1,),
+            )
+            report = json.loads(proc.stdout)
+
+            self.assertEqual(report["status"], "error")
+            self.assertEqual(report["approval_policy"]["fallback_reason"], "invalid_policy")
+            self.assertIn("approval_policy_operations_mismatch", {item["code"] for item in report["errors"]})
 
     def test_package_dry_run_reports_codex_render_plan(self):
         proc = self.run_cli(

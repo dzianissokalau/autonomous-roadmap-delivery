@@ -94,6 +94,31 @@
         "null"
       ]
     },
+    "approval_policy_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approval_mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "conservative",
+        "delegated_local",
+        "delegated_delivery",
+        "custom",
+        null
+      ]
+    },
+    "last_approval_policy_readback": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
     "required_model": {
       "type": [
         "string",

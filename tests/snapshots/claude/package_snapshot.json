@@ -65,12 +65,12 @@
       "size": 2595
     },
     {
-      "core_sha256": "89d7ab3c1991227d26a2f4b0f26c2bfe8557d67a1350b6377e0a34a8d6c39ddc",
-      "core_size": 3172,
+      "core_sha256": "7f6c17b5f37b65ce102a350cda70c5d04f8a01b667f820bc670c442bafc9689d",
+      "core_size": 3890,
       "core_source": "core/references/setup-automation.md",
       "path": "skills/roadmap-delivery-skill/references/setup-automation.md",
-      "sha256": "89d7ab3c1991227d26a2f4b0f26c2bfe8557d67a1350b6377e0a34a8d6c39ddc",
-      "size": 3172
+      "sha256": "7f6c17b5f37b65ce102a350cda70c5d04f8a01b667f820bc670c442bafc9689d",
+      "size": 3890
     },
     {
       "core_sha256": "600e5a2f1e53c9269ca51af3258bc6083cf9ad63d93a130ad9f7592142738001",

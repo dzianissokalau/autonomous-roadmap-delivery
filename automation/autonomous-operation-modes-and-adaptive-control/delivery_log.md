@@ -206,3 +206,82 @@ Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-0`
 - Stop here. The next automation run should create or reuse
   `codex/autonomous-operation-modes-and-adaptive-control-phase-1` and start
   Phase 1 - Approval Policy Schema And Setup UX.
+
+## Phase 1 - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/autonomous-operation-modes-and-adaptive-control-phase-1`
+
+### Scope
+
+- Add durable approval policy schema and setup flow support.
+- Add approval policy defaults to scaffold planning and write mode.
+- Add state/template fields for approval mode, policy path, and readback.
+- Keep runtime operation enforcement and adaptive model escalation out of Phase
+  1 scope.
+
+### Changes
+
+- Added `schemas/approval_policy.schema.json` and
+  `core/templates/approval_policy.md`.
+- Added `src/roadmap_delivery/approval.py` with standard mode operation maps,
+  custom operation parsing, conservative legacy fallback, and invalid-policy
+  validation.
+- Extended `roadmap_delivery.cli scaffold` so dry-run and write-mode output
+  include `approval_policy.json`, selected approval mode, and approved
+  operations.
+- Extended CLI validation to surface invalid approval policies as errors while
+  treating a missing policy as conservative legacy behavior.
+- Updated delivery state schema/template, automation guide template, automation
+  prompt template, and setup reference with approval policy fields and setup UX
+  guidance.
+- Refreshed generated Claude setup-reference output and adapter snapshots after
+  the core setup reference changed.
+- Advanced the roadmap header and delivery state to Phase 2 after the delivered
+  review verdict. The Phase 1 to Phase 2 retarget plan resolved to policy
+  defaults, and the saved automation already matched `gpt-5.5`/`xhigh`, so no
+  automation config update was needed.
+
+### Tests And Verification
+
+- `python3 -m unittest tests.test_approval_policy tests.test_cli -v`:
+  passed, 14 tests.
+- `python3 -m unittest tests.test_schema_validation -v`:
+  passed, 7 tests.
+- `python3 scripts/build_codex_package.py --check`:
+  passed; status ok, 14 files, no diffs.
+- `git diff --check`: passed.
+- `python3 skill/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --delivered-phase 'Phase 1 - Approval Policy Schema And Setup UX' --json`:
+  passed; Phase 2 uses policy defaults and no retarget was needed.
+- `python3 -m roadmap_delivery.cli validate --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --roadmap-slug autonomous-operation-modes-and-adaptive-control --automation-id autonomous-operation-modes-and-adaptive-control --strict --allow-warning worktree_dirty --json`:
+  passed with the expected dirty-worktree warning before final bookkeeping.
+- `python3 -m unittest tests.test_adapter_codex tests.test_adapter_parity tests.test_claude_plugin_package -v`:
+  passed, 21 tests.
+- `python3 scripts/build_adapters.py --repo-root /Users/dzianissokalau/Documents/projects/roadmap-delivery-automation --check --json`:
+  passed; Codex and Claude package reports were status ok with no generated
+  diffs.
+
+### Review
+
+- Review file:
+  `automation/autonomous-operation-modes-and-adaptive-control/reviews/autonomous-operation-modes-and-adaptive-control-phase-1-review-iteration-1.md`
+- Verdict: delivered
+
+### Finding Disposition
+
+- No findings.
+
+### Residual Risks
+
+- The review was performed in the same Codex context as implementation.
+- Runtime enforcement of approval decisions is intentionally deferred to Phase
+  2.
+- The current automation has no `approval_policy.json`; state records
+  conservative fallback until a migration phase creates policy artifacts for
+  existing automations.
+
+### Next Action
+
+- Stop here. The next automation run should create or reuse
+  `codex/autonomous-operation-modes-and-adaptive-control-phase-2` and start
+  Phase 2 - Approval Gate Enforcement.

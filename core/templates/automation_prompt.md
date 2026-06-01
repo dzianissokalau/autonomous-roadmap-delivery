@@ -12,10 +12,15 @@ Read these files before acting:
 - `automation/<roadmap-slug>/delivery_log.md`
 - `automation/<roadmap-slug>/review_fix_state.json`
 - `automation/<roadmap-slug>/phase_model_policy.json`
+- `automation/<roadmap-slug>/approval_policy.json` when present
 
 Operate on exactly one current phase at a time. Reconcile roadmap, state, log,
-review files, phase model policy, branch, worktree status, and saved runner
-configuration before editing.
+review files, phase model policy, approval policy, branch, worktree status, and
+saved runner configuration before editing.
+
+Validate approval policy before relying on pre-approved operations. If the
+policy is missing, use conservative legacy behavior. If the policy is invalid,
+record the blocker and stop before delivery work.
 
 If state is blocked, enter Blocked Remediation Mode before normal delivery.
 Hard stop before delivery if all phases are complete, status is completed, or
@@ -29,7 +34,10 @@ delivery. Make only phase-scoped changes, run required verification, update
 state/log, write a fresh review, and advance only after the review verdict is
 delivered.
 
-Do not push, merge, promote, delete branches, edit runner configuration, install
-global packages, or run destructive commands without explicit human approval.
+Do not push or edit runner configuration unless a valid approval policy
+explicitly allows the operation and readback evidence matches. Do not merge,
+promote, delete branches, install global packages, or run destructive commands
+without explicit human approval; approval modes never cover never-auto
+operations.
 After advancing state to the next phase, stop.
 ```
