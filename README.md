@@ -149,7 +149,7 @@ committed package drifts from those inputs.
 | State schema | Versioned | `schema_version: 1` is validated; legacy states remain warning-backed where supported. |
 | Model policy | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
 | Release artifacts | Local only | Build and verify locally; publication requires explicit human approval. |
-| Claude adapter | Not yet implemented | The companion multi-host roadmap starts from the framework outputs here. |
+| Claude adapter | Supported locally | Generated Claude plugin package, reviewer agent, hooks, install docs, and offline smoke tests ship as local release artifacts; live Claude binary checks remain optional. |
 | Hosted control plane | Not included | This roadmap keeps state, logs, reviews, and alerts file-backed. |
 
 ## Roadmaps
@@ -162,8 +162,9 @@ committed package drifts from those inputs.
 - `roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`:
   delivered framework hardening roadmap for the canonical core, schemas, shared
   library, CLI, generated Codex adapter, CI, privacy, release, and closeout.
-- `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`:
-  active companion roadmap for generated host adapters and Claude packaging.
+- `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`:
+  completed companion roadmap for generated host adapters and Claude packaging,
+  pending human approval to pause the active automation.
 
 ## Operating Model
 

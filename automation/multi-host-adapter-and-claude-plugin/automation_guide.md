@@ -1,7 +1,7 @@
 # Multi-Host Adapter And Claude Plugin Automation Guide
 
-Status: Active
-Roadmap: `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`
+Status: Completed pending pause
+Roadmap: `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
 Roadmap slug: `multi-host-adapter-and-claude-plugin`
 State file: `automation/multi-host-adapter-and-claude-plugin/delivery_state.json`
 Delivery log: `automation/multi-host-adapter-and-claude-plugin/delivery_log.md`
@@ -37,7 +37,7 @@ Execution environment: local
 ## Next Run Prompt
 
 Run the next safe phase-gated delivery step for
-`roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`.
+`roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`.
 
 Use the installed `roadmap-delivery-skill` and read these files before acting:
 

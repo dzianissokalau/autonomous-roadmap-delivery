@@ -1,7 +1,7 @@
 # Multi-Host Adapter And Claude Plugin Delivery Log
 
-Status: Active
-Roadmap: `roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md`
+Status: Completed pending pause
+Roadmap: `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
 State file: `automation/multi-host-adapter-and-claude-plugin/delivery_state.json`
 Review directory: `automation/multi-host-adapter-and-claude-plugin/reviews`
 
@@ -693,3 +693,77 @@ Branch: `codex/multi-host-adapter-and-claude-plugin-phase-10`
 - Start `finalization` on
   `codex/multi-host-adapter-and-claude-plugin-finalization`; prepare final
   deep-review prompt evidence before marking the roadmap complete.
+
+## Finalization - 2026-06-01 - Delivery Pass 1
+
+Status: delivered
+Branch: `codex/multi-host-adapter-and-claude-plugin-finalization`
+
+### Scope
+
+- Completed finalization for the multi-host adapter and Claude plugin roadmap.
+- Reran final adapter, release, privacy, unittest, checksum, validation, and
+  inspection checks.
+- Prepared the final deep-review prompt for whole-roadmap acceptance and
+  promotion readiness review.
+- Marked the roadmap complete pending human approval to pause the active Codex
+  automation.
+
+### Changes
+
+- Moved the roadmap to
+  `roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` and
+  marked it complete.
+- Added
+  `automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md`.
+- Added the finalization review artifact under
+  `automation/multi-host-adapter-and-claude-plugin/reviews/`.
+- Updated delivery state, review/fix state, automation guide, README roadmap
+  pointers, and automation README closeout status.
+
+### Tests And Verification
+
+- `python3 scripts/build_adapters.py --check`: passed.
+- `python3 scripts/build_release.py --check`: passed with reproducible `0.1.0`
+  source, Codex, Claude, schema, CLI, generic markdown, manifest, and checksum
+  artifacts.
+- `python3 scripts/check_release_privacy.py --repo-root .`: passed with 108
+  files scanned, 0 findings, and 0 errors.
+- `python3 -m unittest discover -s tests -v`: passed, 131 tests with 1
+  expected skip because the local `claude` binary is not installed.
+- `git diff --check`: passed before finalization edits.
+- `(cd dist && shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256)`:
+  passed for all local ignored release artifacts.
+- `PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --strict --json`:
+  passed before completion bookkeeping with no errors or warnings.
+- `PYTHONPATH=src python3 -m roadmap_delivery.cli inspect --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json`:
+  passed before completion bookkeeping with no warnings.
+- Saved automation config readback:
+  `ACTIVE`, `local`, `gpt-5.5`, `xhigh`.
+
+### Review
+
+- Review file:
+  `automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-1.md`
+- Verdict: delivered
+
+### Residual Risks
+
+- The saved Codex automation remains `ACTIVE`; pausing it requires explicit
+  human approval.
+- The saved app automation prompt still references the old in-progress roadmap
+  path because app automation config edits were not approved in this run.
+- Publication, promotion to `main`, installed-skill synchronization, package
+  publishing, and branch push remain human-approved follow-up actions.
+
+### Next Action
+
+- Review the final deep-review prompt and approve pausing the active Codex
+  automation.
+
+## Operator Alert - 2026-06-01T00:58:30Z - Completed
+
+- Alert file: `automation/multi-host-adapter-and-claude-plugin/alerts/2026-06-01T00-58-30Z-completed.md`
+- Reason: All multi-host adapter and Claude plugin roadmap phases and finalization are delivered; the saved Codex automation remains ACTIVE and needs explicit operator approval to pause.
+- Notification sink: `alert_file`
+- Notification status: `local_alert_only`

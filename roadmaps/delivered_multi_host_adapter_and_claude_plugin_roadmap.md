@@ -1,9 +1,9 @@
 # Multi-Host Adapter And Claude Plugin Roadmap
 
-Status: Active
-Current phase: finalization
+Status: Completed
+Current phase: Complete
 Last updated: 2026-06-01
-Next action: Run finalization checks and prepare the final deep-review prompt before marking complete.
+Next action: Review the final deep-review prompt and approve pausing the active Codex automation; publication and promotion remain separate human-approved actions.
 Blocked by: None.
 
 ## Purpose
@@ -37,6 +37,7 @@ Codex app automation:
 - Model: `gpt-5.5`
 - Reasoning effort: `xhigh`
 - Execution environment: local
+- Completion state: `completed_pending_pause`
 
 ## Strategic Outcome
 
@@ -124,7 +125,7 @@ implementation begins.
 ### Owned Files
 
 ```text
-roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md
+roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md
 docs/compatibility.md
 host-capabilities/codex.yaml
 host-capabilities/claude.yaml

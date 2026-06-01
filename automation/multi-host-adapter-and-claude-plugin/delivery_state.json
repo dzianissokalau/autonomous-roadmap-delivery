@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "roadmap": "roadmaps/in_progress_multi_host_adapter_and_claude_plugin_roadmap.md",
+  "roadmap": "roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md",
   "roadmap_slug": "multi-host-adapter-and-claude-plugin",
-  "current_phase": "finalization",
+  "current_phase": "Complete",
   "branch": "codex/multi-host-adapter-and-claude-plugin-finalization",
-  "status": "not_started",
-  "review_iterations": 0,
+  "status": "completed_pending_pause",
+  "review_iterations": 1,
   "max_review_iterations": 3,
   "last_verification": {
-    "phase": "Phase 10 - Compatibility Docs And Release Artifacts",
-    "completed_at": "2026-06-01T00:01:32Z",
+    "phase": "finalization",
+    "completed_at": "2026-06-01T00:57:13Z",
     "status": "passed",
     "checks": [
       {
@@ -37,29 +37,35 @@
         "status": "passed"
       },
       {
-        "command": "shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256",
+        "command": "(cd dist && shasum -a 256 -c roadmap-delivery-0.1.0-checksums.sha256)",
         "status": "passed",
         "details": "All local ignored release artifacts under dist matched the generated checksum file."
       },
       {
-        "command": "python3 scripts/build_release.py --output-dir dist --json",
+        "command": "PYTHONPATH=src python3 -m roadmap_delivery.cli validate --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --strict --json",
         "status": "passed",
-        "details": "Wrote local ignored release artifacts under dist for maintainer inspection."
+        "details": "Pre-closeout validation reported no errors or warnings."
       },
       {
-        "command": "PYTHONPATH=src python3 /Users/dzianissokalau/.codex/skills/roadmap-delivery-skill/scripts/plan_automation_retarget.py --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --delivered-phase \"Phase 10 - Compatibility Docs And Release Artifacts\" --json",
+        "command": "PYTHONPATH=src python3 -m roadmap_delivery.cli inspect --repo-root . --roadmap-slug multi-host-adapter-and-claude-plugin --automation-id multi-host-adapter-and-claude-plugin --json",
         "status": "passed",
-        "details": "Next phase is finalization using the policy finalization entry; no automation config retarget required."
+        "details": "Pre-closeout inspection reported ACTIVE local gpt-5.5/xhigh automation readback and no warnings."
+      },
+      {
+        "command": "sed -n '1,260p' /Users/dzianissokalau/.codex/automations/multi-host-adapter-and-claude-plugin/automation.toml",
+        "status": "passed",
+        "details": "Saved automation readback was ACTIVE, local, gpt-5.5, xhigh before finalization bookkeeping."
       }
     ]
   },
   "last_review": {
-    "phase": "Phase 10 - Compatibility Docs And Release Artifacts",
-    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-phase-10-review-iteration-1.md",
+    "phase": "finalization",
+    "file": "automation/multi-host-adapter-and-claude-plugin/reviews/multi-host-adapter-and-claude-plugin-finalization-review-iteration-1.md",
     "verdict": "delivered",
-    "reviewed_at": "2026-06-01T00:01:32Z"
+    "reviewed_at": "2026-06-01T00:57:13Z",
+    "summary": "Finalization verified all delivered phases, wrote deep-review prompt evidence, marked completion pending pause approval, and preserved human approval boundaries."
   },
-  "last_delivered_phase": "Phase 10 - Compatibility Docs And Release Artifacts",
+  "last_delivered_phase": "finalization",
   "blocked_reason": null,
   "last_blocker_repair": null,
   "required_model": "gpt-5.5",
@@ -76,21 +82,41 @@
     "reasoning_effort": "xhigh",
     "execution_environment": "local",
     "cwd": "/Users/dzianissokalau/Documents/projects/roadmap-delivery-automation",
-    "readback_at": "2026-06-01T00:01:32Z"
+    "readback_at": "2026-06-01T00:57:13Z"
   },
-  "run_count": 11,
+  "run_count": 12,
   "stalled_run_count": 0,
   "max_stalled_runs": 3,
-  "last_progress_signature": "sha256:755c6590dba6b0ad0b700880b68739feff2d12b7a041efb7e347e2ab604dbcdf",
-  "last_progress_at": "2026-06-01T00:01:32Z",
-  "last_operator_alert": null,
+  "last_progress_signature": "sha256:743ac013208a0c3609dcbabc760b7087478e3cfe79d4a21c17591992de09db36",
+  "last_progress_at": "2026-06-01T01:00:54Z",
+  "last_operator_alert": {
+    "kind": "completed",
+    "file": "automation/multi-host-adapter-and-claude-plugin/alerts/2026-06-01T00-58-30Z-completed.md",
+    "timestamp": "2026-06-01T00:58:30Z",
+    "reason": "All multi-host adapter and Claude plugin roadmap phases and finalization are delivered; the saved Codex automation remains ACTIVE and needs explicit operator approval to pause.",
+    "next_human_action": "Review the final deep-review prompt, then approve pausing the active automation.",
+    "notification_sink": "alert_file",
+    "notification_status": "local_alert_only"
+  },
   "auto_advance_after_delivered_review": true,
   "commit_delivered_phase_locally": true,
   "push_to_github": false,
-  "all_phases_complete": false,
-  "deep_review_prompt": null,
-  "final_deep_review_prompt_prepared": false,
-  "final_deep_review_prompt_file": null,
-  "final_deep_review_status": null,
-  "updated_at": "2026-06-01T00:01:32Z"
+  "all_phases_complete": true,
+  "deep_review_prompt": "automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md",
+  "final_deep_review_prompt_prepared": true,
+  "final_deep_review_prompt_file": "automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md",
+  "final_deep_review_status": "prompt-prepared",
+  "finalization": {
+    "completed_at": "2026-06-01T00:57:13Z",
+    "deep_review_prompt": "automation/multi-host-adapter-and-claude-plugin/deep_review_prompt.md",
+    "completion_alert_required": true,
+    "automation_pause_required": true,
+    "automation_pause_status": "pending_human_approval",
+    "automation_readback": "ACTIVE, local, gpt-5.5, xhigh",
+    "publication_status": "not_published_without_approval",
+    "promotion_status": "not_promoted_without_approval",
+    "installed_skill_sync_status": "not_synchronized_without_approval",
+    "saved_automation_prompt_status": "still references the old in-progress roadmap path because app automation config edits were not approved"
+  },
+  "updated_at": "2026-06-01T01:00:54Z"
 }
