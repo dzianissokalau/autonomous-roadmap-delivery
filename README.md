@@ -2,7 +2,8 @@
 
 Roadmap Delivery Skill is a file-backed, phase-gated delivery framework for
 roadmap-driven coding work. The repository now separates the canonical workflow
-core from host-specific packaging, with Codex as the first generated adapter.
+core from host-specific packaging, with supported Codex and Claude packages plus
+a generic markdown pack for future adapter planning.
 
 GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
@@ -11,10 +12,13 @@ GitHub repository: `git@github.com:dzianissokalau/roadmap-delivery-skill.git`
 
 Key docs:
 
+- Adapters: `docs/adapters.md`
 - Architecture: `docs/architecture.md`
 - Autonomy and approval policy: `docs/autonomy-and-approval-policy.md`
 - Compatibility: `docs/compatibility.md`
 - Contributor workflow: `docs/contributor-workflow.md`
+- Codex install: `docs/installing-codex.md`
+- Claude install: `docs/installing-claude.md`
 - Migration guide: `docs/migration-guide.md`
 - Privacy and release sanitization: `docs/privacy-and-sanitization.md`
 - Release notes: `docs/release-notes-0.1.0.md`
@@ -129,16 +133,21 @@ control plane:
 |---|---|---|
 | Core workflow | `core/references/` | Host-neutral setup, delivery, review, state, finalization, and troubleshooting rules. |
 | Templates and prompts | `core/templates/`, `core/prompts/` | Reusable state, log, review, prompt, and guard text. |
-| Schemas | `schemas/` | Versioned contracts for delivery state, model policy, reviews, and run logs. |
-| Shared library | `src/roadmap_delivery/` | Validation, inspection, model policy, progress, git, state, and CLI behavior. |
+| Schemas | `schemas/` | Versioned contracts for delivery state, model policy, approval policy, provider config, reviews, and run logs. |
+| Shared library | `src/roadmap_delivery/` | Validation, inspection, approval policy, adaptive model policy, alerts, automation helpers, progress, git, state, and CLI behavior. |
 | Codex adapter | `adapters/codex/` | Rendering inputs for the committed Codex skill package. |
 | Codex package | `skill/roadmap-delivery-skill/` | Generated installable skill snapshot and compatibility scripts. |
+| Claude adapter | `adapters/claude/` | Rendering inputs for the committed local Claude plugin package. |
+| Claude package | `dist/claude/` | Generated local Claude plugin snapshot with skill, reviewer agent, hooks, and references. |
+| Generic adapter | `adapters/generic/` | Documentation and schema pack for future host planning. |
 | Automation evidence | `automation/<roadmap-slug>/` | Local state, logs, alerts, reviews, and guide files for roadmap runs. |
-| Release output | `dist/` | Ignored local build artifacts created by `scripts/build_release.py`. |
+| Release artifacts | `dist/roadmap-delivery-*` | Ignored local release bundles, manifest, and checksums created by `scripts/build_release.py`. |
 
-The Codex package is generated from canonical core sources plus the Codex
-adapter overlay. `scripts/build_codex_package.py --check` fails when the
-committed package drifts from those inputs.
+The Codex package and Claude plugin are generated from canonical core sources
+plus host adapter overlays. `scripts/build_adapters.py --check` fails when the
+committed package snapshots drift from those inputs, while
+`scripts/build_codex_package.py --check` remains a compatibility wrapper for the
+Codex package.
 
 ## Compatibility Matrix
 
@@ -149,8 +158,14 @@ committed package drifts from those inputs.
 | Python CLI | Supported | Use `python3 -m roadmap_delivery.cli` from a checkout or `roadmap-delivery` after install. |
 | State schema | Versioned | `schema_version: 1` is validated; legacy states remain warning-backed where supported. |
 | Model policy | Supported | `phase_model_policy.json` gates required model and reasoning readback. |
+| Approval policy | Supported | `approval_policy.json` selects conservative, delegated, or custom operation permissions. Missing policy falls back to conservative behavior. |
+| Adaptive model policy | Supported | Run quality can retarget the next run within explicit policy caps and saved automation readback. |
+| Provider role config | Supported example | `config/providers.example.yaml` documents reusable role-to-model mappings; runner readback remains authoritative. |
+| Completion and stall self-pause | Supported with approval | Pause can be automatic only when approval policy or explicit operator approval allows it and saved automation readback confirms `PAUSED`. |
+| Adapter generation | Supported | `scripts/build_adapters.py --check` verifies committed Codex and Claude output. |
 | Release artifacts | Local only | Build and verify locally; publication requires explicit human approval. |
 | Claude adapter | Supported locally | Generated Claude plugin package, reviewer agent, hooks, install docs, and offline smoke tests ship as local release artifacts; live Claude binary checks remain optional. |
+| Generic markdown pack | Documentation template | Built only as an explicit release artifact for future adapter planning. |
 | Hosted control plane | Not included | This roadmap keeps state, logs, reviews, and alerts file-backed. |
 
 ## Roadmaps
@@ -168,8 +183,7 @@ committed package drifts from those inputs.
   the saved automation is paused.
 - `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
   completed roadmap for autonomy modes, adaptive model escalation, and
-  automatic pause behavior; the saved automation is pending a human pause
-  decision.
+  automatic pause behavior; the saved automation is paused.
 
 ## Operating Model
 
@@ -187,9 +201,10 @@ Roadmap delivery uses a single-phase loop:
 6. Preserve publication, promotion, installed-skill sync, destructive git, and
    credential use as explicit human-approved actions.
 
-Completed roadmaps still need an automation pause decision when the saved
-automation remains active. The local completion alert is the durable fallback;
-pausing the Codex app automation is a separate approved operation.
+Completed roadmaps hard-stop before new phase work. When approval policy or an
+explicit operator decision allows it, the framework can pause a saved automation
+and record readback evidence. Otherwise, the local completion alert is the
+durable fallback and the pause remains a human-approved operation.
 
 ## Autonomy Controls
 
@@ -262,8 +277,9 @@ the same shared library paths.
 
 `examples/demo-roadmap/` is a self-contained fixture for trying the workflow
 without network access, credentials, or live Codex app automation. It includes
-a three-phase demo roadmap, state/log/review artifacts, a model policy, and
-scenarios for blocked remediation and model-policy mismatch.
+a three-phase demo roadmap, state/log/review artifacts, a model policy, an
+approval-policy scenario, and scenarios for blocked remediation and
+model-policy mismatch.
 
 ```bash
 python3 -m roadmap_delivery.cli scaffold \
@@ -311,6 +327,7 @@ PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/roadmap-delivery-ci-pycache" \
   tests/*.py
 
 python3 -m unittest tests.test_schema_validation -v
+python3 scripts/build_adapters.py --check
 python3 scripts/build_codex_package.py --check
 python3 -m unittest tests.test_quality_gates -v
 python3 -m unittest tests.test_smoke_demo -v
