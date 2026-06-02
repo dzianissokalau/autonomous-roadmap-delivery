@@ -10,6 +10,12 @@ and worktree status. Stop and record a blocker when the current phase, roadmap
 path, branch, latest verdict, model policy, verification evidence, or runner
 readback disagree in a way that cannot be locally repaired.
 
+The roadmap path recorded in `delivery_state.json` is authoritative. If a
+lifecycle rename changes only the roadmap filename, repair repository-local
+references before phase work. Do not require a saved runner prompt retarget
+when the prompt is state-first and still points at the stable state/guide
+files.
+
 When a phase model policy exists, resolve the current phase's required model
 and reasoning before extracting the phase contract. Compare those values with
 the configured runner values from readback. A mismatch is a stop-before-delivery
@@ -39,7 +45,8 @@ If state is `blocked`, classify the blocker before attempting normal delivery:
 - `local-repairable`: stale paths, missing bookkeeping, branch drift, dirty
   current-phase files, or malformed state/log entries
 - `automation-config`: saved prompt, cwd, status, execution environment, model,
-  or reasoning configuration needs an approved repair
+  or reasoning configuration needs an approved repair; lifecycle-only prompt
+  drift is excluded when the saved prompt resolves the roadmap from state
 - `permission-gated`: sandbox, network, filesystem, or credential access is
   missing
 - `external-decision`: product, policy, or scope input is missing

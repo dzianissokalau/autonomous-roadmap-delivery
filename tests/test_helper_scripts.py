@@ -61,6 +61,7 @@ class DeliveryFixture:
         dirty_worktree=False,
         roadmap_filename="eval_fixture_roadmap.md",
         prompt_path=None,
+        prompt_state_resolved=False,
         hard_stop_guard=True,
         blocked_remediation_guard=True,
         state_layout="roadmaps",
@@ -124,6 +125,7 @@ class DeliveryFixture:
             self._write_automation_config(
                 automation_status=automation_status,
                 prompt_path=prompt_path,
+                prompt_state_resolved=prompt_state_resolved,
                 hard_stop_guard=hard_stop_guard,
                 blocked_remediation_guard=blocked_remediation_guard,
                 automation_model=automation_model,
@@ -290,6 +292,7 @@ class DeliveryFixture:
         *,
         automation_status,
         prompt_path,
+        prompt_state_resolved,
         hard_stop_guard,
         blocked_remediation_guard,
         automation_model,
@@ -304,6 +307,8 @@ class DeliveryFixture:
         if blocked_remediation_guard:
             blocked_guard = " If status is blocked, enter Blocked Remediation Mode, repair local blockers before advance, and only then resume."
         prompt = f"Run the next safe step for `{prompt_path}`.{guard}{blocked_guard}"
+        if prompt_state_resolved:
+            prompt += " Resolve the current roadmap path from delivery_state.json; the state roadmap field is authoritative."
         (automation_dir / "automation.toml").write_text(
             "\n".join(
                 [
@@ -797,6 +802,29 @@ class HelperScriptTests(unittest.TestCase):
 
             self.assertIn("stale_automation_roadmap_path", self.warning_codes(inspect))
             self.assertIn("stale_automation_roadmap_path", self.warning_codes(validate))
+            self.assertEqual(validate["errors"], [])
+
+    def test_state_resolved_prompt_allows_lifecycle_rename_without_retarget_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                roadmap_filename="in_progress_eval_fixture_roadmap.md",
+                prompt_path="roadmaps/not_started_eval_fixture_roadmap.md",
+                prompt_state_resolved=True,
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            inspect_codes = self.warning_codes(inspect)
+            validate_codes = self.warning_codes(validate)
+            self.assertNotIn("stale_automation_roadmap_path", inspect_codes)
+            self.assertNotIn("automation_roadmap_path_mismatch", inspect_codes)
+            self.assertNotIn("automation_prompt_current_roadmap_missing", validate_codes)
+            self.assertNotIn("stale_automation_roadmap_path", validate_codes)
+            self.assertNotIn("automation_roadmap_path_mismatch", validate_codes)
+            self.assertTrue(inspect["state_resolved_roadmap_prompt"])
+            self.assertTrue(validate["state_resolved_roadmap_prompt"])
             self.assertEqual(validate["errors"], [])
 
     def test_active_not_started_lifecycle_filename_is_error(self):

@@ -20,6 +20,12 @@ Stop if the current phase, roadmap path, branch, status, review verdicts,
 verification evidence, or automation config disagree. Record the mismatch in
 state/log/review instead of guessing.
 
+The roadmap path recorded in `delivery_state.json` is authoritative. If a
+lifecycle rename changes only the roadmap filename, repair repository-local
+references before phase work. Do not require a saved automation prompt retarget
+when the prompt is state-first and still points at the stable state/guide
+files.
+
 This reconciliation is the start-run gate. When `phase_model_policy.json`
 exists, validate the current phase's required model and reasoning effort
 before extracting the phase contract or changing phase-owned files.
@@ -35,7 +41,9 @@ First classify the blocker:
   dirty current-phase files, or malformed state/log entries that the current
   roadmap or operator already allows repairing.
 - `automation-config`: saved automation prompt, cwd, status, execution
-  environment, model, or reasoning configuration needs a permitted update.
+  environment, model, or reasoning configuration needs a permitted update;
+  lifecycle-only prompt drift is excluded when the saved prompt resolves the
+  roadmap from state.
 - `permission-gated`: sandbox escalation, network, credentials, or filesystem
   access is required.
 - `external-decision`: product, policy, or scope decision is missing.

@@ -32,6 +32,12 @@ again. On the next run, handle `status: blocked` as a remediation gate:
 Do not write another blocked review for the same issue until this remediation
 classification has been attempted.
 
+Lifecycle-only prompt drift is not an automation-config blocker when the saved
+automation prompt is state-first: it references stable automation artifacts,
+requires reading `delivery_state.json`, and says the roadmap path recorded in
+state is authoritative. In that case, repair the lifecycle filename and
+repository-local references without requiring a saved automation prompt edit.
+
 ## Approval Policy Problems
 
 Missing `approval_policy.json` keeps conservative legacy behavior: phase-owned
@@ -195,9 +201,18 @@ Symptoms:
 - automation prompt still references old path
 
 Repair only after confirming the intended current roadmap file and lifecycle
-state. Update the roadmap filename, state, guide, log, reviews, run-log
-bookkeeping, and automation prompt references together, then rerun validation or
-status inspection. If app automation edits require approval, stop and ask.
+state. Update the roadmap filename, state, guide, log, reviews, and run-log
+bookkeeping together, then rerun validation or status inspection.
+
+If the saved automation prompt is state-first and still references stable
+automation artifacts, a saved prompt retarget is not required for lifecycle-only
+path changes. Treat any old lifecycle path in the prompt as historical context
+as long as the prompt tells the agent to resolve the current roadmap path from
+`delivery_state.json`.
+
+If the saved automation prompt hardcodes the lifecycle roadmap path and lacks
+the state-resolved guard, update the automation prompt only when app automation
+edits are approved. If approval is unavailable, keep state blocked and ask.
 
 ## Completed State But Automation Still ACTIVE
 
@@ -364,7 +379,12 @@ Do not use repair as a shortcut around the normal phase gate.
 Repair stale roadmap prompt references only after confirming the current
 roadmap path from durable state and the actual roadmap file.
 
-- Update the automation prompt reference to the current `ROADMAP_PATH`.
+- If the saved prompt resolves the current roadmap path from
+  `delivery_state.json`, do not retarget it for lifecycle-only filename
+  changes.
+- If the saved prompt hardcodes the old lifecycle roadmap path and lacks the
+  state-resolved guard, update the automation prompt reference to the current
+  roadmap path only when app automation edits are approved.
 - Keep the automation artifact directory unchanged unless the slug changed.
 - Update state/log/guide references together when repository artifacts are
   stale.
@@ -382,7 +402,8 @@ Refuse activation when any of these are true:
 - state says all phases are complete.
 - state status is `blocked` and the blocker has not been fixed.
 - roadmap and state disagree on the current phase.
-- automation prompt still points at a stale roadmap path.
+- automation prompt still points at a stale roadmap path and does not resolve
+  the authoritative current path from `delivery_state.json`.
 - direct config edits would be required without explicit approval.
 
 Report the exact validation code or file mismatch that caused the refusal.

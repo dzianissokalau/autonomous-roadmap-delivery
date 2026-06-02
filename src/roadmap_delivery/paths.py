@@ -96,6 +96,29 @@ def extract_roadmap_references(
     return refs
 
 
+def lifecycle_roadmap_stem(path: Path) -> Optional[str]:
+    """Return a roadmap filename stem without lifecycle prefix."""
+
+    name = path.name
+    if not name.endswith(".md"):
+        return None
+    stem = name[:-3]
+    for prefix in ("not_started_", "in_progress_", "delivered_"):
+        if stem.startswith(prefix):
+            return stem[len(prefix) :]
+    return stem
+
+
+def is_lifecycle_roadmap_sibling(candidate: Path, current: Path) -> bool:
+    """Return true when two paths name the same roadmap lifecycle."""
+
+    candidate_stem = lifecycle_roadmap_stem(candidate)
+    current_stem = lifecycle_roadmap_stem(current)
+    if not candidate_stem or not current_stem:
+        return False
+    return candidate_stem == current_stem
+
+
 def package_repo_root(start: Optional[Path] = None) -> Optional[Path]:
     path = (start or Path(__file__)).resolve()
     for parent in [path.parent, *path.parents]:

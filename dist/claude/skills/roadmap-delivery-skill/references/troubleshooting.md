@@ -38,7 +38,8 @@ modes.
 - Roadmap current phase and state current phase disagree.
 - Latest review verdict is invalid or does not match state.
 - Required model/reasoning and configured runner values mismatch.
-- Automation prompt references a stale roadmap path.
+- Automation prompt references a stale roadmap path and does not resolve the
+  authoritative roadmap path from `delivery_state.json`.
 - Saved runner is ACTIVE while setup artifacts still say PAUSED.
 - Completed state would keep running without a hard-stop guard.
 - Dirty worktree includes unexplained current-phase owned files.
@@ -51,6 +52,14 @@ Warnings are reconciliation work, not automatic failure. Explain branch mismatch
 dirty worktree, lifecycle filename drift, missing optional prompt paths, or
 legacy artifact compatibility in the log before continuing. Treat warnings as
 blockers only when they affect current-phase correctness or verification.
+
+Lifecycle-only prompt drift is not a blocker when the saved runner prompt is
+state-first: it references stable automation artifacts, requires reading
+`delivery_state.json`, and says the roadmap path recorded in state is
+authoritative. In that case, perform the lifecycle rename and repository-local
+reference repair without requiring a saved runner prompt edit. If the prompt
+hardcodes the lifecycle roadmap path and lacks the state-resolved guard, treat
+the saved prompt update as an automation-config repair that needs approval.
 
 ## Blocked Run Remediation
 

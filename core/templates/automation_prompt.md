@@ -3,7 +3,10 @@
 Use concrete paths before saving a runner prompt.
 
 ```text
-Run the next safe phase-gated delivery step for `ROADMAP_PATH`.
+Run the next safe phase-gated delivery step for the roadmap recorded in
+`automation/<roadmap-slug>/delivery_state.json`. Resolve the current roadmap
+path from `delivery_state.json`; the state roadmap field is authoritative
+across lifecycle renames.
 
 Read these files before acting:
 - `automation/<roadmap-slug>/automation_guide.md`
@@ -14,9 +17,9 @@ Read these files before acting:
 - `automation/<roadmap-slug>/phase_model_policy.json`
 - `automation/<roadmap-slug>/approval_policy.json` when present
 
-Operate on exactly one current phase at a time. Reconcile roadmap, state, log,
-review files, phase model policy, approval policy, branch, worktree status, and
-saved runner configuration before editing.
+Operate on exactly one current phase at a time. Resolve the roadmap from state,
+then reconcile roadmap, state, log, review files, phase model policy, approval
+policy, branch, worktree status, and saved runner configuration before editing.
 
 Validate approval policy before relying on pre-approved operations. If the
 policy is missing, use conservative legacy behavior. If the policy is invalid,

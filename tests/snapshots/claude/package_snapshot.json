@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "adapter": "claude",
   "files": [
     {
@@ -50,12 +49,12 @@
       "size": 6942
     },
     {
-      "core_sha256": "8ab02081fe709944cc4175fa197ed656f8d4749eaca01b11056b6e5e93798fe8",
-      "core_size": 5370,
+      "core_sha256": "e287bf3baf4181c239e66658273dfff1a3b014d07935ef9ed49aa7dde6d207a6",
+      "core_size": 5775,
       "core_source": "core/references/phase-loop.md",
       "path": "skills/roadmap-delivery-skill/references/phase-loop.md",
-      "sha256": "8ab02081fe709944cc4175fa197ed656f8d4749eaca01b11056b6e5e93798fe8",
-      "size": 5370
+      "sha256": "e287bf3baf4181c239e66658273dfff1a3b014d07935ef9ed49aa7dde6d207a6",
+      "size": 5775
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -66,12 +65,12 @@
       "size": 2595
     },
     {
-      "core_sha256": "cade84c15ae2b4d1bf22d4cb7afd4170f9b8a02069aaae9bd46e15c5538fbeb5",
-      "core_size": 4035,
+      "core_sha256": "993467ec6eff84d8f40b04df36463131940daaa3924dca592883387887ba10c8",
+      "core_size": 4991,
       "core_source": "core/references/setup-automation.md",
       "path": "skills/roadmap-delivery-skill/references/setup-automation.md",
-      "sha256": "cade84c15ae2b4d1bf22d4cb7afd4170f9b8a02069aaae9bd46e15c5538fbeb5",
-      "size": 4035
+      "sha256": "993467ec6eff84d8f40b04df36463131940daaa3924dca592883387887ba10c8",
+      "size": 4991
     },
     {
       "core_sha256": "600e5a2f1e53c9269ca51af3258bc6083cf9ad63d93a130ad9f7592142738001",
@@ -82,12 +81,13 @@
       "size": 3187
     },
     {
-      "core_sha256": "c4f6e2c775a178579e3fe79c7508d4583dde4c65fb0111ed143769c1734ed355",
-      "core_size": 4878,
+      "core_sha256": "3229a3dd93110247f6ca03ce28ae74370efa79ec4592573e059ce0f895f0c049",
+      "core_size": 5491,
       "core_source": "core/references/troubleshooting.md",
       "path": "skills/roadmap-delivery-skill/references/troubleshooting.md",
-      "sha256": "c4f6e2c775a178579e3fe79c7508d4583dde4c65fb0111ed143769c1734ed355",
-      "size": 4878
+      "sha256": "3229a3dd93110247f6ca03ce28ae74370efa79ec4592573e059ce0f895f0c049",
+      "size": 5491
     }
-  ]
+  ],
+  "schema_version": 1
 }

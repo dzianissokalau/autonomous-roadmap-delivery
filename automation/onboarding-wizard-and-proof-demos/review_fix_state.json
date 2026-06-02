@@ -1,0 +1,19 @@
+{
+  "roadmap": "roadmaps/in_progress_onboarding_wizard_and_proof_demos_roadmap.md",
+  "roadmap_slug": "onboarding-wizard-and-proof-demos",
+  "current_phase": "Phase 1 - Setup Wizard UX And CLI Contract",
+  "status": "delivered",
+  "review_iterations": 0,
+  "max_review_iterations": 3,
+  "active_review_file": "automation/onboarding-wizard-and-proof-demos/reviews/onboarding-wizard-and-proof-demos-phase-0-review-iteration-1.md",
+  "last_verdict": "delivered",
+  "last_review_file": "automation/onboarding-wizard-and-proof-demos/reviews/onboarding-wizard-and-proof-demos-phase-0-review-iteration-1.md",
+  "last_delivered_phase": "Phase 0 - Onboarding Contract And Success Metrics",
+  "blocked_reason": null,
+  "last_blocked_remediation": {
+    "checked_at": "2026-06-02T09:21:39Z",
+    "classification": "local-repairable",
+    "result": "Lifecycle rename and repository-local references repaired. Saved automation prompt retarget was not required because prompt readback references stable state/guide/log artifacts and state is authoritative."
+  },
+  "updated_at": "2026-06-02T09:21:39Z"
+}

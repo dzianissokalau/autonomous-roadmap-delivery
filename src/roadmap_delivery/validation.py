@@ -15,6 +15,7 @@ from .approval import approval_decision_for_pause_context, read_approval_policy
 from .git import run_git
 from .paths import (
     extract_roadmap_references,
+    is_lifecycle_roadmap_sibling,
     package_repo_root,
     path_for_report,
     resolve_repo_path,
@@ -29,6 +30,7 @@ from .policy import (
     COMPLETED_STATUSES,
     has_blocked_remediation_guard,
     has_hard_stop_guard,
+    has_state_resolved_roadmap_guard,
     manual_activation_reconciliation,
     normalized,
     phase_number,
@@ -1281,15 +1283,19 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
             add(errors, "current_phase_mismatch", f"State current_phase {state.get('current_phase')!r} differs from roadmap Current phase {roadmap_header.get('current phase')!r}.")
 
     automation_refs = extract_roadmap_references(automation_prompt, repo_root) if automation_prompt else []
+    state_resolved_roadmap_prompt = has_state_resolved_roadmap_guard(automation_prompt)
     if automation_prompt and roadmap_path:
         if not automation_refs:
-            add(warnings, "automation_prompt_missing_roadmap_path", "Automation prompt does not include a recognizable roadmap markdown path.", automation_toml)
+            if not state_resolved_roadmap_prompt:
+                add(warnings, "automation_prompt_missing_roadmap_path", "Automation prompt does not include a recognizable roadmap markdown path or a state-resolved roadmap guard.", automation_toml)
         elif roadmap_path not in automation_refs:
-            add(warnings, "automation_prompt_current_roadmap_missing", f"Automation prompt does not reference current roadmap path {roadmap_path}.", automation_toml)
+            if not state_resolved_roadmap_prompt:
+                add(warnings, "automation_prompt_current_roadmap_missing", f"Automation prompt does not reference current roadmap path {roadmap_path}.", automation_toml)
         for ref in automation_refs:
-            if ref != roadmap_path and not ref.exists():
+            lifecycle_only_drift = state_resolved_roadmap_prompt and is_lifecycle_roadmap_sibling(ref, roadmap_path)
+            if ref != roadmap_path and not ref.exists() and not lifecycle_only_drift:
                 add(warnings, "stale_automation_roadmap_path", f"Automation prompt references missing roadmap path {ref}; state points to {roadmap_path}.", automation_toml)
-            elif ref != roadmap_path:
+            elif ref != roadmap_path and not lifecycle_only_drift:
                 add(warnings, "automation_roadmap_path_mismatch", f"Automation prompt references {ref}; state points to {roadmap_path}.", automation_toml)
 
     if automation_prompt and not hard_stop_guard:
@@ -1368,6 +1374,7 @@ def validate(repo_root: Path, roadmap_slug: Optional[str], automation_id: Option
         "automation_roadmap_references": [str(path) for path in automation_refs],
         "hard_stop_guard": hard_stop_guard,
         "blocked_remediation_guard": blocked_remediation_guard,
+        "state_resolved_roadmap_prompt": state_resolved_roadmap_prompt,
         "activation_reconciliation": activation_reconciliation,
         "approval_policy": approval_policy,
         "approval_policy_state": approval_policy_state,

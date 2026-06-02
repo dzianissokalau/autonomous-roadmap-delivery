@@ -30,10 +30,18 @@ AUTOMATION_DIR=automation/<roadmap-slug>
 ```
 
 Record the exact path in the roadmap header, state JSON, delivery log, and
-automation prompt. If the roadmap becomes active or advances to Phase 1+, it
-must not keep a `not_started_` filename. If the roadmap filename changes during
-a lifecycle rename, stop and repair every durable reference before doing
-delivery work.
+automation guide. The saved automation prompt should be state-first: point it
+at stable automation artifacts, require it to read `delivery_state.json`, and
+say that the roadmap path recorded in `delivery_state.json` is authoritative.
+Do not make the saved automation prompt depend on the lifecycle-prefixed
+roadmap filename.
+
+If the roadmap becomes active or advances to Phase 1+, it must not keep a
+`not_started_` filename. If the roadmap filename changes during a lifecycle
+rename, repair repository-local references in the roadmap, state, guide, log,
+reviews, and run bookkeeping before doing delivery work. A saved automation
+prompt update is not required when the prompt is state-first and still
+references the stable state/guide files.
 
 ## Artifact Layout
 
@@ -204,8 +212,10 @@ before delivery starts.
 Use concrete paths before saving:
 
 ```text
-Run the next safe step for `ROADMAP_PATH` using the phase-gated workflow in
-`automation/`.
+Run the next safe step for the roadmap recorded in
+`automation/<roadmap-slug>/delivery_state.json` using the phase-gated workflow
+in `automation/`. Resolve the current roadmap path from `delivery_state.json`;
+the state roadmap field is authoritative across lifecycle renames.
 
 Read these first:
 - `automation/<roadmap-slug>/automation_guide.md`
@@ -215,10 +225,10 @@ Read these first:
 - `automation/<roadmap-slug>/review_fix_state.json` when present
 - `automation/<roadmap-slug>/phase_model_policy.json`
 
-Operate on exactly one current phase at a time. Reconcile roadmap, state, log,
-review files, phase model policy, git branch, working tree, and saved
-automation configuration before editing. If they disagree, record the blocker in
-state/log/review and stop.
+Operate on exactly one current phase at a time. Resolve the roadmap from state,
+then reconcile roadmap, state, log, review files, phase model policy, git
+branch, working tree, and saved automation configuration before editing. If
+they disagree, record the blocker in state/log/review and stop.
 
 If state is `blocked`, enter Blocked Remediation Mode before normal delivery:
 classify the blocker, repair local or already-authorized automation-config
@@ -286,8 +296,9 @@ After creation or update, inspect the saved config:
 - `id` matches the intended automation id.
 - `status` is `PAUSED` unless explicit activation was requested.
 - `cwd` is the repository root.
-- prompt references the current roadmap path.
-- prompt references the current automation artifact directory.
+- prompt references the stable `delivery_state.json` path and says the roadmap
+  path recorded in state is authoritative.
+- prompt references the current automation guide and artifact directory.
 - prompt includes the phase model policy hard stop before implementation.
 - `model` and `reasoning_effort` match the first phase's required policy.
 - cadence matches the requested schedule.
@@ -372,10 +383,11 @@ Set `model` and `reasoning_effort` to the first phase's resolved policy values.
 If the first phase uses a lower-cost or high-reasoning override, the saved
 automation must match that override before activation.
 
-The prompt must include the current `ROADMAP_PATH`, the required files to read
-first, one-phase-at-a-time delivery rules, review/fix iteration limits,
-Blocked Remediation Mode, phase-model-policy validation, the model/reasoning
-hard stop before implementation, completion hard stop, the
+The prompt must include the stable `delivery_state.json` and automation guide
+paths, require resolving the current roadmap path from state, list the required
+files to read first, one-phase-at-a-time delivery rules, review/fix iteration
+limits, Blocked Remediation Mode, phase-model-policy validation, the
+model/reasoning hard stop before implementation, completion hard stop, the
 no-push/no-main-promotion guard, and installed-skill permission handling when
 relevant.
 
@@ -392,7 +404,8 @@ or connector response and confirm:
 - `cwd` is exactly `REPO_ROOT`.
 - `model` equals the first phase's required policy model.
 - `reasoning_effort` equals the first phase's required policy reasoning effort.
-- the prompt references the current `ROADMAP_PATH`.
+- the prompt references `delivery_state.json` and states that the roadmap path
+  recorded there is authoritative.
 - the prompt references `automation/<roadmap-slug>/automation_guide.md`.
 - the prompt references `delivery_state.json` and `delivery_log.md`.
 - the prompt references `phase_model_policy.json`.

@@ -40,7 +40,6 @@ installable snapshot until adapter generation is introduced by a later phase.
 ## Project Defaults
 
 ```text
-ROADMAP_PATH=<path to the roadmap markdown file>
 ROADMAP_SLUG=<short lowercase slug>
 PHASE_N=<current phase number or label>
 STATE_FILE=automation/<roadmap_slug>/delivery_state.json
@@ -93,7 +92,7 @@ Suggested state:
 ```json
 {
   "schema_version": 1,
-  "roadmap": "ROADMAP_PATH",
+  "roadmap": "<path to the roadmap markdown file>",
   "roadmap_slug": "ROADMAP_SLUG",
   "current_phase": "PHASE_N",
   "branch": null,
@@ -170,7 +169,7 @@ Branch: `BRANCH_NAME` or `not available`
 ## Delivery Agent Prompt
 
 ```text
-Deliver Phase PHASE_N of ROADMAP_PATH.
+Deliver Phase PHASE_N of the roadmap recorded in DELIVERY_STATE.
 
 Use this phase-gated delivery template:
 automation/codex_phase_gated_delivery_automation_template.md
@@ -178,6 +177,8 @@ automation/codex_phase_gated_delivery_automation_template.md
 Work only on Phase PHASE_N. Do not start the next phase.
 
 Before editing:
+- Read DELIVERY_STATE and resolve the current roadmap path from its `roadmap`
+  field.
 - Extract the phase scope.
 - Extract acceptance criteria.
 - Identify non-goals.
@@ -185,6 +186,11 @@ Before editing:
 - Identify required tests and verification commands.
 - If DELIVERY_STATE has `status: blocked`, enter Blocked Remediation Mode
   before normal phase delivery.
+- If blocked only because a lifecycle rename would otherwise require a saved
+  automation prompt edit, continue with local lifecycle repair when the saved
+  prompt resolves the roadmap from DELIVERY_STATE. Require saved prompt retarget
+  approval only when the prompt hardcodes the old lifecycle path and lacks the
+  state-resolved guard.
 
 Blocked Remediation Mode:
 - classify the blocker as local-repairable, automation-config,
@@ -228,7 +234,8 @@ At the end:
 ## Reviewer Prompt
 
 ```text
-Review the delivered Phase PHASE_N changes against ROADMAP_PATH.
+Review the delivered Phase PHASE_N changes against the roadmap recorded in
+DELIVERY_STATE.
 
 Use this phase-gated delivery template:
 automation/codex_phase_gated_delivery_automation_template.md
@@ -274,3 +281,8 @@ Stop and ask the human operator when:
 - roadmap, state, log, and automation guide disagree
 - blocked remediation requires credentials, a product decision, destructive
   git, publication, promotion, or unapproved automation config changes
+Read the current roadmap path from `STATE_FILE`; the `roadmap` field in
+`delivery_state.json` is authoritative across lifecycle renames. Do not make a
+saved automation prompt retarget mandatory for a `not_started_` to
+`in_progress_` or `in_progress_` to `delivered_` rename when the prompt still
+points at the stable state and guide files.

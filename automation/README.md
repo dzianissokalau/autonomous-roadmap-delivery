@@ -10,6 +10,9 @@ Use `../roadmaps/` for human-facing documents:
 - `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md`
 - `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md`
 - `../roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`
+- `../roadmaps/not_started_release_install_and_distribution_trust_roadmap.md`
+- `../roadmaps/in_progress_onboarding_wizard_and_proof_demos_roadmap.md`
+- `../roadmaps/not_started_host_validation_and_github_action_companion_roadmap.md`
 
 Use this folder for automation templates, state, logs, review outputs, and
 closeout checklists.
@@ -47,6 +50,17 @@ in the project root or `../roadmaps/`.
 | `../roadmaps/delivered_framework_core_and_release_readiness_roadmap.md` | Completed | Complete | `framework-core-and-release-readiness` hourly, PAUSED | `framework-core-and-release-readiness/delivery_state.json` |
 | `../roadmaps/delivered_multi_host_adapter_and_claude_plugin_roadmap.md` | Completed | Complete | `multi-host-adapter-and-claude-plugin` hourly, PAUSED | `multi-host-adapter-and-claude-plugin/delivery_state.json` |
 | `../roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md` | Completed Pending Pause | Complete | `autonomous-operation-modes-and-adaptive-control` hourly, ACTIVE | `autonomous-operation-modes-and-adaptive-control/delivery_state.json` |
+| `../roadmaps/in_progress_onboarding_wizard_and_proof_demos_roadmap.md` | Active | Phase 1 | `onboarding-wizard-and-proof-demos` hourly, ACTIVE | `onboarding-wizard-and-proof-demos/delivery_state.json` |
+
+## Planned Roadmaps
+
+These roadmap documents exist in `../roadmaps/`, but no automation directory or
+saved automation has been configured yet.
+
+| Roadmap | Status | Suggested Slug |
+|---|---|---|
+| `../roadmaps/not_started_release_install_and_distribution_trust_roadmap.md` | Not Started | `release-install-and-distribution-trust` |
+| `../roadmaps/not_started_host_validation_and_github_action_companion_roadmap.md` | Not Started | `host-validation-and-github-action-companion` |
 
 ## Migration Notes
 

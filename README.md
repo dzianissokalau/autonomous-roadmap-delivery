@@ -17,14 +17,22 @@ Key docs:
 - Autonomy and approval policy: `docs/autonomy-and-approval-policy.md`
 - Compatibility: `docs/compatibility.md`
 - Contributor workflow: `docs/contributor-workflow.md`
+- Evidence benchmark contract: `docs/evidence-benchmark.md`
 - Codex install: `docs/installing-codex.md`
 - Claude install: `docs/installing-claude.md`
 - Migration guide: `docs/migration-guide.md`
+- Onboarding quickstart: `docs/quickstart.md`
+- Onboarding wizard contract: `docs/onboarding-wizard.md`
 - Privacy and release sanitization: `docs/privacy-and-sanitization.md`
 - Release notes: `docs/release-notes-0.1.0.md`
 - Security policy: `SECURITY.md`
+- Who this is for: `docs/who-this-is-for.md`
 
 ## Quickstart
+
+For a first-use path that starts with the safe demo fixture and then moves to a
+real-project scaffold dry run, use `docs/quickstart.md`. For fit guidance, use
+`docs/who-this-is-for.md`.
 
 ### Install In Codex
 
@@ -184,6 +192,16 @@ Codex package.
 - `roadmaps/delivered_autonomous_operation_modes_and_adaptive_control_roadmap.md`:
   completed roadmap for autonomy modes, adaptive model escalation, and
   automatic pause behavior; the saved automation is paused.
+- `roadmaps/not_started_release_install_and_distribution_trust_roadmap.md`:
+  planned roadmap for first tagged release readiness, install/distribution
+  trust, licensing/trademark guidance, marketplace-native preparation, and
+  public project governance surfaces.
+- `roadmaps/in_progress_onboarding_wizard_and_proof_demos_roadmap.md`:
+  active roadmap for setup wizard generation, golden-path demos, quickstart
+  fit guidance, and measurable delivery-evidence proof.
+- `roadmaps/not_started_host_validation_and_github_action_companion_roadmap.md`:
+  planned roadmap for optional live host smoke checks, capability metadata, and
+  a GitHub Action validation/review-evidence companion.
 
 ## Operating Model
 

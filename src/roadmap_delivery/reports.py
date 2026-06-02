@@ -15,6 +15,7 @@ from .git import run_git
 from .paths import (
     automation_dir_candidates,
     extract_roadmap_references,
+    is_lifecycle_roadmap_sibling,
     resolve_repo_path,
     slug_forms,
     state_candidates,
@@ -26,6 +27,7 @@ from .policy import (
     COMPLETED_STATUSES,
     has_hard_stop_guard,
     has_blocked_remediation_guard,
+    has_state_resolved_roadmap_guard,
     manual_activation_reconciliation,
     normalized,
     phase_number,
@@ -520,6 +522,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
     automation_data: Dict[str, Any] = {}
     blocked_remediation_guard = False
     hard_stop_guard = False
+    state_resolved_roadmap_prompt = False
     if automation_id:
         automation_toml = AUTOMATIONS_DIR / automation_id / "automation.toml"
         if not automation_toml.exists():
@@ -530,6 +533,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
             automation_prompt = str(automation_data.get("prompt") or "")
             hard_stop_guard = has_hard_stop_guard(automation_prompt)
             blocked_remediation_guard = has_blocked_remediation_guard(automation_prompt)
+            state_resolved_roadmap_prompt = has_state_resolved_roadmap_guard(automation_prompt)
             automation_roadmap_references = [
                 str(path)
                 for path in extract_roadmap_references(
@@ -574,13 +578,18 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
 
     for ref in automation_roadmap_references:
         ref_path = Path(ref)
-        if roadmap_path and ref_path != roadmap_path and not ref_path.exists():
+        lifecycle_only_drift = bool(
+            roadmap_path
+            and state_resolved_roadmap_prompt
+            and is_lifecycle_roadmap_sibling(ref_path, roadmap_path)
+        )
+        if roadmap_path and ref_path != roadmap_path and not ref_path.exists() and not lifecycle_only_drift:
             add_warning(
                 warnings,
                 "stale_automation_roadmap_path",
                 f"Automation prompt references missing roadmap path {ref_path}; state points to {roadmap_path}",
             )
-        elif roadmap_path and ref_path != roadmap_path:
+        elif roadmap_path and ref_path != roadmap_path and not lifecycle_only_drift:
             add_warning(
                 warnings,
                 "automation_roadmap_path_mismatch",
@@ -714,6 +723,7 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "blocked_remediation_required": blocked_remediation_required,
         "blocked_remediation_guard": blocked_remediation_guard,
         "hard_stop_guard": hard_stop_guard,
+        "state_resolved_roadmap_prompt": state_resolved_roadmap_prompt,
         "activation_reconciliation": activation_reconciliation,
         "approval_policy": approval_policy,
         "autonomy_mode": approval_policy.get("approval_mode") if approval_policy else None,

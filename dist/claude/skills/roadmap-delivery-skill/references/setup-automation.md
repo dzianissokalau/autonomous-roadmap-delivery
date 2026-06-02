@@ -29,9 +29,17 @@ automation/<roadmap-slug>/
 ```
 
 Record the same roadmap path and slug in the roadmap header, state, delivery
-log, review state, automation guide, and saved runner prompt. If a lifecycle
-rename changes the roadmap filename, repair all durable references before
-delivery continues.
+log, review state, and automation guide. The saved runner prompt should be
+state-first: point it at stable automation artifacts, require it to read
+`delivery_state.json`, and say that the roadmap path recorded in
+`delivery_state.json` is authoritative. Do not make the saved runner prompt
+depend on the lifecycle-prefixed roadmap filename.
+
+If a lifecycle rename changes the roadmap filename, repair repository-local
+references in the roadmap, state, delivery log, review state, automation guide,
+reviews, and run bookkeeping before delivery continues. A saved runner prompt
+retarget is not required when the prompt is state-first and still references
+the stable state/guide files.
 
 If the operator manually activates a runner that setup originally recorded as
 paused, the next run must reconcile the durable artifacts instead of treating
@@ -67,8 +75,10 @@ readback proves them.
 
 The saved runner prompt must require the agent to:
 
-- read the roadmap, state, log, review state, policy, latest reviews, runner
-  configuration, branch, and worktree status before editing
+- read the automation guide, state, log, review state, policy, latest reviews,
+  runner configuration, branch, and worktree status before editing
+- resolve the current roadmap path from `delivery_state.json`, treating the
+  state roadmap field as authoritative across lifecycle renames
 - read and validate approval policy before relying on pre-approved operations
 - use conservative legacy behavior when approval policy is missing
 - stop before delivery when approval policy is invalid
@@ -82,6 +92,11 @@ The saved runner prompt must require the agent to:
 - write a fresh review artifact before phase advancement
 - avoid publication, promotion, destructive git, credentials, and unapproved
   runner configuration changes
+
+The prompt may include the initial roadmap path as context, but lifecycle path
+changes must not make saved runner prompt edits mandatory. If the prompt lacks
+a state-resolved roadmap guard, lifecycle renames still require prompt retarget
+approval before the next run can trust the saved prompt.
 
 ## Host Adapter Boundary
 

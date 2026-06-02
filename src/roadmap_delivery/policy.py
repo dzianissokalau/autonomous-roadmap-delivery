@@ -52,6 +52,26 @@ def has_blocked_remediation_guard(prompt: str) -> bool:
     return blocked_marker and remediation_marker and repair_marker
 
 
+def has_state_resolved_roadmap_guard(prompt: str) -> bool:
+    """Return true when the prompt treats delivery_state.json as roadmap source."""
+
+    lowered = " ".join(str(prompt or "").lower().split())
+    if "delivery_state.json" not in lowered:
+        return False
+    if "automation_guide.md" in lowered or "delivery_log.md" in lowered:
+        return True
+    markers = (
+        "resolve the current roadmap path from delivery_state.json",
+        "resolve roadmap path from delivery_state.json",
+        "roadmap path from delivery_state.json",
+        "roadmap path recorded in delivery_state.json",
+        "roadmap field in delivery_state.json is authoritative",
+        "state roadmap field is authoritative",
+        "delivery_state.json is the source of truth for the roadmap path",
+    )
+    return any(marker in lowered for marker in markers)
+
+
 def paused_active_status_drift(reason: Any) -> bool:
     text = normalized(reason)
     return "paused" in text and "active" in text and (
