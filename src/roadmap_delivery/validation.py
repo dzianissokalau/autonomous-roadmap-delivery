@@ -34,6 +34,8 @@ from .policy import (
     manual_activation_reconciliation,
     normalized,
     phase_number,
+    reasoning_effort_exceeds,
+    reasoning_effort_satisfies,
 )
 from .progress import ProgressSignatureError, build_run_result
 from .state import JsonObjectError, load_json_object
@@ -624,6 +626,8 @@ def validate_model_policy(
         "reasoning_mismatch": False,
         "model_unknown": False,
         "reasoning_unknown": False,
+        "reasoning_satisfied": False,
+        "reasoning_over_required": False,
     }
     if not policy_path.exists():
         return result
@@ -731,9 +735,17 @@ def validate_model_policy(
     if required_model and configured_model and str(required_model) != str(configured_model):
         result["model_mismatch"] = True
         add(errors, "automation_model_mismatch", f"Required model {required_model!r} differs from configured model {configured_model!r}.", policy_path)
-    if required_reasoning and configured_reasoning and str(required_reasoning) != str(configured_reasoning):
+    if required_reasoning and configured_reasoning:
+        result["reasoning_satisfied"] = reasoning_effort_satisfies(configured_reasoning, required_reasoning)
+        result["reasoning_over_required"] = reasoning_effort_exceeds(configured_reasoning, required_reasoning)
+    if required_reasoning and configured_reasoning and not result["reasoning_satisfied"]:
         result["reasoning_mismatch"] = True
-        add(errors, "automation_reasoning_mismatch", f"Required reasoning {required_reasoning!r} differs from configured reasoning {configured_reasoning!r}.", policy_path)
+        add(
+            errors,
+            "automation_reasoning_mismatch",
+            f"Required reasoning {required_reasoning!r} exceeds configured reasoning {configured_reasoning!r}.",
+            policy_path,
+        )
 
     for field in POLICY_STATE_FIELDS:
         if field not in state:

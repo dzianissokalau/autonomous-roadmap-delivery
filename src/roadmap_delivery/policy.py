@@ -6,7 +6,8 @@ import re
 from typing import Any, Optional
 
 
-ALLOWED_REASONING_EFFORTS = {"minimal", "low", "medium", "high", "xhigh"}
+REASONING_ORDER = ("minimal", "low", "medium", "high", "xhigh")
+ALLOWED_REASONING_EFFORTS = set(REASONING_ORDER)
 COMPLETED_STATUSES = {
     "complete",
     "completed",
@@ -30,6 +31,32 @@ ACTIVE_STATUSES = {
 
 def normalized(value: Any) -> str:
     return str(value or "").strip().lower().replace("_", "-")
+
+
+def reasoning_effort_rank(value: Any) -> Optional[int]:
+    text = normalized(value)
+    try:
+        return REASONING_ORDER.index(text)
+    except ValueError:
+        return None
+
+
+def reasoning_effort_satisfies(configured: Any, required: Any) -> bool:
+    """Return true when configured reasoning is at least the required floor."""
+
+    configured_rank = reasoning_effort_rank(configured)
+    required_rank = reasoning_effort_rank(required)
+    if configured_rank is None or required_rank is None:
+        return False
+    return configured_rank >= required_rank
+
+
+def reasoning_effort_exceeds(configured: Any, required: Any) -> bool:
+    configured_rank = reasoning_effort_rank(configured)
+    required_rank = reasoning_effort_rank(required)
+    if configured_rank is None or required_rank is None:
+        return False
+    return configured_rank > required_rank
 
 
 def phase_number(value: Any) -> Optional[str]:

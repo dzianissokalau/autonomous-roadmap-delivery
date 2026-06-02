@@ -33,3 +33,33 @@ Status: blocked
   retarget.
 - Artifact validation passed with no errors and only the expected
   `worktree_dirty` warning.
+
+## Phase 1 - 2026-06-02 - Review Iteration 1
+
+Status: delivered review, blocked next phase retarget
+
+- Review file:
+  `automation/onboarding-wizard-and-proof-demos/reviews/onboarding-wizard-and-proof-demos-phase-1-review-iteration-1.md`
+- Verdict: delivered
+- Fix before final verdict: added `--allow-warning worktree_dirty` to the
+  generated wizard validation command and mirrored it in wizard JSON expected
+  warnings and tests.
+- Required verification passed after the fix:
+  `python3 -m unittest tests.test_cli tests.test_onboarding_wizard tests.test_schema_validation -v`,
+  `python3 -m roadmap_delivery.cli scaffold --help`, and `git diff --check`.
+- End-run blocker: Phase 2 requires saved automation reasoning `high`, but the
+  saved automation currently reads back `xhigh`; conservative approval policy
+  does not pre-approve `retarget_saved_automation`.
+
+## Blocked Remediation - 2026-06-02T10:05:28Z
+
+Status: repaired
+
+- Operator decision: keep `xhigh` reasoning for every roadmap stage.
+- Updated roadmap phase guidance and
+  `automation/onboarding-wizard-and-proof-demos/phase_model_policy.json` so
+  Phase 2 no longer requires a saved automation retarget.
+- Cleared the review/fix blocked state; Phase 2 is ready to start on the next
+  automation run.
+- The previous retarget-failed alert remains as historical evidence and is
+  marked superseded in delivery state.

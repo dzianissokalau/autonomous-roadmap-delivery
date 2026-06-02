@@ -41,20 +41,20 @@
       "size": 3262
     },
     {
-      "core_sha256": "9d7036205b53f9e05c0c8a14e89658c730f88e073114b2674879d3aa621e1b7c",
-      "core_size": 6942,
+      "core_sha256": "5eb1a4cf17de1b161f5572da67e3b61614c53701590c56b114a97b93ef17d625",
+      "core_size": 7819,
       "core_source": "core/references/model-policy-and-stall-control.md",
       "path": "skills/roadmap-delivery-skill/references/model-policy-and-stall-control.md",
-      "sha256": "9d7036205b53f9e05c0c8a14e89658c730f88e073114b2674879d3aa621e1b7c",
-      "size": 6942
+      "sha256": "5eb1a4cf17de1b161f5572da67e3b61614c53701590c56b114a97b93ef17d625",
+      "size": 7819
     },
     {
-      "core_sha256": "e287bf3baf4181c239e66658273dfff1a3b014d07935ef9ed49aa7dde6d207a6",
-      "core_size": 5775,
+      "core_sha256": "7622d09f52215e0a6552e8921e2717ca198d28ee9ec0037693f712129d101289",
+      "core_size": 6149,
       "core_source": "core/references/phase-loop.md",
       "path": "skills/roadmap-delivery-skill/references/phase-loop.md",
-      "sha256": "e287bf3baf4181c239e66658273dfff1a3b014d07935ef9ed49aa7dde6d207a6",
-      "size": 5775
+      "sha256": "7622d09f52215e0a6552e8921e2717ca198d28ee9ec0037693f712129d101289",
+      "size": 6149
     },
     {
       "core_sha256": "2b4e45837764e55495bf3707fb398ddf0e3a3cc1c8ce15ff442c6a2623ae9ae7",
@@ -65,12 +65,12 @@
       "size": 2595
     },
     {
-      "core_sha256": "993467ec6eff84d8f40b04df36463131940daaa3924dca592883387887ba10c8",
-      "core_size": 4991,
+      "core_sha256": "67ef15499e06a383911a8103d8cd2091beb4343208df245749a780d0f9c2a107",
+      "core_size": 5176,
       "core_source": "core/references/setup-automation.md",
       "path": "skills/roadmap-delivery-skill/references/setup-automation.md",
-      "sha256": "993467ec6eff84d8f40b04df36463131940daaa3924dca592883387887ba10c8",
-      "size": 4991
+      "sha256": "67ef15499e06a383911a8103d8cd2091beb4343208df245749a780d0f9c2a107",
+      "size": 5176
     },
     {
       "core_sha256": "600e5a2f1e53c9269ca51af3258bc6083cf9ad63d93a130ad9f7592142738001",

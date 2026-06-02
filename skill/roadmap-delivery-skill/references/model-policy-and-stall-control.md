@@ -85,6 +85,18 @@ Allowed `reasoning_effort` values:
 - `high`
 - `xhigh`
 
+Treat reasoning effort as an ordered minimum floor:
+
+`minimal < low < medium < high < xhigh`
+
+A saved automation configured with higher reasoning than the phase requires
+satisfies the phase. For example, `xhigh` satisfies a phase that requires
+`high`. Do not block delivery, write a retarget-failed alert, or request
+`retarget_saved_automation` merely to downgrade reasoning. Downward retargets
+are optional cost optimizations and must never be required before the next
+phase can start. A saved automation configured with lower reasoning than
+required still fails the model-policy gate.
+
 ## Adaptive Model Policy
 
 Classify run quality after verification and the review verdict:
@@ -225,11 +237,12 @@ expensive model to every phase; make the tradeoff inspectable in
 `phase_model_policy.json`.
 
 Setup resolves the first phase's required model and reasoning from the policy,
-then saves the Codex app automation or runner config with those exact values.
-Read back the saved config before reporting success. If readback differs from
-policy, correct it only when the automation-config surface is approved; if it
-cannot be corrected, leave the automation paused or blocked and record the
-mismatch.
+then saves the Codex app automation or runner config with the exact model and
+at least the required reasoning floor. Read back the saved config before
+reporting success. If readback has the wrong model or reasoning below the
+policy floor, correct it only when the automation-config surface is approved;
+if it cannot be corrected, leave the automation paused or blocked and record
+the mismatch.
 
 When setup uses provider-role config, copy the selected role's model and
 reasoning values into `phase_model_policy.json` first, then apply the same
@@ -238,7 +251,8 @@ readback gate. Do not treat the role file itself as runner readback.
 Activation is not allowed until:
 
 - `phase_model_policy.json` validates
-- the saved automation model and reasoning match the first phase policy
+- the saved automation model matches the first phase policy and reasoning
+  satisfies the first phase floor
 - the saved prompt includes the start-run model-policy hard stop
 - repository artifacts, roadmap path, state, log, reviews, branch, and
   automation prompt reconcile without validator errors
@@ -255,9 +269,11 @@ Before implementation:
 5. Compare required versus configured values before phase extraction or any
    phase-owned file edit.
 
-If required and configured values match, continue normal phase extraction.
+If the model matches and configured reasoning is at least the required floor,
+continue normal phase extraction.
 
-If they mismatch, do not edit phase-owned files. Record:
+If the model mismatches or configured reasoning is below the required floor, do
+not edit phase-owned files. Record:
 
 - current phase
 - required model and reasoning effort
@@ -267,8 +283,10 @@ If they mismatch, do not edit phase-owned files. Record:
 
 Retarget the automation only when `retarget_saved_automation` resolves to
 `allowed` or explicit human approval is already present, then exit so the next
-run starts on the correct model. If the decision is `ask`, record the missing
-approval and stop. If the decision is `forbidden`, record a blocker.
+run starts on sufficient settings. If the decision is `ask`, record the missing
+approval and stop. If the decision is `forbidden`, record a blocker. Do not ask
+for approval merely to downgrade reasoning that is already above the required
+floor.
 
 If the active model cannot be proven and the roadmap is model-strict, stop and
 ask for confirmation rather than guessing.
@@ -288,10 +306,10 @@ codex exec -p roadmap-delivery-xhigh \
   "Run the next safe phase-gated delivery step for roadmaps/example.md"
 ```
 
-For Codex app automations, update the saved automation configuration so
-`model = "<required-model>"` and
-`reasoning_effort = "<required-reasoning-effort>"`, then read the config back.
-If readback does not match, keep or set state blocked and write a local alert.
+For Codex app automations, update the saved automation configuration only when
+the model differs or reasoning is below the required floor. After an update,
+read the config back. If readback still has the wrong model or insufficient
+reasoning, keep or set state blocked and write a local alert.
 
 If a provider-role config exists, it may explain why the current phase uses an
 executor, reviewer, inspector, finalizer, or repairer model. It does not loosen
@@ -301,7 +319,7 @@ and configured values still come from runner readback.
 The gate treats these as stop-before-delivery conditions:
 
 - required model differs from configured model
-- required reasoning effort differs from configured reasoning effort
+- required reasoning effort is higher than configured reasoning effort
 - required model exists but no configured model can be proven
 - required reasoning effort exists but no configured reasoning effort can be
   proven

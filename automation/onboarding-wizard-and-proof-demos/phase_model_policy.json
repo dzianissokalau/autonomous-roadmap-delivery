@@ -7,7 +7,7 @@
   },
   "defaults": {
     "model": "gpt-5.5",
-    "reasoning_effort": "high"
+    "reasoning_effort": "xhigh"
   },
   "phases": {
     "0": {
@@ -20,11 +20,11 @@
     },
     "2": {
       "model": "gpt-5.5",
-      "reasoning_effort": "high"
+      "reasoning_effort": "xhigh"
     },
     "3": {
       "model": "gpt-5.5",
-      "reasoning_effort": "high"
+      "reasoning_effort": "xhigh"
     },
     "4": {
       "model": "gpt-5.5",
@@ -32,7 +32,7 @@
     },
     "5": {
       "model": "gpt-5.5",
-      "reasoning_effort": "high"
+      "reasoning_effort": "xhigh"
     },
     "finalization": {
       "model": "gpt-5.5",

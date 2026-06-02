@@ -278,6 +278,22 @@ def next_reasoning(value: Any, max_reasoning: Any = None) -> Any:
     return REASONING_ORDER[min(index + 1, cap_index)]
 
 
+def reasoning_satisfies(configured: Any, required: Any) -> bool:
+    configured_index = reasoning_index(configured)
+    required_index = reasoning_index(required)
+    if configured_index is None or required_index is None:
+        return False
+    return configured_index >= required_index
+
+
+def reasoning_exceeds(configured: Any, required: Any) -> bool:
+    configured_index = reasoning_index(configured)
+    required_index = reasoning_index(required)
+    if configured_index is None or required_index is None:
+        return False
+    return configured_index > required_index
+
+
 def string_list(value: Any, default: Iterable[str]) -> List[str]:
     if not isinstance(value, list):
         return list(default)
@@ -691,10 +707,11 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
     automation_data = parse_minimal_toml(automation_toml) if automation_toml and automation_toml.exists() else {}
     configured_model = automation_data.get("model")
     configured_reasoning = automation_data.get("reasoning_effort")
-    update_required = (
-        configured_model != target["model"]
-        or configured_reasoning != target["reasoning_effort"]
-    )
+    model_update_required = configured_model != target["model"]
+    reasoning_satisfied = reasoning_satisfies(configured_reasoning, target["reasoning_effort"])
+    reasoning_over_required = reasoning_exceeds(configured_reasoning, target["reasoning_effort"])
+    reasoning_update_required = bool(target.get("reasoning_effort") and not reasoning_satisfied)
+    update_required = model_update_required or reasoning_update_required
     retarget_decision = approval_decision_for_operation(
         approval_policy.get("operations", {}),
         "retarget_saved_automation",
@@ -736,11 +753,16 @@ def build_plan(args: argparse.Namespace) -> Tuple[Dict[str, Any], List[str]]:
             "execution_environment": automation_data.get("execution_environment"),
             "configured_model": configured_model,
             "configured_reasoning_effort": configured_reasoning,
+            "reasoning_satisfied": reasoning_satisfied,
+            "reasoning_over_required": reasoning_over_required,
         },
         "approval_policy": approval_policy,
         "retarget": {
             "status": retarget_status,
             "update_required": update_required,
+            "model_update_required": model_update_required,
+            "reasoning_update_required": reasoning_update_required,
+            "reasoning_downgrade_not_required": bool(reasoning_over_required and not reasoning_update_required),
             "approval_required": bool(update_required and retarget_decision["decision"] != "allowed"),
             "approval_decision": retarget_decision,
             "simulated_failure": args.simulate_update_failure,

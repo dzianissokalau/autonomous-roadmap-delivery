@@ -1,10 +1,10 @@
 # Onboarding Wizard And Proof Demos Roadmap
 
 Status: Active
-Current phase: Phase 1 - Setup Wizard UX And CLI Contract
-Last completed phase: Phase 0 - Onboarding Contract And Success Metrics
+Current phase: Phase 2 - Wizard Implementation And Scaffold Integration
+Last completed phase: Phase 1 - Setup Wizard UX And CLI Contract
 Last updated: 2026-06-02
-Next action: Deliver Phase 1.
+Next action: Deliver Phase 2.
 Blocked by: None.
 
 ## Purpose
@@ -115,10 +115,10 @@ or unverifiable ROI claims.
 ```text
 Phase 0: gpt-5.5 / xhigh
 Phase 1: gpt-5.5 / xhigh
-Phase 2: gpt-5.5 / high
-Phase 3: gpt-5.5 / high
+Phase 2: gpt-5.5 / xhigh
+Phase 3: gpt-5.5 / xhigh
 Phase 4: gpt-5.5 / xhigh
-Phase 5: gpt-5.5 / high
+Phase 5: gpt-5.5 / xhigh
 ```
 
 ## Phase Overview

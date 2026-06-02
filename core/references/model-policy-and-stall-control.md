@@ -70,6 +70,18 @@ Minimum structure:
 Allowed reasoning effort values are `minimal`, `low`, `medium`, `high`, and
 `xhigh`.
 
+Treat reasoning effort as an ordered minimum floor:
+
+`minimal < low < medium < high < xhigh`
+
+A runner configured with higher reasoning than the phase requires satisfies the
+phase. For example, `xhigh` satisfies a phase that requires `high`. Do not
+block delivery, write a retarget-failed alert, or request
+`retarget_saved_automation` merely to downgrade reasoning. Downward retargets
+are optional cost optimizations and must never be required before the next
+phase can start. A runner configured with lower reasoning than required still
+fails the model-policy gate.
+
 ## Adaptive Model Policy
 
 Run quality is classified after verification and review:
@@ -131,8 +143,8 @@ Before implementation:
    defaults.
 3. Read configured runner model and reasoning from a trusted config or readback
    source.
-4. Stop before phase-owned edits if required and configured values differ or
-   cannot be proven.
+4. Stop before phase-owned edits if the configured model differs, configured
+   reasoning is lower than required, or required values cannot be proven.
 
 Retarget runner configuration only when `approval_policy.json` resolves
 `retarget_saved_automation` to `allowed` or explicit human approval is already
@@ -146,12 +158,15 @@ with the right settings.
 After a delivered review verdict, resolve the next phase's model and reasoning,
 classify the run quality, apply `adaptive_model_policy` to the next target,
 update durable state, compare against runner readback, and retarget only when
+the runner is below the target floor or the model must change, and only when
 the approval-policy decision is `allowed` or explicit human approval is already
-present. The retarget plan should surface the run quality, adaptive action,
+present. If the saved runner already uses higher reasoning than the next phase
+requires, leave it unchanged and continue; do not ask for approval just to
+downgrade. The retarget plan should surface the run quality, adaptive action,
 operation decision, and target source so conservative mode preserves ask-first
 behavior and delegated modes avoid repeated prompts only for explicitly allowed
-runner updates. If readback fails or mismatches, keep or set blocked state,
-write an alert, and do not start the next phase.
+runner updates. If readback fails or remains below the required target, keep or
+set blocked state, write an alert, and do not start the next phase.
 
 ## Progress And Stall Control
 

@@ -1278,6 +1278,47 @@ class HelperScriptTests(unittest.TestCase):
             self.assertNotIn("automation_model_mismatch", self.error_codes(validate))
             self.assertNotIn("automation_reasoning_mismatch", self.error_codes(validate))
 
+    def test_higher_configured_reasoning_satisfies_required_floor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                policy_model="gpt-5.5",
+                policy_reasoning="high",
+                automation_model="gpt-5.5",
+                automation_reasoning="xhigh",
+            )
+
+            inspect = self.run_inspect(fixture)
+            validate = self.run_validate(fixture)
+
+            self.assertEqual(validate["errors"], [])
+            self.assertEqual(validate["warnings"], [])
+            self.assertFalse(validate["model_policy"]["reasoning_mismatch"])
+            self.assertTrue(validate["model_policy"]["reasoning_satisfied"])
+            self.assertTrue(validate["model_policy"]["reasoning_over_required"])
+            self.assertNotIn("automation_reasoning_mismatch", self.error_codes(validate))
+            self.assertFalse(inspect["reasoning_mismatch"])
+            self.assertTrue(inspect["reasoning_satisfied"])
+            self.assertTrue(inspect["reasoning_over_required"])
+
+    def test_lower_configured_reasoning_is_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                policy_model="gpt-5.5",
+                policy_reasoning="xhigh",
+                automation_model="gpt-5.5",
+                automation_reasoning="high",
+            )
+
+            validate = self.run_validate(fixture)
+
+            self.assertIn("automation_reasoning_mismatch", self.error_codes(validate))
+            self.assertTrue(validate["model_policy"]["reasoning_mismatch"])
+            self.assertFalse(validate["model_policy"]["reasoning_satisfied"])
+
     def test_model_policy_finalization_override_controls_required_values(self):
         policy_text = DeliveryFixture.build_model_policy_text(
             defaults_model="gpt-5.4",
@@ -1393,6 +1434,42 @@ class HelperScriptTests(unittest.TestCase):
             self.assertEqual(plan["target"]["model"], "gpt-5.5")
             self.assertEqual(plan["target"]["reasoning_effort"], "xhigh")
             self.assertEqual(plan["retarget"]["status"], "not_needed")
+
+    def test_retarget_plan_does_not_require_reasoning_downgrade(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = DeliveryFixture(
+                tmp,
+                write_model_policy=True,
+                automation_model="gpt-5.5",
+                automation_reasoning="xhigh",
+            )
+            roadmap_path = fixture.repo_root / "roadmaps" / fixture.roadmap_filename
+            roadmap_path.write_text(
+                roadmap_path.read_text(encoding="utf-8")
+                + "\n## Phase 2 - Next Fixture\n\nNext fixture body.\n",
+                encoding="utf-8",
+            )
+            policy_text = DeliveryFixture.build_model_policy_text(
+                defaults_model="gpt-5.5",
+                defaults_reasoning="xhigh",
+                phases={
+                    "2": {"model": "gpt-5.5", "reasoning_effort": "high"},
+                    "finalization": {"model": "gpt-5.5", "reasoning_effort": "xhigh"},
+                },
+            )
+            (fixture.state_dir / "phase_model_policy.json").write_text(policy_text, encoding="utf-8")
+
+            plan = self.run_plan(fixture, "--delivered-phase", "Phase 1 - Fixture")
+
+            self.assertEqual(plan["next_phase"], "Phase 2 - Next Fixture")
+            self.assertEqual(plan["target"]["reasoning_effort"], "high")
+            self.assertEqual(plan["automation"]["configured_reasoning_effort"], "xhigh")
+            self.assertTrue(plan["automation"]["reasoning_satisfied"])
+            self.assertTrue(plan["automation"]["reasoning_over_required"])
+            self.assertEqual(plan["retarget"]["status"], "not_needed")
+            self.assertFalse(plan["retarget"]["update_required"])
+            self.assertFalse(plan["retarget"]["reasoning_update_required"])
+            self.assertTrue(plan["retarget"]["reasoning_downgrade_not_required"])
 
     def test_retarget_plan_mismatch_requires_update_and_can_report_failure_path(self):
         with tempfile.TemporaryDirectory() as tmp:

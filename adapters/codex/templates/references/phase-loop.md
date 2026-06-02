@@ -78,12 +78,14 @@ When `phase_model_policy.json` exists:
    `~/.codex/automations/<automation-id>/automation.toml`, or read an explicit
    CLI/profile runner config for manual runs.
 4. Compare required versus configured model and reasoning values before
-   implementation.
-5. If they match, continue to phase extraction.
-6. If they mismatch, do not edit phase-owned files. Update state/log/review
-   with the required and configured values, retarget only when that automation
-   surface is already approved, then stop so the next run starts on the right
-   model.
+   implementation. Model comparison is exact. Reasoning comparison is a floor:
+   `xhigh` satisfies `high`, while `high` does not satisfy `xhigh`.
+5. If the model matches and configured reasoning is at least the required
+   reasoning, continue to phase extraction.
+6. If the model mismatches or configured reasoning is below the required floor,
+   do not edit phase-owned files. Update state/log/review with the required and
+   configured values, retarget only when that automation surface is already
+   approved, then stop so the next run starts on sufficient settings.
 7. If the configured model or reasoning effort cannot be proven and the roadmap
    is model-strict, stop for operator confirmation rather than guessing.
 
@@ -103,10 +105,10 @@ or use a profile that sets both values:
 codex exec -p <profile-name> -C <repo-root> "<phase-gated prompt>"
 ```
 
-For Codex app automations, the saved config must read back with matching
-`model` and `reasoning_effort` values. If an approved retarget changes those
-fields, stop immediately after readback; do not continue delivery in the same
-run.
+For Codex app automations, the saved config must read back with a matching
+`model` and a `reasoning_effort` that is at least the required floor. If an
+approved retarget changes those fields, stop immediately after readback; do not
+continue delivery in the same run.
 
 ## Approval Policy Gate
 
@@ -141,12 +143,14 @@ After a delivered review verdict and before advancing state to the next phase:
 3. Update `delivery_state.json` with the next phase, next required
    model/reasoning fields, and the configured automation values observed by
    readback.
-4. If the current automation config already matches the next required
-   model/reasoning, record that no retarget was needed and keep the automation
-   active.
-5. If the config does not match, update it only when the approval-policy
-   decision for `retarget_saved_automation` is `allowed` or explicit human
-   approval is already present. Read the saved config back after the update.
+4. If the current automation config already matches the next required model and
+   configured reasoning is at least the next required reasoning floor, record
+   that no retarget was needed and keep the automation active.
+5. If the model differs or configured reasoning is below the next required
+   floor, update it only when the approval-policy decision for
+   `retarget_saved_automation` is `allowed` or explicit human approval is
+   already present. Read the saved config back after the update. Do not block
+   or ask for approval merely to downgrade reasoning.
 6. If readback matches, record the retarget result and stop. The next run
    starts the next phase.
 7. If the update or readback fails, set or keep the state blocked, write or
@@ -250,11 +254,12 @@ because the blocker is human-gated. Record the run quality, adaptive action,
 target model/reasoning, target source, and approval decision in state, log, or
 review evidence.
 
-Adaptive decisions apply only to the next run. If the chosen next target
-differs from Codex automation readback, retarget the saved automation only when
-approval policy allows that update or explicit human approval is already
-present. After any retarget, read back the saved config and stop so the next
-run starts with the selected model and reasoning.
+Adaptive decisions apply only to the next run. If the chosen next target needs
+a different model or more reasoning than Codex automation readback, retarget the
+saved automation only when approval policy allows that update or explicit human
+approval is already present. If readback already uses higher reasoning than the
+target, keep it unchanged. After any retarget, read back the saved config and
+stop so the next run starts with sufficient model and reasoning.
 
 ## Review Gate
 
@@ -348,8 +353,9 @@ Do not advance to the next phase until all are true:
 - phase acceptance criteria are satisfied
 - required verification passed after the final fix, if any
 - a fresh review verdict is `delivered`
-- next model/reasoning requirements are resolved and either already match the
-  saved automation config or have an approved retarget readback
+- next model/reasoning requirements are resolved and either the saved
+  automation config has the exact model plus sufficient reasoning, or it has an
+  approved retarget readback
 - roadmap header/status is updated
 - delivery log is updated
 - delivery state is updated

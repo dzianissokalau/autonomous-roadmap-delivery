@@ -249,7 +249,8 @@ For the current phase only:
   required
 - preserve unrelated user changes
 - read `phase_model_policy.json`, resolve the current phase's required model and
-  reasoning, and verify the configured automation model and reasoning match
+  reasoning, and verify the configured automation model matches and reasoning
+  is at least the required floor
   before implementation
 - make only phase-scoped changes
 - run required verification and targeted checks
@@ -379,9 +380,11 @@ model=<approved model>
 reasoning_effort=high or xhigh
 ```
 
-Set `model` and `reasoning_effort` to the first phase's resolved policy values.
+Set `model` to the first phase's resolved policy value and set
+`reasoning_effort` to that phase's required floor or a higher approved value.
 If the first phase uses a lower-cost or high-reasoning override, the saved
-automation must match that override before activation.
+automation must use the matching model and sufficient reasoning before
+activation.
 
 The prompt must include the stable `delivery_state.json` and automation guide
 paths, require resolving the current roadmap path from state, list the required
@@ -403,7 +406,8 @@ or connector response and confirm:
 - `status = "PAUSED"` unless the operator explicitly requested activation.
 - `cwd` is exactly `REPO_ROOT`.
 - `model` equals the first phase's required policy model.
-- `reasoning_effort` equals the first phase's required policy reasoning effort.
+- `reasoning_effort` equals or exceeds the first phase's required policy
+  reasoning effort.
 - the prompt references `delivery_state.json` and states that the roadmap path
   recorded there is authoritative.
 - the prompt references `automation/<roadmap-slug>/automation_guide.md`.
@@ -429,8 +433,8 @@ Activation is a separate operator decision. Before activating:
 - `validate_delivery_artifacts.py` must report no `errors` for the roadmap.
 - generated `phase_model_policy.json` must validate with allowed reasoning
   efforts, notification mode, defaults, and first-phase requirements.
-- saved automation `model` and `reasoning_effort` must match the first phase's
-  resolved policy.
+- saved automation `model` must match the first phase's resolved policy and
+  `reasoning_effort` must satisfy the first phase's required reasoning floor.
 - saved prompt must include the phase-model-policy hard stop before
   implementation.
 - state must not say all phases are complete.

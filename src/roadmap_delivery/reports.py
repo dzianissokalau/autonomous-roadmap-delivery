@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -31,13 +32,16 @@ from .policy import (
     manual_activation_reconciliation,
     normalized,
     phase_number,
+    reasoning_effort_exceeds,
+    reasoning_effort_satisfies,
 )
 from .progress import ProgressSignatureError, build_run_result
 from .state import JsonObjectError, load_json_object
 from .toml import parse_minimal_toml
 
 
-AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
+DEFAULT_AUTOMATIONS_DIR = Path.home() / ".codex" / "automations"
+AUTOMATIONS_DIR = Path(os.environ.get("AUTONOMOUS_ROADMAP_AUTOMATIONS_DIR", str(DEFAULT_AUTOMATIONS_DIR))).expanduser()
 DEEP_REVIEW_FILENAMES = (
     "deep_review_prompt.md",
     "deep_review_prompt.txt",
@@ -400,6 +404,8 @@ def inspect_model_policy(
         "configured_reasoning_effort": automation_data.get("reasoning_effort") if automation_data else None,
         "model_mismatch": False,
         "reasoning_mismatch": False,
+        "reasoning_satisfied": False,
+        "reasoning_over_required": False,
     }
     if not policy_path or not policy_path.exists() or not state:
         return result
@@ -445,6 +451,16 @@ def inspect_model_policy(
         selection_reason = str(state_target.get("reason") or "Adaptive target recorded in delivery state.")
     configured_model = automation_data.get("model") or state.get("configured_automation_model")
     configured_reasoning = automation_data.get("reasoning_effort") or state.get("configured_automation_reasoning_effort")
+    reasoning_satisfied = bool(
+        required_reasoning
+        and configured_reasoning
+        and reasoning_effort_satisfies(configured_reasoning, required_reasoning)
+    )
+    reasoning_over_required = bool(
+        required_reasoning
+        and configured_reasoning
+        and reasoning_effort_exceeds(configured_reasoning, required_reasoning)
+    )
     result.update(
         {
             "required_model": required_model,
@@ -456,7 +472,9 @@ def inspect_model_policy(
             "configured_model": configured_model,
             "configured_reasoning_effort": configured_reasoning,
             "model_mismatch": bool(required_model and configured_model and str(required_model) != str(configured_model)),
-            "reasoning_mismatch": bool(required_reasoning and configured_reasoning and str(required_reasoning) != str(configured_reasoning)),
+            "reasoning_mismatch": bool(required_reasoning and configured_reasoning and not reasoning_satisfied),
+            "reasoning_satisfied": reasoning_satisfied,
+            "reasoning_over_required": reasoning_over_required,
         }
     )
     if required_reasoning and str(required_reasoning) not in ALLOWED_REASONING_EFFORTS:
@@ -464,7 +482,7 @@ def inspect_model_policy(
     if result["model_mismatch"]:
         add_warning(warnings, "automation_model_mismatch", f"Required model {required_model!r} differs from configured model {configured_model!r}.")
     if result["reasoning_mismatch"]:
-        add_warning(warnings, "automation_reasoning_mismatch", f"Required reasoning {required_reasoning!r} differs from configured reasoning {configured_reasoning!r}.")
+        add_warning(warnings, "automation_reasoning_mismatch", f"Required reasoning {required_reasoning!r} exceeds configured reasoning {configured_reasoning!r}.")
     return result
 
 
@@ -734,6 +752,8 @@ def inspect(args: argparse.Namespace) -> Dict[str, Any]:
         "configured_automation_reasoning_effort": model_policy.get("configured_reasoning_effort"),
         "model_mismatch": model_policy.get("model_mismatch"),
         "reasoning_mismatch": model_policy.get("reasoning_mismatch"),
+        "reasoning_satisfied": model_policy.get("reasoning_satisfied"),
+        "reasoning_over_required": model_policy.get("reasoning_over_required"),
         "last_run_quality": state.get("last_run_quality") if state else None,
         "adaptive_model_decision": adaptive_model_decision_summary(state, model_policy),
         "run_count": state.get("run_count") if state else None,

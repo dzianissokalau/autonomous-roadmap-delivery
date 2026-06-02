@@ -18,8 +18,11 @@ files.
 
 When a phase model policy exists, resolve the current phase's required model
 and reasoning before extracting the phase contract. Compare those values with
-the configured runner values from readback. A mismatch is a stop-before-delivery
-condition unless the operator already approved the runner configuration repair.
+the configured runner values from readback. Model comparison is exact. Reasoning
+comparison is a minimum floor: `xhigh` satisfies `high`, while `high` does not
+satisfy `xhigh`. A model mismatch, missing readback, or configured reasoning
+below the required floor is a stop-before-delivery condition unless the operator
+already approved the runner configuration repair.
 
 ## Approval Policy Gate
 
@@ -100,11 +103,13 @@ skips escalation because the blocker is human-gated. Record the run quality,
 adaptive action, target model/reasoning, target source, and approval decision
 in durable state, log, or review evidence.
 
-Adaptive decisions apply only to the next run. If the chosen next target differs
-from runner readback, retarget the saved runner only when approval policy
-allows that automation update or explicit human approval is already present.
-After any retarget, read back the saved runner config and stop so the next run
-starts with the selected model and reasoning.
+Adaptive decisions apply only to the next run. If the chosen next target
+requires a different model or more reasoning than runner readback, retarget the
+saved runner only when approval policy allows that automation update or explicit
+human approval is already present. If runner readback already uses higher
+reasoning than the next target, keep it unchanged and do not block for a
+downgrade approval. After any retarget, read back the saved runner config and
+stop so the next run starts with sufficient model and reasoning.
 
 ## Review And Advancement
 

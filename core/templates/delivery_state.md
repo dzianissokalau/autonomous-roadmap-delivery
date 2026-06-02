@@ -61,5 +61,10 @@ Use this template for `automation/<roadmap-slug>/delivery_state.json`.
 Configured model and reasoning fields must come from runner readback, not from
 desired policy values.
 
+Wizard-generated starter state may temporarily record the selected local
+runner target so repository-local validation can run before saved automation
+creation. Replace those configured fields with saved runner readback before
+activating scheduled delivery.
+
 Missing `approval_policy.json` keeps legacy conservative behavior. Invalid
 approval policies must fail validation before delivery relies on pre-approval.

@@ -35,3 +35,7 @@ Branch: `<phase-branch-or-not-available>`
 ```
 
 Do not rewrite prior entries after delivery starts.
+
+Setup wizard logs should clearly distinguish repository-local artifact
+generation from saved automation creation. The wizard may record validation
+next steps, but it must not claim a roadmap phase was delivered.

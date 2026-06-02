@@ -1,7 +1,8 @@
 # Onboarding Wizard Contract
 
-This document defines the target contract for the setup wizard. It is a Phase 0
-contract only; later phases implement the CLI and scaffold integration.
+This document defines the setup wizard command contract. The Phase 1 contract
+adds a repository-local `wizard` command that can preview or write starter
+roadmap automation artifacts without creating a live host automation.
 
 The wizard should guide a user from an empty or existing checkout to a validated
 starter roadmap automation contract. It must support a safe demo path before it
@@ -9,19 +10,29 @@ offers real-project writes.
 
 ## Target Commands
 
-The future command surface should be explicit about whether it is planning,
-writing local files, or preparing a saved automation prompt:
+The command surface is explicit about whether it is planning or writing local
+files:
 
 ```bash
-roadmap-delivery wizard --repo-root "$PWD" --dry-run --json
-roadmap-delivery wizard --repo-root "$PWD" --write --json
-roadmap-delivery wizard --repo-root "$PWD" --from-demo --dry-run --json
+python3 -m roadmap_delivery.cli wizard \
+  --repo-root "$PWD" \
+  --roadmap-slug example-roadmap \
+  --automation-id example-roadmap-delivery \
+  --dry-run \
+  --json
+
+python3 -m roadmap_delivery.cli wizard \
+  --repo-root "$PWD" \
+  --roadmap-slug example-roadmap \
+  --automation-id example-roadmap-delivery \
+  --write \
+  --json
 ```
 
-`--dry-run` is the default recommendation for first use. `--write` may create
-repository-local artifacts only after showing the paths and approval policy.
-The wizard must not edit a live Codex or Claude home, push branches, publish
-artifacts, or promote work.
+`--dry-run` is the default mode for first use. `--write` creates
+repository-local artifacts only. The wizard must not edit a live Codex or
+Claude home, push branches, publish artifacts, promote work, or activate saved
+automations.
 
 ## Required Inputs
 
@@ -31,21 +42,19 @@ The wizard must collect or derive:
 - roadmap slug
 - automation id
 - repository root
+- optional roadmap path
 - initial phase name
-- phase-owned files
-- acceptance criteria
-- required verification commands
-- non-goals
-- stop conditions
 - approval mode
 - default model
 - default reasoning effort
-- optional per-phase model and reasoning overrides
 - execution environment label
 - cadence recommendation
+- host target label
+- branch prefix
 
 The wizard should default to conservative approval mode and local execution.
-It should require explicit confirmation before any delegated mode is selected.
+Delegated approval modes require an explicit `--approval-mode` selection and
+are recorded in the generated `approval_policy.json`.
 
 ## Optional Inputs
 
@@ -90,6 +99,11 @@ Generated approval policy must be valid against
 `schemas/approval_policy.schema.json`. Generated model policy must be valid
 against `schemas/phase_model_policy.schema.json`.
 
+The generated state records the selected local runner target so the starter
+artifacts can pass repository validation before saved automation creation. A
+saved Codex or Claude automation readback should replace those configured
+fields before activation.
+
 ## Validation Contract
 
 Every wizard result must include the next validation commands:
@@ -102,7 +116,10 @@ python3 -m roadmap_delivery.cli validate \
   --strict \
   --allow-warning missing_automation_config \
   --allow-warning current_branch_name_mismatch \
+  --allow-warning empty_review_dir \
   --allow-warning worktree_dirty \
+  --allow-warning git_branch_failed \
+  --allow-warning git_status_failed \
   --json
 
 python3 -m roadmap_delivery.cli inspect \
@@ -112,8 +129,15 @@ python3 -m roadmap_delivery.cli inspect \
   --json
 ```
 
-The wizard should explain warnings as setup evidence. It must not mark a phase
-delivered or advance the roadmap.
+The wizard should explain warnings as setup evidence. Missing automation
+config and empty review directory warnings are expected before the separate
+saved-automation setup step. The wizard must not mark a phase delivered or
+advance the roadmap.
+
+After `--write`, the command immediately runs validation and inspection
+readback against the generated repository-local artifacts. Expected setup
+warnings are kept in the JSON readback evidence; validation or inspection
+errors make the wizard command fail.
 
 ## Safety Warnings
 
@@ -127,8 +151,9 @@ The wizard must warn before any path that would:
 - commit, push, merge, promote, publish, or delete branches
 - run destructive filesystem or git operations
 
-For existing files, the wizard should emit a conflict report and stop unless a
-future implementation adds a narrow, reviewed merge mode.
+For existing files, the wizard emits a conflict report and stops unless
+`--force` is explicitly selected. `--force` only overwrites the planned
+repository-local wizard artifacts.
 
 ## Output Shape
 
@@ -138,25 +163,57 @@ JSON output should be stable enough for tests and demos:
 {
   "command": "wizard",
   "status": "planned",
+  "dry_run": true,
+  "write": false,
   "repo_root": "/path/to/repo",
   "roadmap_slug": "example-roadmap",
   "automation_id": "example-roadmap-delivery",
   "approval_mode": "conservative",
   "model_policy": {
     "default_model": "gpt-5.5",
-    "default_reasoning_effort": "high",
-    "phase_overrides": {}
+    "default_reasoning_effort": "xhigh",
+    "phase_overrides": {
+      "0": {
+        "model": "gpt-5.5",
+        "reasoning_effort": "xhigh"
+      },
+      "finalization": {
+        "model": "gpt-5.5",
+        "reasoning_effort": "xhigh"
+      }
+    }
+  },
+  "artifact_groups": {
+    "automation": [
+      "/path/to/repo/automation/example_roadmap/approval_policy.json",
+      "/path/to/repo/automation/example_roadmap/delivery_state.json"
+    ],
+    "docs": [
+      "/path/to/repo/roadmaps/not_started_example_roadmap_roadmap.md",
+      "/path/to/repo/automation/example_roadmap/automation_guide.md"
+    ]
   },
   "planned_paths": [],
   "would_create": [],
+  "live_automation": {
+    "created": false,
+    "edited": false,
+    "activated": false
+  },
   "warnings": [],
   "errors": [],
+  "readback": {
+    "ran": false,
+    "status": "not_run"
+  },
   "next_commands": []
 }
 ```
 
-Text output may be friendlier, but it must be derived from the same structured
-result so tests can verify the contract.
+In write mode, `created` records files that were written and `readback` records
+compact validation and inspection summaries. Text output may be friendlier, but
+it must be derived from the same structured result so tests can verify the
+contract.
 
 ## Demo Requirements
 

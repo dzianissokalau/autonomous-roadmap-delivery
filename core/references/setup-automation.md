@@ -69,7 +69,9 @@ The phase model policy must define default model and reasoning requirements,
 optional phase overrides, finalization requirements, stall threshold, alert
 mode, and disabled-by-default adaptive model policy fields with explicit caps.
 Configured runner model and reasoning values may be written to state only after
-readback proves them.
+readback proves them. Reasoning requirements are floors, not exact ceilings:
+`xhigh` readback satisfies a policy requiring `high`, and setup must not block
+or ask for approval merely to downgrade reasoning.
 
 ## Prompt Requirements
 
